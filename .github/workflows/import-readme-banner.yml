@@ -17,7 +17,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REPOSITORY: ${{ github.repository }}
-          SOURCE_URL: 'https://sdmntpritalynorth.oaiusercontent.com/files/00000000-258c-8246-a0d9-8b743069d882/raw?se=2026-09-28T09%3A47%3A18Z&sp=r&sv=2026-02-06&sr=b&scid=0126fee9-ddbc-5267-9189-417e249b47ed&skoid=82a3371f-2f6c-4f81-8a78-2701b362559b&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-28T05%3A48%3A33Z&ske=2026-09-29T05%3A48%3A33Z&sks=b&skv=2026-02-06&sig=vF50JL5p7x7EpnuetkYOQM/0GcfmexyEQQvda4diYHw%3D'
+          SOURCE_URL: 'https://sdmntprdenmarkeast.oaiusercontent.com/files/00000000-0ed8-8210-b3a9-9ea311d170e9/raw?se=2026-09-28T09%3A50%3A38Z&sp=r&sv=2026-02-06&sr=b&scid=453403e5-003b-5661-b973-b5c37cf95a82&skoid=82a3371f-2f6c-4f81-8a78-2701b362559b&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-28T03%3A45%3A12Z&ske=2026-09-29T03%3A45%3A12Z&sks=b&skv=2026-02-06&sig=dC4mZTJUBb4mjyJCxws/0IEH7JlJ8bkMVIMv83jBl9s%3D'
         run: |
           python3 - <<'PY'
           import base64
@@ -25,9 +25,15 @@ jobs:
           import json
           import os
           import urllib.request
+          import urllib.error
 
-          with urllib.request.urlopen(os.environ['SOURCE_URL'], timeout=45) as response:
-              data = response.read(2_000_000)
+          try:
+              with urllib.request.urlopen(os.environ['SOURCE_URL'], timeout=45) as response:
+                  data = response.read(2_000_000)
+          except urllib.error.HTTPError as error:
+              print('Download failed:', error.code)
+              print(error.read(2000).decode('utf-8', errors='replace'))
+              raise SystemExit(1)
           expected = '85098d5c3670994f58af01b4268c87bf7c2f1171590c4593883c802a6eb48beb'
           if hashlib.sha256(data).hexdigest() != expected:
               raise SystemExit('Image integrity verification failed; nothing was published.')
