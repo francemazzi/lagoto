@@ -1,5 +1,9 @@
 https://github.com/francemazzi/lagoto
 
+<p align="center">
+  <img src="assets/lagoto-banner.jpg" alt="Lagoto: una persona e il suo cane lungo un sentiero tra le colline" width="100%">
+</p>
+
 # Lagoto
 
 **Gli agenti cambiano. Il lavoro resta.**
