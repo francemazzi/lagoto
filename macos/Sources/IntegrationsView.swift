@@ -28,7 +28,16 @@ struct IntegrationsView: View {
                             Spacer()
                             Text(profile.verified ? "Verificato" : profile.capabilities["verification"].string == "checking" ? "Verifica in corso…" : "Da verificare").font(.caption)
                             Button("Verifica") { Task { await verify(profile) } }.disabled(profile.capabilities["verification"].string == "checking")
-                            if profile.capabilities["verification"].string == "checking" { Button("Interrompi") { Task { do { _ = try await bridge.call("profile/cancel", ["profileId": .string(profile.id)]); await reload() } catch { self.error = error.localizedDescription } } }
+                            if profile.capabilities["verification"].string == "checking" {
+                                Button("Interrompi") {
+                                    Task {
+                                        do {
+                                            _ = try await bridge.call("profile/cancel", ["profileId": .string(profile.id)])
+                                            await reload()
+                                        } catch { self.error = error.localizedDescription }
+                                    }
+                                }
+                            }
                             Menu("Opzioni") { Button("Budget personale…") { budgetProfile = profile } }
                         }
                         if let message = profile.capabilities["proof"]["message"].string { Text(message).font(.caption).foregroundStyle(.secondary).textSelection(.enabled) }

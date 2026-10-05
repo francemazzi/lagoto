@@ -203,9 +203,9 @@
     ]
   },
   "regression": {
-    "sourceReport": "build/evidence/gates/2026-10-05T10-23-30.875Z/P01.json",
-    "sourceFingerprint": "44fd7c9eb9def32d67395c4cea50fb186bda3773779ff107b3eba8a3225afbed",
-    "commit": "f1600068c3c843c46b93089816058b18e8a68030",
+    "sourceReport": "build/evidence/gates/2026-10-05T10-24-44.185Z/P01.json",
+    "sourceFingerprint": "9cdc2015872ff168c108e1ab91f2f81b2551b7eb88a003d2dfec7a4c21dfbd19",
+    "commit": "032b4e273968bc7ece1f483695a4065008e0e79f",
     "dirty": true,
     "tests": {
       "total": 45,
@@ -213,7 +213,12 @@
       "failed": 0,
       "skipped": 0
     },
-    "nativeCounts": null,
+    "nativeCounts": {
+      "total": 6,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0
+    },
     "phaseGates": "failed: incomplete mandatory coverage"
   }
 }
