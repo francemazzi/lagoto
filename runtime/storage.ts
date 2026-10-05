@@ -37,6 +37,7 @@ export class Store {
       }
       this.db.prepare("UPDATE runs SET state='unknown' WHERE state IN ('starting','running','stopping','waiting_permission')").run();
       this.db.prepare("UPDATE verifications SET state='unknown' WHERE state='running'").run();
+      this.db.prepare("UPDATE repository_operations SET state='unknown' WHERE state IN ('starting','running','stopping')").run();
       this.db.prepare("UPDATE profile_checks SET state='failed',detail=? WHERE state='checking'").run(JSON.stringify({message:'Verifica interrotta dal riavvio: ripetere la prova'}));
       this.db.prepare("UPDATE profiles SET capabilities=? WHERE json_extract(capabilities,'$.verification')='checking'").run(JSON.stringify({verification:'failed',modes:[],efforts:[]}));
     } catch (error) { try { this.releaseLock(); } catch {} finally { this.db.close(); } throw error; }

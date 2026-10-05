@@ -21,7 +21,7 @@ describe('Lifecycle primitives', () => {
     db.exec("INSERT INTO migrations VALUES(1,'fixture'); INSERT INTO projects VALUES('project','Preserve',0,'fixture'); CREATE TABLE run_requests(id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES runs(id))");
     migrate(db); expect(db.prepare('SELECT name FROM projects').get()).toEqual({name:'Preserve'});
     expect((db.pragma('table_info(run_requests)') as { name: string }[]).map(row=>row.name)).toContain('fingerprint');
-    migrate(db); expect(db.prepare('SELECT count(*) AS count FROM migrations').get()).toEqual({count:7});
+    migrate(db); expect(db.prepare('SELECT count(*) AS count FROM migrations').get()).toEqual({count:9});
     db.exec("INSERT INTO migrations VALUES(999,'future')"); expect(()=>migrate(db)).toThrow('più recente'); db.close();
   });
   it('single writer, request fingerprint and shutdown remain valid during asynchronous finalization', async () => {
@@ -30,7 +30,7 @@ describe('Lifecycle primitives', () => {
     const project=await call('project/create',{name:'Lifecycle'}); const task=await call('task/create',{projectId:project.id,title:'Controlled fake'});
     const profile=await call('profile/create',{name:'Fake fixture',provider:'codex',model:'fixture-only'});
     store.db.prepare('UPDATE profiles SET capabilities=? WHERE id=?').run(JSON.stringify({modes:['agent'],efforts:[]}),profile.id);
-    store.db.prepare('INSERT INTO repositories VALUES(?,?,?,?,?,?)').run('repo',project.id,'Synthetic',temp(),null,null);
+    store.db.prepare('INSERT INTO repositories(id,project_id,name,path,git_root,remote) VALUES(?,?,?,?,?,?)').run('repo',project.id,'Synthetic',temp(),null,null);
     store.db.prepare('INSERT INTO task_repositories VALUES(?,?,?,?,?)').run(task.id,'repo',temp(),'fixture','base');
     const turn=deferred(), stopped=deferred(); let stops=0, launches=0;
     const runs=new RunManager(store,()=>{},async()=>{ launches++; return {sessionId:'fake',completion:turn.promise,stop:async()=>{stops++;await stopped.promise;}}; });

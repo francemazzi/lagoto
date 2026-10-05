@@ -1,0 +1,102 @@
+{
+  "scope": "Repository onboarding, private GitHub application retry and personal budget revisions; partial phase coverage. No release.",
+  "realGitHubWorkflow": {
+    "date": "2026-10-05T11:01:24.513Z",
+    "commit": "b503631562cd6430b165228db727bfc74c9562f3",
+    "dirty": true,
+    "sourceFingerprint": "8dbeadc795e2b9ab39c9326da968ff9f65a3a4641e820619ad5be02fc27b97f7",
+    "machine": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "kernel": "25.6.0",
+      "os": "26.6.2",
+      "hardware": "Mac16,5"
+    },
+    "node": "22.23.1",
+    "nativeVersions": {
+      "codex": "codex-cli 0.159.2",
+      "claude": "2.1.283 (Claude Code)",
+      "cursor-agent": "2026.10.01-e373342",
+      "git": "git version 2.39.1",
+      "gh": "gh version 2.87.3 (2026-02-23)",
+      "ollama": "ollama version is 0.34.4"
+    },
+    "dependencies": {
+      "@qwen-code/sdk": "0.1.17",
+      "better-sqlite3": "13.0.3",
+      "zod": "4.6.5"
+    },
+    "id": "62f524f2-667d-4c39-8062-581ab51ebe96",
+    "status": "passed",
+    "fromFolder": true,
+    "scope": "Application preview/create/reconcile/retry using real gh and real private GitHub; one injected transport failure. Optional real non-Git initialization. Not native UI acceptance.",
+    "steps": [
+      "Non-Git folder scanned; ignored/sensitive names excluded; preview left original without Git; explicit confirmation installed only the selected first commit",
+      "Application preview: secure Keychain account, private visibility, exact selected commit; uncommitted files excluded",
+      "Private repository created once; duplicate confirmation coalesced; injected push failure retained remote ID and staging",
+      "Restart and retry through application service completed; independent GitHub API confirms same repository ID and exact commit; index and unstaged bytes unchanged",
+      "Synthetic repository archived privately and kept recoverable"
+    ],
+    "repository": "francemazzi/lagoto-application-62f524f2",
+    "operationId": "426cff19-199c-4ff2-b976-f508454b30e0",
+    "remoteId": 1405602994,
+    "pushedCommit": "0dc5cde502487d65d410336f44ba690a8d1126fe"
+  },
+  "regression": {
+    "date": "2026-10-05T11:00:32.067Z",
+    "commit": "b503631562cd6430b165228db727bfc74c9562f3",
+    "dirty": true,
+    "sourceFingerprint": "8b3c6e64a0453c83be0561080120d2aeda7638b19593908d18fc69c036d3949d",
+    "machine": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "kernel": "25.6.0",
+      "os": "26.6.2",
+      "hardware": "Mac16,5"
+    },
+    "node": "22.23.1",
+    "tests": {
+      "total": 62,
+      "passed": 62,
+      "failed": 0,
+      "skipped": 0
+    },
+    "nativeCounts": {
+      "total": 6,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0
+    },
+    "commands": [
+      {
+        "command": "pnpm typecheck",
+        "status": 0,
+        "log": "typecheck.log"
+      },
+      {
+        "command": "pnpm build",
+        "status": 0,
+        "log": "native-bundle-build.log"
+      },
+      {
+        "command": "pnpm exec vitest run --reporter=json --outputFile=build/evidence/gates/2026-10-05T11-00-31.795Z/vitest.json",
+        "status": 0,
+        "log": "deterministic-tests.log"
+      },
+      {
+        "command": "xcodebuild test -project macos/Lagoto.xcodeproj -scheme Lagoto -configuration Debug -derivedDataPath build/Xcode -destination platform=macOS,arch=arm64 -only-testing:LagotoTests -resultBundlePath /Users/francesco/Sviluppo/lagoto/build/evidence/gates/2026-10-05T11-00-31.795Z/native.xcresult CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=- -quiet",
+        "status": 0,
+        "log": "swift-contracts.log"
+      }
+    ]
+  },
+  "limitations": [
+    "Gate P00-P12 still fail incomplete mandatory scenario coverage.",
+    "Native UI of new repository/budget panels unverified while release Mac is locked.",
+    "Previous native automation permission question remains pending.",
+    "Latest regression fingerprint precedes a smoke-report metadata naming fix and the added CI XCUITest step; application source is unchanged after the passing regression.",
+    "Rerun corrected the smoke report field: commit identifies Lagoto source, pushedCommit identifies the synthetic Git commit. Older raw reports retain the overwritten field and are not used here as source commit evidence.",
+    "Real GitHub smoke is application-service evidence with one injected transport error, not native UI acceptance.",
+    "Provider quota, complete BAT matrix, full recovery fault matrix and published-package acceptance remain open."
+  ]
+}

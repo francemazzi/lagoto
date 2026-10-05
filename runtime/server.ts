@@ -38,7 +38,7 @@ process.stdin.on('data', (chunk: Buffer) => {
 });
 function shutdown(code = 0) {
   if (closed) return; closed = true;
-  void Promise.allSettled([service.runs.shutdown(),service.profiles.shutdown(),service.verifications.shutdown()]).finally(() => { store.close(); process.exit(code); });
+  void Promise.allSettled([service.runs.shutdown(),service.profiles.shutdown(),service.verifications.shutdown(),service.repositories.shutdown(),service.github.shutdown()]).finally(() => { store.close(); process.exit(code); });
 }
 process.stdin.on('end', () => { void serial.finally(() => shutdown()); });
 process.on('SIGTERM', () => shutdown());

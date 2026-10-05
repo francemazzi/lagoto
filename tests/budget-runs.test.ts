@@ -41,3 +41,37 @@ it('does not mix token metrics from different runtimes or claim that missing usa
   const budgets=new RunBudgets(store);const id=addRun(a.id);budgets.reserve(id,a.id);budgets.observe(id,{usage:{tokens:'unknown'}});budgets.finish(id,'finished');
   expect(budgets.status(a.id).allowance!.reserved).toBe(5000);
 });
+
+it('BAT-15/BAT-21 keeps previous-cycle reservations after manual renewal and settles late usage only once into its original cycle',async()=>{
+  const {store,a,pool,addRun}=await fixture();const budgets=new RunBudgets(store);const run=addRun(a.id);budgets.reserve(run,a.id);
+  const original=budgets.status(a.id);const id=crypto.randomUUID(),reset=new Date(Date.now()+3*86400000).toISOString();
+  const renewal=budgets.renew(pool.id,id,200000,reset,'New cycle balance entered explicitly');
+  expect(budgets.renew(pool.id,id,200000,reset,'New cycle balance entered explicitly')).toEqual(renewal);
+  const newDay=budgets.status(a.id);expect(newDay.allowance!.id).not.toBe(original.allowance!.id);expect(newDay.allowance!.assigned).toBe(Math.floor((200000-20000-5000)/4));
+  budgets.observe(run,{usage:{total_tokens:3200}});budgets.finish(run,'finished');budgets.finish(run,'finished');
+  expect(store.db.prepare('SELECT residual FROM budget_pools WHERE id=?').get(pool.id)).toEqual({residual:200000});
+  expect(store.db.prepare('SELECT residual FROM budget_cycles WHERE id=?').get(original.pool!.cycle)).toEqual({residual:96800});
+  expect(budgets.status(a.id).allowance!.assigned).toBe(newDay.allowance!.assigned);
+  expect(()=>budgets.renew(pool.id,id,999999,reset,'changed')).toThrow('valori diversi');
+});
+
+it('BAT-20/BAT-21 preserves an explicit daily override and its reason across restart without changing spent or spending the protected reserve',async()=>{
+  const {store,a,pool,addRun}=await fixture();const budgets=new RunBudgets(store);const run=addRun(a.id);budgets.reserve(run,a.id);budgets.observe(run,{totalTokens:3000});budgets.finish(run,'finished');
+  const before=budgets.status(a.id);const id=crypto.randomUUID();budgets.overrideToday(a.id,id,60000,'Finish the user-approved verification');
+  expect(budgets.status(a.id).allowance!.spent).toBe(3000);expect(budgets.status(a.id).changes).toHaveLength(1);
+  expect(()=>budgets.overrideToday(a.id,crypto.randomUUID(),100000,'Beyond protected balance')).toThrow('riserva');
+  expect(store.db.prepare('SELECT reserve FROM budget_pools WHERE id=?').get(pool.id)).toEqual({reserve:10000});
+  const path=store.directory;store.close();const reopened=new Store(path);stores.push(reopened);const later=new RunBudgets(reopened);expect(later.status(a.id).allowance!.assigned).toBe(60000);
+  later.overrideToday(a.id,id,60000,'Finish the user-approved verification');expect(later.status(a.id).changes).toHaveLength(1);expect(later.status(a.id).changes![0]!.payload.previousAssigned).toBe(before.allowance!.assigned);
+});
+
+it('BAT-04/BAT-17/BAT-18 exposes expiry as zero and calibrates only seven complete active days in the same metric',async()=>{
+  const {store,a,pool}=await fixture();const budgets=new RunBudgets(store);const original=budgets.status(a.id);const cycle=original.pool!.cycle;
+  store.db.prepare('UPDATE budget_cycles SET started_at=? WHERE id=?').run('2026-02-01T09:00:00.000Z',cycle);
+  store.db.prepare('UPDATE budget_pools SET reset_at=? WHERE id=?').run('2026-03-01T00:00:00.000Z',pool.id);
+  for(let d=1;d<=10;d++)store.db.prepare('INSERT INTO allowances VALUES(?,?,?,?,?,?,?,?)').run(crypto.randomUUID(),pool.id,`2026-02-${String(d).padStart(2,'0')}`,cycle,'tokens',9000,d===9?0:d*100,d===10?500:0);
+  const status=budgets.status(a.id,new Date('2026-02-11T09:00:00Z'));
+  expect(status.calibration!.validDays).toBe(7);expect(status.calibration!.estimate).toBe(500);
+  expect(budgets.status(a.id,new Date('2026-03-01T11:00:00Z')).percent).toBe(0);
+  expect(budgets.status(a.id,new Date('2026-03-01T11:00:00Z')).expired).toBe(true);
+});

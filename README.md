@@ -40,4 +40,4 @@ pnpm gate P00
 pnpm gate all
 ```
 
-I gate restituiscono un errore finché mancano le prove obbligatorie. `build/Xcode/Build/Products/Debug/Lagoto.app` è la build di sviluppo locale, non la beta. Apri Integrazioni, crea e verifica un profilo; aggiungi repository Git a un progetto e avvia un nuovo lavoro. Il cambio di modello conserva task e worktree con un’anteprima del contesto. Verifiche, checkpoint e consegna sono nel pannello Dettagli del lavoro. Nessuna chiave è richiesta per i test deterministici.
+I gate restituiscono un errore finché mancano le prove obbligatorie. `build/Xcode/Build/Products/Debug/Lagoto.app` è la build di sviluppo locale, non la beta. Apri Integrazioni, crea e verifica un profilo; aggiungi o clona repository in un progetto e avvia un nuovo lavoro. Una cartella non Git può essere preparata dai suoi Dettagli scegliendo i file del primo commit; “Crea e collega” propone poi la pubblicazione privata del branch committato. Il cambio di modello conserva task e worktree con un’anteprima del contesto. Verifiche, checkpoint e consegna sono nel pannello Dettagli del lavoro. Nessuna chiave è richiesta per i test deterministici.

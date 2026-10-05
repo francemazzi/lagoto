@@ -14,6 +14,9 @@ import { RunBudgets } from './budget.js';
 import { createBackup,restoreBackup } from './backup.js';
 import { Deliveries,deliveryView } from './delivery.js';
 import { TaskMemory } from './task-memory.js';
+import { Repositories } from './repositories.js';
+import { GitHubLinks } from './github-link.js';
+import { GitInitializations } from './git-initialize.js';
 
 export class Service {
   readonly runs: RunManager;
@@ -22,12 +25,18 @@ export class Service {
   readonly verifications:Verifications;
   readonly deliveries:Deliveries;
   readonly memory:TaskMemory;
+  readonly repositories:Repositories;
+  readonly github:GitHubLinks;
+  readonly initializations:GitInitializations;
   constructor(readonly store: Store, notify: (event: unknown) => void = () => {}) {
     this.runs = new RunManager(store, notify); this.profiles = new ProfileVerifier(store,notify);
     this.verifications=new Verifications(store,notify);
     this.handoffs=new Handoffs(store,this.runs,this.verifications);
     this.deliveries=new Deliveries(store);
     this.memory=new TaskMemory(store,this.verifications);
+    this.repositories=new Repositories(store);
+    this.github=new GitHubLinks(store);
+    this.initializations=new GitInitializations(store);
   }
   async handle(request: Request): Promise<unknown> {
     const p = request.params;
@@ -47,7 +56,7 @@ export class Service {
       case 'decision/save': {const i=z.object({taskId:identifier,content:z.string().trim().min(1).max(8000),supersedes:identifier.optional()}).strict().parse(p);return this.memory.decision(i.taskId,i.content,i.supersedes);}
       case 'task/complete': {const {taskId}=z.object({taskId:identifier}).strict().parse(p);return this.memory.complete(taskId);}
       case 'health': return { ready: true, protocolVersion, version: '0.1.0' };
-      case 'project/list': return this.store.db.prepare('SELECT * FROM projects WHERE archived=0 ORDER BY created_at,id').all();
+      case 'project/list': return this.store.db.prepare('SELECT * FROM projects WHERE archived=0 ORDER BY position,created_at,id').all();
       case 'project/create': {
         const { name } = z.object({ name: z.string().trim().min(1).max(120) }).strict().parse(p);
         const id = randomUUID(); this.store.db.prepare('INSERT INTO projects(id,name,created_at) VALUES(?,?,?)').run(id, name, now());
@@ -57,6 +66,12 @@ export class Service {
         const { projectId } = z.object({ projectId: identifier }).strict().parse(p);
         this.store.project(projectId); this.store.db.prepare('UPDATE projects SET archived=1 WHERE id=?').run(projectId); return { archived: true };
       }
+      case 'project/rename': {const {projectId,name}=z.object({projectId:identifier,name:z.string().trim().min(1).max(120)}).strict().parse(p);this.store.project(projectId);this.store.db.prepare('UPDATE projects SET name=? WHERE id=?').run(name,projectId);return this.store.project(projectId);}
+      case 'project/restore': {const {projectId}=z.object({projectId:identifier}).strict().parse(p);this.store.project(projectId);this.store.db.prepare('UPDATE projects SET archived=0 WHERE id=?').run(projectId);return this.store.project(projectId);}
+      case 'project/archived': return this.store.db.prepare('SELECT * FROM projects WHERE archived=1 ORDER BY position,created_at,id').all();
+      case 'project/reorder': {const {ids}=z.object({ids:z.array(identifier)}).strict().parse(p);const actual=this.store.db.prepare('SELECT id FROM projects WHERE archived=0').all() as {id:string}[];
+        if(new Set(ids).size!==ids.length||ids.length!==actual.length||actual.some(r=>!ids.includes(r.id)))throw new AppError(400,'Includi ogni progetto attivo una sola volta');
+        this.store.db.transaction(()=>{ids.forEach((id,i)=>this.store.db.prepare('UPDATE projects SET position=? WHERE id=?').run(i,id));})();return{ordered:true};}
       case 'repository/list': {
         const { projectId } = z.object({ projectId: identifier }).strict().parse(p); this.store.project(projectId);
         return this.store.db.prepare('SELECT * FROM repositories WHERE project_id=? ORDER BY name').all(projectId);
@@ -65,6 +80,20 @@ export class Service {
         const { projectId, path } = z.object({ projectId: identifier, path: z.string().min(1) }).strict().parse(p);
         return addRepository(this.store, projectId, path);
       }
+      case 'repository/inspect': {const i=z.object({projectId:identifier,repositoryId:identifier}).strict().parse(p);return this.repositories.inspect(i.projectId,i.repositoryId);}
+      case 'repository/relink': {const i=z.object({projectId:identifier,repositoryId:identifier,path:z.string().min(1)}).strict().parse(p);return this.repositories.relink(i.projectId,i.repositoryId,i.path);}
+      case 'repository/selectRemote': {const i=z.object({projectId:identifier,repositoryId:identifier,name:z.string().min(1)}).strict().parse(p);return this.repositories.selectRemote(i.projectId,i.repositoryId,i.name);}
+      case 'repository/clone': {const i=z.object({projectId:identifier,id:identifier,source:z.string().min(1),destination:z.string().min(1)}).strict().parse(p);return this.repositories.startClone(i.projectId,i.id,i.source,i.destination);}
+      case 'repository/clones': {const {projectId}=z.object({projectId:identifier}).strict().parse(p);return this.repositories.list(projectId);}
+      case 'repository/cancelClone': {const {id}=z.object({id:identifier}).strict().parse(p);return this.repositories.cancelClone(id);}
+      case 'github/account': return this.github.account();
+      case 'github/preview': {const i=z.object({projectId:identifier,repositoryId:identifier,id:identifier,name:z.string().min(1),remoteName:z.string().min(1)}).strict().parse(p);return this.github.preview(i.projectId,i.repositoryId,i.id,i.name,i.remoteName);}
+      case 'github/confirm': {const i=z.object({id:identifier,hash:z.string().length(64)}).strict().parse(p);return this.github.confirm(i.id,i.hash);}
+      case 'github/list': {const i=z.object({projectId:identifier,repositoryId:identifier}).strict().parse(p);this.repositories.get(i.projectId,i.repositoryId);return this.github.list(i.projectId,i.repositoryId);}
+      case 'repository/initialize/scan': {const i=z.object({projectId:identifier,repositoryId:identifier,id:identifier}).strict().parse(p);return this.initializations.scan(i.projectId,i.repositoryId,i.id);}
+      case 'repository/initialize/preview': {const i=z.object({id:identifier,paths:z.array(z.string().min(1)).min(1),message:z.string().trim().min(1).max(2000),authorName:z.string().trim().min(1).max(200),authorEmail:z.string().trim().min(1).max(254),branch:z.string().min(1).max(150)}).strict().parse(p);return this.initializations.preview(i.id,i.paths,i.message,i.authorName,i.authorEmail,i.branch);}
+      case 'repository/initialize/confirm': {const i=z.object({id:identifier,hash:z.string().length(64)}).strict().parse(p);return this.initializations.confirm(i.id,i.hash);}
+      case 'repository/initialize/list': {const i=z.object({projectId:identifier,repositoryId:identifier}).strict().parse(p);this.repositories.get(i.projectId,i.repositoryId);return(this.store.db.prepare("SELECT id FROM repository_operations WHERE project_id=? AND repository_id=? AND kind='initialize' ORDER BY created_at DESC").all(i.projectId,i.repositoryId) as {id:string}[]).map(row=>this.initializations.get(row.id));}
       case 'task/list': {
         const { projectId } = z.object({ projectId: identifier }).strict().parse(p); this.store.project(projectId);
         return this.store.db.prepare('SELECT * FROM tasks WHERE project_id=? ORDER BY created_at,id').all(projectId);
@@ -118,7 +147,11 @@ export class Service {
       case 'budget/create': {
         const i=z.object({name:z.string().trim().min(1).max(120),residual:z.number().int().nonnegative().max(1e12),resetAt:z.iso.datetime()}).strict().parse(p);
         if(new Date(i.resetAt)<=new Date())throw new AppError(400,'La data di rinnovo deve essere futura');
-        const id=randomUUID();this.store.db.prepare('INSERT INTO budget_pools(id,name,unit,residual,reserve,reset_at,cycle) VALUES(?,?,?,?,?,?,?)').run(id,i.name,'tokens',i.residual,Math.ceil(i.residual/10),i.resetAt,randomUUID());return{id};
+        const id=randomUUID(),cycle=randomUUID(),reserve=Math.ceil(i.residual/10);
+        this.store.db.transaction(()=>{
+          this.store.db.prepare('INSERT INTO budget_pools(id,name,unit,residual,reserve,reset_at,cycle) VALUES(?,?,?,?,?,?,?)').run(id,i.name,'tokens',i.residual,reserve,i.resetAt,cycle);
+          this.store.db.prepare('INSERT INTO budget_cycles VALUES(?,?,?,?,?,?)').run(cycle,id,i.residual,reserve,i.resetAt,now());
+        })();return{id};
       }
       case 'budget/link': {
         const i=z.object({profileId:identifier,poolId:identifier,reservation:z.number().int().positive().max(1e9)}).strict().parse(p);
@@ -129,6 +162,8 @@ export class Service {
         this.store.db.prepare('INSERT INTO profile_pools VALUES(?,?,?) ON CONFLICT(profile_id) DO UPDATE SET pool_id=excluded.pool_id,reservation=excluded.reservation').run(i.profileId,i.poolId,i.reservation);return{linked:true};
       }
       case 'budget/status': {const {profileId}=z.object({profileId:identifier}).strict().parse(p);return new RunBudgets(this.store).status(profileId);}
+      case 'budget/renew': {const i=z.object({poolId:identifier,id:identifier,residual:z.number().int().nonnegative().max(1e12),resetAt:z.iso.datetime(),reason:z.string().trim().min(1).max(2000)}).strict().parse(p);return new RunBudgets(this.store).renew(i.poolId,i.id,i.residual,i.resetAt,i.reason);}
+      case 'budget/override': {const i=z.object({profileId:identifier,id:identifier,assigned:z.number().int().nonnegative().max(1e12),reason:z.string().trim().min(1).max(2000)}).strict().parse(p);return new RunBudgets(this.store).overrideToday(i.profileId,i.id,i.assigned,i.reason);}
       case 'profile/verify': {
         const {profileId,secret}=z.object({profileId:identifier,secret:z.string().optional()}).strict().parse(p);return this.profiles.start(profileId,secret);
       }

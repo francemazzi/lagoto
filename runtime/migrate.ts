@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import type Database from 'better-sqlite3';
 import { AppError } from './protocol.js';
 
-const migrations = ['001-foundation.sql', '002-run-requests.sql', '003-conversation.sql', '004-budget-pools.sql', '005-task-memory.sql', '006-process-leases.sql', '007-journal-indexes.sql'];
+const migrations = ['001-foundation.sql', '002-run-requests.sql', '003-conversation.sql', '004-budget-pools.sql', '005-task-memory.sql', '006-process-leases.sql', '007-journal-indexes.sql', '008-repository-operations.sql', '009-budget-revisions.sql'];
 export function migrate(db: Database.Database) {
   db.exec('CREATE TABLE IF NOT EXISTS migrations(version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL)');
   const applied = db.prepare('SELECT version FROM migrations ORDER BY version').all() as { version: number }[];

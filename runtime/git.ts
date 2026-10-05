@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { realpath, mkdir, access } from 'node:fs/promises';
+import { realpath, mkdir, access, stat } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { Store } from './storage.js';
@@ -28,6 +28,11 @@ export function safeRemoteURL(remote:string){
   if(/^https?:\/\//i.test(remote)){const url=new URL(remote);if(url.username||url.password||url.search||url.hash)throw new AppError(400,'Remote con credenziali o parametri: configura Git con il credential store');}
   return remote;
 }
+export async function repositoryIdentity(path:string,root:string|null){
+  const common=root ? await realpath(await git(path,['rev-parse','--path-format=absolute','--git-common-dir'])) : path;
+  const info=await stat(common);
+  return {device:info.dev,inode:info.ino,git:Boolean(root)};
+}
 export async function addRepository(store: Store, projectId: string, directory: string) {
   store.project(projectId);
   const canonical = await realpath(directory);
@@ -42,8 +47,10 @@ export async function addRepository(store: Store, projectId: string, directory: 
     if (identities.size === 1) remote = `https://github.com/${[...identities][0]}`;
   }
   const id = randomUUID();
-  store.db.prepare('INSERT OR IGNORE INTO repositories(id,project_id,name,path,git_root,remote) VALUES(?,?,?,?,?,?)')
-    .run(id, projectId, basename(path), path, root, remote);
+  const identity=JSON.stringify(await repositoryIdentity(path,root));
+  store.db.prepare('INSERT OR IGNORE INTO repositories(id,project_id,name,path,git_root,remote,identity) VALUES(?,?,?,?,?,?,?)')
+    .run(id, projectId, basename(path), path, root, remote,identity);
+  if(root)store.db.prepare('UPDATE repositories SET git_root=?,identity=?,remote=? WHERE project_id=? AND path=? AND git_root IS NULL').run(root,identity,remote,projectId,path);
   return store.db.prepare('SELECT * FROM repositories WHERE project_id=? AND path=?').get(projectId, path);
 }
 export type TaskRepository = { task_id: string; repository_id: string; path: string; branch: string; base: string };

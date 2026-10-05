@@ -35,6 +35,13 @@ extension JSONEncoder {
 struct Project: Decodable, Identifiable, Sendable { let id: String; let name: String }
 struct WorkTask: Decodable, Identifiable, Sendable { let id: String; let project_id: String; let title: String; let objective: String; let status: String }
 struct Repository: Decodable, Identifiable, Sendable { let id: String; let name: String; let path: String; let git_root: String?; let remote: String? }
+struct RepositoryRemote: Decodable, Identifiable { let name: String; let url: String; let github: String?; var id: String { name } }
+struct RepositoryDetail: Decodable { let availability: String; let branch: String?; let status: String?; let candidates: [RepositoryRemote]; let error: String? }
+struct CloneOperation: Decodable, Identifiable {
+    let id: String; let source: String; let destination: String; let state: String; let progress: String; let error: String?
+    var active: Bool { ["starting", "running", "stopping"].contains(state) }
+    var label: String { switch state { case "completed": "Clonato"; case "cancelled": "Annullato · cartella conservata"; case "failed": "Clonazione fallita"; case "unknown": "Da riconciliare dopo il riavvio"; default: "Clonazione in corso" } }
+}
 struct RPCEnvelope: Decodable, Sendable { let id: String?; let result: JSONValue?; let error: RPCError?; let method: String?; let params: JSONValue? }
 struct RPCError: Decodable, Error, LocalizedError, Sendable { let code: Int; let message: String; var errorDescription: String? { message } }
 struct ModelProfile: Decodable, Identifiable, Sendable {
