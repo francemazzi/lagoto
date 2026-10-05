@@ -18,8 +18,12 @@ import XCTest
         app.terminate()
         app.launch()
         XCTAssertTrue(app.staticTexts["Archivio locale pronto"].waitForExistence(timeout: 20))
-        let restoredProject = app.staticTexts.matching(NSPredicate(format: "label == %@ OR value == %@", "Progetto integrazione", "Progetto integrazione")).firstMatch
-        XCTAssertTrue(restoredProject.waitForExistence(timeout: 10), app.debugDescription)
+        // macOS outlines expose their row contents through cells. Resolve the complete
+        // scoped query (not the first-match shortcut) and prove that the row opens.
+        let restoredProject = app.outlines["Sidebar"].cells.containing(.staticText, identifier: "Progetto integrazione").element
+        XCTAssertTrue(restoredProject.waitForExistence(timeout: 10), app.outlines.debugDescription)
+        restoredProject.click()
+        XCTAssertTrue(app.staticTexts["Un progetto, tutti i suoi repository."].waitForExistence(timeout: 5))
         app.terminate()
     }
 }
