@@ -10,13 +10,14 @@ export function projectEvent(db: Database.Database, event: JournalEvent) {
       .run(id,event.task_id,event.run_id,kind,text,JSON.stringify(detail ?? {}),event.seq,event.seq);
   };
   if (event.kind === 'raw' || event.kind === 'usage') return;
-  if (event.kind === 'text' || event.kind === 'text_snapshot' || event.kind === 'reasoning') {
+  if (['text','text_snapshot','reasoning','reasoning_snapshot'].includes(event.kind)) {
     if (typeof p.text !== 'string') return;
     const last = db.prepare('SELECT id,kind FROM transcript WHERE run_id=? ORDER BY first_seq DESC LIMIT 1').get(event.run_id) as {id:string;kind:string}|undefined;
     // Providers without item IDs receive contiguous blocks, separated by tools and other messages.
-    const kind=event.kind==='text_snapshot'?'text':event.kind;
+    const snapshot=event.kind.endsWith('_snapshot');
+    const kind=snapshot?event.kind.slice(0,-9):event.kind;
     const id = p.itemId ? `${event.run_id}:${kind}:${p.itemId}` : last?.kind === kind ? last.id : event.id;
-    upsert(id,kind,p.text,{},event.kind!=='text_snapshot'); return;
+    upsert(id,kind,p.text,{},!snapshot); return;
   }
   if (event.kind === 'result') {
     if (typeof p.text !== 'string' || !p.text) return;

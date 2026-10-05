@@ -6,9 +6,10 @@ import { AppError } from './protocol.js';
 import { JsonProcess, executable, cleanEnvironment, type ProcessMessage } from './process.js';
 import { ScopedFiles } from './scoped-files.js';
 import { cursorSandbox } from './sandbox.js';
+import { qwenNormalizer } from './qwen-normalizer.js';
 
 export type Profile = { id: string; provider: 'codex' | 'claude' | 'cursor' | 'qwen' | 'kimi' | 'ollama' | 'openrouter'; model: string; name: string; endpoint: string | null; executable: string | null; capabilities: string };
-export type AdapterEvent = { kind: 'text' | 'text_snapshot' | 'reasoning' | 'tool' | 'result' | 'usage' | 'system' | 'error' | 'raw'; text?: string; payload: unknown; itemId?: string };
+export type AdapterEvent = { kind: 'text' | 'text_snapshot' | 'reasoning' | 'reasoning_snapshot' | 'tool' | 'result' | 'usage' | 'system' | 'error' | 'raw'; text?: string; payload: unknown; itemId?: string };
 export type Permission = (tool: string, input: unknown) => Promise<boolean>;
 export type RunOptions = { profile: Profile; cwd: string; directories: string[]; prompt: string; mode: 'plan' | 'agent'; effort?: string; secret?: string; home: string; onEvent: (event: AdapterEvent) => void; permission: Permission; onProcess?:(client:JsonProcess)=>void;
   /** Internal test harness can constrain the SDK worker with an OS policy; never exposed over IPC. */
@@ -130,7 +131,7 @@ async function startQwen(options: RunOptions): Promise<RunningAdapter> {
     cleanEnvironment({ HOME: options.home, OPENAI_API_KEY: options.secret ?? 'ollama', OPENAI_BASE_URL: options.profile.endpoint, OPENAI_MODEL: options.profile.model }));
   try{options.onProcess?.(client);}catch(error){await client.stop();throw error;}
   let done = false; let sessionId: string | null = null;
-  const normalize = claudeNormalizer();
+  const normalize = qwenNormalizer();
   let resolve!: () => void; let reject!: (error: Error) => void;
   const completion = new Promise<void>((yes, no) => { resolve = yes; reject = no; });
   void completion.catch(() => {});

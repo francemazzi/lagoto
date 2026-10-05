@@ -10,9 +10,9 @@
 | Claude Code / CLI ufficiale / login nativo | Esecuzione programmatica e percorso di accesso | Parziale: UI e handoff reali | Stream, permessi, multi-root, stop e ripresa |
 | Qwen Code SDK / Qwen cloud / piano o API | SDK sperimentale e provider | Da verificare | Endpoint/piano, tool call, isolamento e usage |
 | Qwen Code SDK / Kimi / API Moonshot | Provider configurabili e API distinta dal servizio gestito | Da verificare | Modello esatto, streaming, tool, stop e costo |
-| Qwen Code SDK / Ollama / modello locale scelto | Provider locale e compatibilità API parziale | Da verificare | Tool, finestra configurata, offline, coda e risorse |
+| Qwen Code SDK / Ollama / qwen3.5:4b | Provider locale e compatibilità API parziale | Parziale: handoff e fixture offline con rete negata riusciti | Coda, risorse, finestra configurata e matrice fault |
 | Cursor / ACP | Percorso ACP della CLI | Parziale: wrapper macOS, comandi ACP rifiutati e handoff reali | Handshake, capacità, login e handoff |
-| Git / GitHub CLI / github.com | Auth, view e create ufficiali | Da verificare | Credential store, permessi, remote e retry di push |
+| Git / GitHub CLI / github.com | Auth, view e create ufficiali | Parziale: creazione privata e retry applicativo riusciti | Consegna multi-repo GitHub live e collaudo pannelli UI |
 | Endpoint API personalizzato | Dipende dal servizio | Non supportato genericamente | Intera suite sulla combinazione richiesta |
 | Kimi Code nativo, Grok multi-agent, GitHub Enterprise | Superfici distinte | Fuori scope iniziale | ADR e gate specifici prima di dichiarare supporto |
 

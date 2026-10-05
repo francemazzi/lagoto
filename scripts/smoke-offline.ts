@@ -7,6 +7,9 @@ import {JsonProcess,cleanEnvironment,executable} from '../runtime/process.js';
 import {startAdapter,type AdapterEvent} from '../runtime/adapters.js';
 import {provenance,sourceFingerprint} from './evidence.js';
 import {redact} from '../runtime/protocol.js';
+import {Store} from '../runtime/storage.js';
+import {Service} from '../runtime/service.js';
+import {transcript} from '../runtime/transcript.js';
 
 const policy='(version 1)(allow default)(deny network*)(allow network-inbound (local ip "localhost:*"))(allow network-outbound (remote ip "localhost:*"))';
   const metadata=provenance();const report:any={...metadata,status:'failed',policy,model:'qwen3.5:4b',steps:[],scope:'Separate official Ollama server, SDK worker and their descendants denied non-loopback networking by macOS sandbox. Supervisor outside sandbox observes/stops process groups. No system network settings changed.'};
@@ -39,6 +42,20 @@ const policy='(version 1)(allow default)(deny network*)(allow network-inbound (l
     if(await readFile(join(roots[0]!,'result.txt'),'utf8')!=='LAGOTO_BACKEND_V1\nLAGOTO_FRONTEND_V1\nLAGOTO_DESKTOP_V1\n')throw new Error('Independent byte assertion failed');
     if(!events.some(e=>e.kind==='result')||!events.some(e=>e.kind==='text')||!events.some(e=>e.kind==='tool'))throw new Error('Required streaming/tool/final events missing');
     report.steps.push('SDK adapter read all three roots, wrote exact expected bytes and emitted streaming/tool/final events while external network remained denied');
+    const store=new Store(join(root,'projection'));
+    try{
+      const service=new Service(store);const call=(method:string,params:Record<string,unknown>)=>service.handle({jsonrpc:'2.0',id:1,method,params}) as Promise<any>;
+      const project=await call('project/create',{name:'Offline synthetic projection'});
+      const task=await call('task/create',{projectId:project.id,title:'Preserve model response'});
+      const profile=await call('profile/create',{name:'Offline fixture',provider:'ollama',model:report.model});const run=crypto.randomUUID();
+      store.db.prepare('INSERT INTO runs(id,task_id,profile_id,state,model,created_at) VALUES(?,?,?,?,?,?)').run(run,task.id,profile.id,'finished',profile.model,new Date().toISOString());
+      for(const event of events)store.event(task.id,run,event.kind,event);
+      const blocks=transcript(store.db,task.id).blocks as any[];
+      const final=events.findLast(e=>e.kind==='result')?.text;
+      if(!final||blocks.filter(b=>b.kind==='text'&&b.text===final).length!==1)throw new Error('Final answer absent or duplicated in persisted transcript');
+      report.projection={finalOccurrences:1,blocks:blocks.length,tools:blocks.filter(b=>b.kind==='tool').length};
+      report.steps.push('Actual SDK events projected through durable SQLite journal: final answer appears once in conversation');
+    }finally{store.close();}
     if(sourceFingerprint()!==metadata.sourceFingerprint)throw new Error('Sources changed during test');report.status='passed';
   }catch(error){report.error=String(redact(error instanceof Error?error.message:String(error)));}
   finally{
