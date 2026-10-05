@@ -124,6 +124,26 @@ it('P11-I05 restores database and Git artifacts after original clones disappear,
   const invalid=join(temp(),'invalid');await expect(restoreBackup(backup,invalid)).rejects.toThrow('Checksum');expect(existsSync(invalid)).toBe(false);
 },30000);
 
+it('P11-I05 restore invalidates pending external authorizations and verification validity without replaying old effects',async()=>{
+  const {store,service,project,task,worktrees}=await fixture();const work=worktrees[0];
+  writeFileSync(join(work.path,'contract.json'),'{"version":2}\n');
+  await call(service,'verification/start',{taskId:task.id,repositoryId:work.repository_id,command:'test -f contract.json'});
+  let checks=await service.verifications.list(task.id);
+  for(let attempt=0;attempt<100&&checks[0]!.state==='running';attempt++){await new Promise(r=>setTimeout(r,20));checks=await service.verifications.list(task.id);}
+  expect(checks[0]!.state).toBe('passed');
+  const delivery=await service.deliveries.preview(task.id,crypto.randomUUID(),'Preview before backup',[{repositoryId:work.repository_id,paths:['contract.json']}]);
+  const linkId=crypto.randomUUID();const hash='a'.repeat(64);
+  store.db.prepare('INSERT INTO repository_operations VALUES(?,?,?,?,?,?,?,?)').run(linkId,project.id,work.repository_id,'github-link','preview',JSON.stringify({id:linkId,state:'preview',hash,path:work.path}),new Date().toISOString(),new Date().toISOString());
+  const backup=join(temp(),'pending-backup');await createBackup(store,backup);
+  const target=join(temp(),'restored');await restoreBackup(backup,target);const recovered=new Store(target);stores.push(recovered);const s=new Service(recovered);
+  await expect(s.deliveries.confirm(delivery.id,delivery.hash)).rejects.toThrow('ripristinato');
+  expect(()=>s.github.confirm(linkId,hash)).toThrow('ripristinato');
+  expect((await s.verifications.list(task.id))[0]!.state).toBe('stale');
+  expect(await git(work.path,['rev-list','--count','HEAD'])).toBe('1');expect(await git(work.path,['status','--short'])).toContain('contract.json');
+  store.db.prepare("UPDATE repository_operations SET state='running' WHERE id=?").run(linkId);
+  await expect(createBackup(store,join(temp(),'must-not-backup-active'))).rejects.toThrow('operazioni sui repository');
+});
+
 it('P11-I03 retries a failed second push across three real remotes without duplicate commits or losing unrelated staging',async()=>{
   const {store,task,worktrees}=await fixture(3);const selections=[];const staging:string[]=[];
   for(const work of worktrees){

@@ -49,6 +49,7 @@ export class Deliveries {
   }
   async confirm(id:string,hash:string){
     const delivery=this.get(id);if(delivery.hash!==hash)throw new AppError(409,'Anteprima non corrispondente');
+    if(delivery.state==='restored')throw new AppError(409,'Archivio ripristinato: revisiona nuovamente la consegna');
     if(this.pending.has(id))return this.pending.get(id)!;
     const job=this.deliver(delivery).finally(()=>this.pending.delete(id));this.pending.set(id,job);return job;
   }

@@ -63,7 +63,7 @@ struct GitHubLinkSheet: View {
         do {
             let rows = try await bridge.call("github/list", params)
             if let id = operation?["id"].string { operation = rows.array.first { $0["id"].string == id } ?? operation }
-            else if !loaded, let incomplete = rows.array.first(where: { !["preview", "completed"].contains($0["state"].string ?? "") }) { operation = incomplete }
+            else if !loaded, let incomplete = rows.array.first(where: { !["preview", "completed", "restored"].contains($0["state"].string ?? "") }) { operation = incomplete }
             loaded = true
         } catch { self.error = error.localizedDescription }
     }

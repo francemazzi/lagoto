@@ -88,6 +88,7 @@ export class GitHubLinks {
   }
   confirm(id:string,hash:string){
     const op=this.get(id);if(op.hash!==hash)throw new AppError(409,'Anteprima non corrispondente');
+    if(op.state==='restored')throw new AppError(409,'Archivio ripristinato: crea una nuova anteprima GitHub');
     if(op.state==='completed'||this.jobs.has(id))return op;
     if(this.store.db.prepare("SELECT 1 FROM repository_operations WHERE repository_id=? AND kind='github-link' AND id<>? AND state IN ('starting','running','stopping','unknown')").get(op.repositoryId,id))throw new AppError(409,'Un altro collegamento è attivo o da riconciliare');
     this.idle(op.repositoryId);op.state='running';delete op.error;this.save(op);

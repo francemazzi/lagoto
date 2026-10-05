@@ -8,7 +8,10 @@ import XCTest
         app.launchEnvironment["LAGOTO_DATA_DIR"] = dataPath
         app.launch()
         XCTAssertTrue(app.staticTexts["Archivio locale pronto"].waitForExistence(timeout: 20))
-        app.buttons["new-project"].click()
+        // SwiftUI's macOS 15 toolbar wrapper does not forward this button's identifier.
+        // Exercise the public keyboard command, including focus into the project sheet.
+        app.typeKey("n", modifierFlags: [.command, .shift])
+        XCTAssertTrue(app.textFields["project-name"].waitForExistence(timeout: 5))
         app.textFields["project-name"].typeText("Progetto integrazione")
         app.buttons["create-project"].click()
         XCTAssertTrue(app.staticTexts["Un progetto, tutti i suoi repository."].waitForExistence(timeout: 5))

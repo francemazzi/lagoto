@@ -40,7 +40,7 @@ struct RepositoryDetail: Decodable { let availability: String; let branch: Strin
 struct CloneOperation: Decodable, Identifiable {
     let id: String; let source: String; let destination: String; let state: String; let progress: String; let error: String?
     var active: Bool { ["starting", "running", "stopping"].contains(state) }
-    var label: String { switch state { case "completed": "Clonato"; case "cancelled": "Annullato · cartella conservata"; case "failed": "Clonazione fallita"; case "unknown": "Da riconciliare dopo il riavvio"; default: "Clonazione in corso" } }
+    var label: String { switch state { case "completed": "Clonato"; case "cancelled": "Annullato · cartella conservata"; case "failed": "Clonazione fallita"; case "unknown": "Da riconciliare dopo il riavvio"; case "restored": "Operazione storica · percorso da ricollegare"; default: "Clonazione in corso" } }
 }
 struct RPCEnvelope: Decodable, Sendable { let id: String?; let result: JSONValue?; let error: RPCError?; let method: String?; let params: JSONValue? }
 struct RPCError: Decodable, Error, LocalizedError, Sendable { let code: Int; let message: String; var errorDescription: String? { message } }

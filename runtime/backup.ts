@@ -12,6 +12,7 @@ async function fresh(path:string){if(!isAbsolute(path))throw new AppError(400,'D
 export async function createBackup(store:Store,destination:string){
   await fresh(destination);
   if(store.db.prepare("SELECT 1 FROM runs WHERE state IN ('starting','running','stopping','waiting_permission','unknown')").get() || store.db.prepare("SELECT 1 FROM verifications WHERE state IN ('running','unknown')").get())throw new AppError(409,'Arresta e riconcilia le esecuzioni prima del backup');
+  if(store.db.prepare("SELECT 1 FROM repository_operations WHERE state IN ('starting','running','stopping','installing','unknown')").get())throw new AppError(409,'Completa o riconcilia le operazioni sui repository prima del backup');
   const tasks=store.db.prepare('SELECT DISTINCT task_id FROM task_repositories').all() as {task_id:string}[];
   for(const task of tasks)await createCheckpoint(store,task.task_id);
   const staging=destination+'.partial-'+randomUUID();await mkdir(staging,{mode:0o700});await mkdir(join(staging,'blobs'),{mode:0o700});
@@ -45,6 +46,17 @@ export async function restoreBackup(source:string,destination:string){
   db.close(); // Process identities from a different environment can never authorize signals here.
   const restored=new Store(destination);
   try{
+    // Recovery preserves history, not authorization to repeat effects against old paths/accounts.
+    for(const row of restored.db.prepare("SELECT id,payload FROM repository_operations WHERE state<>'completed'").all() as {id:string;payload:string}[]){
+      const payload={...JSON.parse(row.payload),state:'restored',error:'Archivio ripristinato: prepara una nuova anteprima nel nuovo ambiente'};
+      restored.db.prepare("UPDATE repository_operations SET state='restored',payload=? WHERE id=?").run(JSON.stringify(payload),row.id);
+    }
+    for(const row of restored.db.prepare("SELECT id,payload FROM external_actions WHERE kind='delivery' AND state<>'delivered'").all() as {id:string;payload:string}[]){
+      const payload={...JSON.parse(row.payload),state:'restored'};
+      restored.db.prepare("UPDATE external_actions SET state='restored',payload=? WHERE id=?").run(JSON.stringify(payload),row.id);
+    }
+    restored.db.prepare("UPDATE handoffs SET state='cancelled',error='Nuovo ambiente: nuova anteprima richiesta' WHERE state NOT IN ('started','cancelled')").run();
+    restored.db.prepare("UPDATE verifications SET state='stale' WHERE state='passed'").run();
     const tasks=restored.db.prepare('SELECT DISTINCT task_id FROM task_repositories').all() as {task_id:string}[];
     await mkdir(join(destination,'worktrees'),{mode:0o700});
     for(const task of tasks){
