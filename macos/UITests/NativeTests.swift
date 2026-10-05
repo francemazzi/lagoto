@@ -8,7 +8,7 @@ import XCTest
         app.launchEnvironment["LAGOTO_DATA_DIR"] = dataPath
         app.launch()
         XCTAssertTrue(app.staticTexts["Archivio locale pronto"].waitForExistence(timeout: 20))
-        // SwiftUI's macOS 15 toolbar wrapper does not forward this button's identifier.
+        // The small CI display can move toolbar items into overflow.
         // Exercise the public keyboard command, including focus into the project sheet.
         app.typeKey("n", modifierFlags: [.command, .shift])
         XCTAssertTrue(app.textFields["project-name"].waitForExistence(timeout: 5))
@@ -18,7 +18,8 @@ import XCTest
         app.terminate()
         app.launch()
         XCTAssertTrue(app.staticTexts["Archivio locale pronto"].waitForExistence(timeout: 20))
-        XCTAssertTrue(app.staticTexts["Progetto integrazione"].firstMatch.waitForExistence(timeout: 5))
+        let restoredProject = app.staticTexts.matching(NSPredicate(format: "label == %@ OR value == %@", "Progetto integrazione", "Progetto integrazione")).firstMatch
+        XCTAssertTrue(restoredProject.waitForExistence(timeout: 10), app.debugDescription)
         app.terminate()
     }
 }
