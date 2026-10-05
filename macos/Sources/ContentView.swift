@@ -5,16 +5,18 @@ struct ContentView: View {
     @State private var projects: [Project] = []
     @State private var tasks: [String: [WorkTask]] = [:]
     @State private var selection: String?
+    @State private var search = ""
     @State private var newProject = false
+    @State private var backup = false
     @State private var name = ""
     @State private var error: String?
     var body: some View {
         NavigationSplitView {
             List(selection: $selection) {
                 Section("Progetti") {
-                    ForEach(projects) { project in
+                    ForEach(projects.filter { search.isEmpty || $0.name.localizedCaseInsensitiveContains(search) || (tasks[$0.id] ?? []).contains { $0.title.localizedCaseInsensitiveContains(search) || $0.objective.localizedCaseInsensitiveContains(search) } }) { project in
                         DisclosureGroup {
-                            ForEach(tasks[project.id] ?? []) { task in Label(task.title, systemImage: "bubble.left").tag("task:\(task.id)") }
+                            ForEach((tasks[project.id] ?? []).filter { search.isEmpty || project.name.localizedCaseInsensitiveContains(search) || $0.title.localizedCaseInsensitiveContains(search) || $0.objective.localizedCaseInsensitiveContains(search) }) { task in Label(task.title, systemImage: "bubble.left").tag("task:\(task.id)") }
                             Button("Nuovo lavoro", systemImage: "plus") { selection = "project:\(project.id)" }.buttonStyle(.plain)
                         } label: { Label(project.name, systemImage: "folder").tag("project:\(project.id)") }
                     }
@@ -25,12 +27,17 @@ struct ContentView: View {
                 }
             }
             .navigationSplitViewColumnWidth(min: 210, ideal: 244, max: 330)
-            .toolbar { Button("Nuovo progetto", systemImage: "folder.badge.plus") { newProject = true }.accessibilityIdentifier("new-project") }
+            .searchable(text: $search, placement: .sidebar, prompt: "Cerca progetti e lavori")
+            .toolbar {
+                Button("Nuovo progetto", systemImage: "folder.badge.plus") { newProject = true }.keyboardShortcut("n", modifiers: [.command, .shift]).accessibilityIdentifier("new-project")
+                Menu("Archivio", systemImage: "ellipsis.circle") { Button("Backup e ripristino…") { backup = true } }
+            }
             .safeAreaInset(edge: .bottom) {
                 HStack(spacing: 8) {
                     Circle().fill(bridge.ready ? Color.green : Color.orange).frame(width: 6, height: 6)
                     Text(bridge.status).font(.caption).foregroundStyle(.secondary).lineLimit(3)
                     Spacer()
+                    if !bridge.ready { Button("Riconnetti") { Task { await bridge.restart() } }.font(.caption) }
                 }.padding(12).accessibilityIdentifier("runtime-status")
             }
         } detail: {
@@ -41,7 +48,7 @@ struct ContentView: View {
             } else if let selection, selection.hasPrefix("task:"), let task = tasks.values.flatMap({ $0 }).first(where: { $0.id == String(selection.dropFirst(5)) }) {
                 TaskView(bridge: bridge, work: task).id(task.id)
             } else if selection == "integrations" || selection == "models" {
-                ContentUnavailableView(selection == "integrations" ? "Collega i tuoi strumenti" : "I tuoi modelli", systemImage: selection == "integrations" ? "link" : "sparkles", description: Text("Le integrazioni vengono abilitate dopo la verifica del relativo percorso. Nessun modello è ancora certificato in questa build di sviluppo."))
+                IntegrationsView(bridge: bridge, modelsOnly: selection == "models").id(selection)
             } else {
                 ContentUnavailableView {
                     Label("Il lavoro resta.", systemImage: "leaf")
@@ -50,6 +57,8 @@ struct ContentView: View {
             }
         }
         .onChange(of: bridge.ready) { _, ready in if ready { Task { await reload() } } }
+        .task { if bridge.ready { await reload() } }
+        .sheet(isPresented: $backup) { BackupSheet(bridge: bridge) }
         .sheet(isPresented: $newProject) {
             VStack(alignment: .leading, spacing: 20) {
                 Text("Nuovo progetto").font(.title2).bold()
@@ -62,6 +71,7 @@ struct ContentView: View {
     private func reload() async {
         do {
             projects = try await bridge.decode([Project].self, method: "project/list")
+            tasks = [:]; selection = nil
             for project in projects { tasks[project.id] = try await bridge.decode([WorkTask].self, method: "task/list", params: ["projectId": .string(project.id)]) }
         } catch { self.error = error.localizedDescription }
     }
@@ -105,18 +115,5 @@ struct ProjectView: View {
     }
     private func newTask() async {
         do { let task = try await bridge.decode(WorkTask.self, method: "task/create", params: ["projectId": .string(project.id), "title": .string(String(objective.prefix(100))), "objective": .string(objective)]); await created(task) } catch { self.error = error.localizedDescription }
-    }
-}
-
-struct TaskView: View {
-    let bridge: RuntimeBridge
-    let work: WorkTask
-    var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            Text(work.title).font(.title2).bold()
-            Text(work.objective).textSelection(.enabled)
-            Spacer()
-            Text("Il task è salvato. L’esecuzione sarà disponibile dopo la verifica delle integrazioni.").foregroundStyle(.secondary)
-        }.padding(32).frame(maxWidth: 800, alignment: .leading).frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

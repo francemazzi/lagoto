@@ -23,14 +23,16 @@ export class JsonProcess {
   private pending = new Map<string | number, { resolve: (value: any) => void; reject: (error: Error) => void; timer: NodeJS.Timeout }>();
   onMessage: (value: ProcessMessage) => void = () => {};
   onClose: (code: number | null) => void = () => {};
+  onOutput: (bytes:Buffer)=>void = ()=>{};
   private exited = false;
   private stopPromise?: Promise<void>;
   private leaderExited = false;
   private exitPromise: Promise<void>;
   private closedPromise: Promise<void>;
-  constructor(command: string, args: string[], cwd: string, environment: Record<string, string> = cleanEnvironment()) {
+  constructor(command: string, args: string[], cwd: string, environment: Record<string, string> = cleanEnvironment(), format:'json'|'text'='json') {
     this.child = spawn(command, args, { cwd, env: environment, stdio: 'pipe', detached: true });
     this.child.stdout.on('data', (chunk: Buffer) => {
+      if(format==='text'){this.onOutput(chunk);return;}
       this.buffer = Buffer.concat([this.buffer, chunk]);
       if (this.buffer.length > 8 * 1024 * 1024) { this.fail(new AppError(413, 'Evento del provider troppo grande')); void this.stop(); return; }
       let index: number;
@@ -50,6 +52,7 @@ export class JsonProcess {
     });
     // Drain stderr; never forward credentials or opaque diagnostic payloads to the journal.
     this.child.stderr.resume();
+    if(format==='text')this.child.stderr.on('data',(chunk:Buffer)=>this.onOutput(chunk));
     this.child.stdin.on('error', error => this.fail(error));
     this.child.on('error', error => this.fail(error));
     this.exitPromise = new Promise(resolve => {

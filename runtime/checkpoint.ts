@@ -2,12 +2,14 @@ import { createHash, randomUUID } from 'node:crypto';
 import { mkdir, readFile, writeFile, lstat, readlink, symlink, chmod, realpath } from 'node:fs/promises';
 import { join, resolve, relative, dirname, isAbsolute } from 'node:path';
 import { Store } from './storage.js';
-import { git, type TaskRepository } from './git.js';
+import { git, gitBytes, type TaskRepository } from './git.js';
 import { AppError, now } from './protocol.js';
+import { deflateSync } from 'node:zlib';
 
 type Entry = { path: string; hash?: string; mode?: number; symlink?: string; deleted?: true };
-type RepositorySnapshot = { repositoryId: string; head: string; branch: string; index: string; entries: Entry[]; excluded: string[] };
-export type Manifest = { version: 1; taskId: string; repositories: RepositorySnapshot[]; createdAt: string };
+type GitObject = {oid:string;hash:string};
+type RepositorySnapshot = { repositoryId: string; head: string; branch: string; index: string; entries: Entry[]; excluded: string[]; objects?:GitObject[]; objectFormat?:string; fingerprint?:string; changes?:string[] };
+export type Manifest = { version: 1 | 2; taskId: string; repositories: RepositorySnapshot[]; createdAt: string };
 const hash = (data: Buffer | string) => createHash('sha256').update(data).digest('hex');
 function safePath(root: string, path: string) {
   const target = resolve(root, path); const delta = relative(root, target);
@@ -31,11 +33,14 @@ export async function fingerprint(directory: string) {
   const diff = await git(directory, ['diff', '--no-ext-diff', '--no-textconv', '--binary', 'HEAD', '--']);
   const untracked = (await git(directory, ['ls-files', '--others', '--exclude-standard', '-z'])).split('\0').filter(Boolean).sort();
   const digests = await Promise.all(untracked.map(async path => { const absolute = safePath(directory, path); const stat = await lstat(absolute); return [path, stat.isSymbolicLink() ? hash(await readlink(absolute)) : hash(await readFile(absolute))]; }));
-  return hash(JSON.stringify({ head: await git(directory, ['rev-parse', 'HEAD']), state, diff, digests }));
+  return hash(JSON.stringify({ head: await git(directory, ['rev-parse', 'HEAD']), state, diff, digests, index:await git(directory,['ls-files','--stage','-z']) }));
 }
-export async function createCheckpoint(store: Store, taskId: string) {
+export async function createCheckpoint(store: Store, taskId: string, stoppedRunId?:string) {
   store.task(taskId);
-  if (store.db.prepare("SELECT id FROM runs WHERE task_id=? AND state IN ('starting','running','waiting_permission','stopping','unknown')").get(taskId)) throw new AppError(409, 'Arrestare e riconciliare i writer prima del checkpoint');
+  // stoppedRunId is supplied only by RunManager after stop() proved process cessation;
+  // its DB ownership stays held until the snapshot is complete.
+  if (store.db.prepare("SELECT id FROM runs WHERE task_id=? AND id<>COALESCE(?,'') AND state IN ('starting','running','waiting_permission','stopping','unknown')").get(taskId,stoppedRunId??null)) throw new AppError(409, 'Arrestare e riconciliare i writer prima del checkpoint');
+  if(store.db.prepare("SELECT 1 FROM verifications WHERE task_id=? AND state IN ('running','unknown')").get(taskId))throw new AppError(409,'Arrestare e riconciliare la verifica prima del checkpoint');
   const repositories = store.db.prepare('SELECT * FROM task_repositories WHERE task_id=? ORDER BY repository_id').all(taskId) as TaskRepository[];
   if (!repositories.length) throw new AppError(400, 'Nessun worktree preparato');
   const snapshots: RepositorySnapshot[] = [];
@@ -45,7 +50,31 @@ export async function createCheckpoint(store: Store, taskId: string) {
     fingerprints.push(await fingerprint(repo.path));
     const names = (await git(repo.path, ['ls-files', '--cached', '--others', '--exclude-standard', '-z'])).split('\0').filter(Boolean);
     const snapshot: RepositorySnapshot = { repositoryId: repo.repository_id, head: await git(repo.path, ['rev-parse', 'HEAD']), branch: repo.branch,
-      index: '', entries: [], excluded: [] };
+      index: '', entries: [], excluded: [], objects:[], objectFormat:await git(repo.path,['rev-parse','--show-object-format']),fingerprint:fingerprints.at(-1) };
+    snapshot.changes=[...new Set([...(await git(repo.path,['diff','--name-only','-z','HEAD','--'])).split('\0'),...(await git(repo.path,['ls-files','--others','--exclude-standard','-z'])).split('\0')].filter(Boolean))].sort();
+    // The reachable object graph plus index-only blobs makes recovery independent of the original clone.
+    // A secret detected in tracked history blocks Git recovery rather than hiding it inside an archive.
+    const staged = (await git(repo.path,['ls-files','--stage','-z'])).split('\0').filter(Boolean);
+    if(staged.some(line=>line.startsWith('160000 ') || secretName(line.slice(line.indexOf('\t')+1))))
+      throw new AppError(409,'Checkpoint Git bloccato: submodule o file sensibile nello staging');
+    const objectIds = new Set((await git(repo.path,['rev-list','--objects','--no-object-names','HEAD'])).split('\n').filter(Boolean));
+    for(const line of staged) {const id=line.split(' ')[1];if(id && !/^0+$/.test(id))objectIds.add(id);}
+    const split = await git(repo.path,['rev-parse','--shared-index-path']);
+    if(split)throw new AppError(409,'Indice Git condiviso non supportato nel checkpoint');
+    for(const oid of [...objectIds].sort()) {
+      const type=await git(repo.path,['cat-file','-t',oid]); const bytes=await gitBytes(repo.path,['cat-file',type,oid]);
+      if(secretBytes(bytes))throw new AppError(409,'Checkpoint Git bloccato: segreto rilevato nella cronologia o nello staging');
+      if(type==='tree') {
+        let offset=0;
+        while(offset<bytes.length){const space=bytes.indexOf(32,offset),zero=bytes.indexOf(0,space);if(space<0||zero<0)throw new AppError(500,'Oggetto Git invalido');
+          if(secretName(bytes.subarray(space+1,zero).toString()))throw new AppError(409,'Checkpoint Git bloccato: file sensibile nella cronologia');
+          offset=zero+1+(snapshot.objectFormat==='sha256'?32:20);
+        }
+      }
+      const object=Buffer.concat([Buffer.from(`${type} ${bytes.length}\0`),bytes]);
+      if(createHash(snapshot.objectFormat!).update(object).digest('hex')!==oid)throw new AppError(500,'Checksum oggetto Git non valido');
+      snapshot.objects!.push({oid,hash:await blob(store,object)});
+    }
     const indexPath = await git(repo.path, ['rev-parse', '--path-format=absolute', '--git-path', 'index']);
     snapshot.index = await blob(store, await readFile(indexPath));
     for (const path of [...new Set(names)].sort()) {
@@ -69,7 +98,7 @@ export async function createCheckpoint(store: Store, taskId: string) {
     snapshots.push(snapshot);
   }
   for (let i = 0; i < repositories.length; i++) if (await fingerprint(repositories[i]!.path) !== fingerprints[i]) throw new AppError(409, 'File cambiati durante il checkpoint: riprovare dopo la riconciliazione');
-  const manifest: Manifest = { version: 1, taskId, repositories: snapshots, createdAt: now() };
+  const manifest: Manifest = { version: 2, taskId, repositories: snapshots, createdAt: now() };
   const id = randomUUID(); store.db.prepare('INSERT INTO checkpoints VALUES(?,?,?,?)').run(id, taskId, JSON.stringify(manifest), manifest.createdAt);
   store.event(taskId, null, 'checkpoint', { id, excluded: snapshots.flatMap(r => r.excluded) });
   return { id, ...manifest };
@@ -79,10 +108,25 @@ export async function restoreCheckpoint(store: Store, checkpointId: string, dest
   if (!row) throw new AppError(404, 'Checkpoint non trovato');
   const manifest = JSON.parse(row.manifest) as Manifest;
   // Validate all blob bytes before creating any destination.
-  for (const repo of manifest.repositories) { await loadBlob(store, repo.index); for (const entry of repo.entries) if (entry.hash) await loadBlob(store, entry.hash); }
+  for (const repo of manifest.repositories) {
+    safePath(destination,repo.repositoryId);
+    if(manifest.version===2 && (!repo.objects?.length || !['sha1','sha256'].includes(repo.objectFormat!)))throw new AppError(400,'Manifest Git incompleto');
+    await loadBlob(store, repo.index);
+    for(const object of repo.objects??[]){if(!/^[a-f0-9]{40}$|^[a-f0-9]{64}$/.test(object.oid) || createHash(repo.objectFormat!).update(await loadBlob(store,object.hash)).digest('hex')!==object.oid)throw new AppError(500,'Oggetto Git corrotto');}
+    for (const entry of repo.entries) {safePath(join(destination,repo.repositoryId),entry.path);if (entry.hash) await loadBlob(store, entry.hash);}
+  }
   await mkdir(destination, { recursive: false, mode: 0o700 });
   for (const repo of manifest.repositories) {
     const root = safePath(destination, repo.repositoryId); await mkdir(root);
+    if(manifest.version===2) {
+      await git(root,['init','--template=','--object-format='+repo.objectFormat]);
+      for(const object of repo.objects!) {
+        const folder=join(root,'.git','objects',object.oid.slice(0,2));await mkdir(folder,{recursive:true});
+        await writeFile(join(folder,object.oid.slice(2)),deflateSync(await loadBlob(store,object.hash)),{flag:'wx',mode:0o600});
+      }
+      await git(root,['check-ref-format',`refs/heads/${repo.branch}`]);
+      await git(root,['update-ref',`refs/heads/${repo.branch}`,repo.head]);await git(root,['symbolic-ref','HEAD',`refs/heads/${repo.branch}`]);
+    }
     for (const entry of repo.entries) {
       const path = safePath(root, entry.path); if (entry.deleted) continue;
       await mkdir(dirname(path), { recursive: true });
@@ -91,18 +135,28 @@ export async function restoreCheckpoint(store: Store, checkpointId: string, dest
         await symlink(entry.symlink, path);
       } else if (entry.hash) { await writeFile(path, await loadBlob(store, entry.hash), { flag: 'wx' }); await chmod(path, entry.mode ?? 0o600); }
     }
-    // Recovery is an isolated filesystem export; Git object/index restoration is separately gated.
-    await writeFile(join(root, '.lagoto-index'), await loadBlob(store, repo.index), { mode: 0o600 });
+    await writeFile(join(root, manifest.version===2?'.git/index':'.lagoto-index'), await loadBlob(store, repo.index), { mode: 0o600 });
+    if(manifest.version===2)await git(root,['fsck','--no-reflogs']);
   }
-  return { destination, manifest, gitRestored: false };
+  return { destination, manifest, gitRestored: manifest.version===2 };
 }
 export function contextPack(store: Store, taskId: string, maximumCharacters: number) {
   const task = store.task(taskId);
-  const decisions = store.db.prepare("SELECT content FROM decisions WHERE task_id=? AND state='active' ORDER BY created_at,id").all(taskId);
+  const decisions = store.db.prepare("SELECT content,source,revision FROM decisions WHERE task_id=? AND state='active' ORDER BY created_at,id").all(taskId);
+  const criteria=store.db.prepare('SELECT content,revision,state,verification_id,override_reason FROM criteria WHERE task_id=? ORDER BY created_at,id').all(taskId);
   const checkpoint = store.db.prepare('SELECT id,manifest FROM checkpoints WHERE task_id=? ORDER BY created_at DESC LIMIT 1').get(taskId) as { id: string; manifest: string } | undefined;
   const verifications = store.db.prepare('SELECT command,state,fingerprint FROM verifications WHERE task_id=? ORDER BY created_at').all(taskId);
   const uncertain = store.db.prepare("SELECT kind,state,payload FROM external_actions WHERE task_id=? AND state='unknown'").all(taskId);
-  const content = JSON.stringify({ version: 1, task: { title: task.title, objective: task.objective }, decisions, checkpoint: checkpoint ? { id: checkpoint.id, manifest: JSON.parse(checkpoint.manifest) } : null, verifications, uncertain }, null, 2);
+  const repositories=store.db.prepare('SELECT tr.repository_id,tr.path,r.name FROM task_repositories tr JOIN repositories r ON r.id=tr.repository_id WHERE task_id=? ORDER BY r.name').all(taskId);
+  const recent=store.db.prepare("SELECT kind,text FROM transcript WHERE task_id=? AND kind IN ('user','text') ORDER BY first_seq DESC LIMIT 12").all(taskId).reverse();
+  const total=(store.db.prepare("SELECT count(*) AS n FROM transcript WHERE task_id=? AND kind IN ('user','text')").get(taskId) as {n:number}).n;
+  const compact=checkpoint?JSON.parse(checkpoint.manifest) as Manifest:null;
+  const core={ version: 2, task: { title: task.title, objective: task.objective }, repositories, decisions,criteria,
+    checkpoint: compact ? {id:checkpoint!.id,createdAt:compact.createdAt,repositories:compact.repositories.map(r=>({repositoryId:r.repositoryId,head:r.head,branch:r.branch,index:r.index,entries:r.entries.filter(e=>!r.changes||r.changes.includes(e.path)),excluded:r.excluded,fingerprint:r.fingerprint}))} : null,
+    historyIsReadOnly:true,verifications, uncertain };
+  const render=()=>JSON.stringify({...core,recentConversation:recent,conversationOmissions:Math.max(0,total-recent.length)},null,2);
+  let content=render();
+  while(content.length>maximumCharacters&&recent.length){recent.shift();content=render();}
   if (content.length > maximumCharacters) throw new AppError(413, 'Il nucleo obbligatorio non entra nel contesto: riduci il perimetro');
   return { content, hash: hash(content), estimated: true, characters: content.length, exclusions: checkpoint ? (JSON.parse(checkpoint.manifest) as Manifest).repositories.flatMap(r => r.excluded) : [] };
 }

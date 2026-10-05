@@ -1,0 +1,22 @@
+name: Native integration
+on: [push, pull_request]
+jobs:
+  deterministic:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.1
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.3
+      - run: brew install xcodegen
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm build
+      - run: pnpm test
+      - name: Swift contracts
+        run: xcodebuild test -project macos/Lagoto.xcodeproj -scheme Lagoto -configuration Debug -derivedDataPath build/Xcode -destination 'platform=macOS,arch=arm64' -only-testing:LagotoTests CODE_SIGN_IDENTITY=- -quiet
+      # UI acceptance and real provider gates require the registered, authenticated release Mac.
+      # This job never marks the release gates passed and never publishes a package.

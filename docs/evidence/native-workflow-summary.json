@@ -1,0 +1,219 @@
+{
+  "scope": "Development milestone, not phase closure or beta acceptance",
+  "handoff": {
+    "status": "passed",
+    "date": "2026-10-05T10:09:51.883Z",
+    "steps": [
+      {
+        "provider": "codex",
+        "model": "gpt-6.1-sol",
+        "runId": "487e3527-78e7-4ec4-a7a8-9599e5f80710",
+        "version": 1,
+        "state": "finished"
+      },
+      {
+        "provider": "claude",
+        "model": "sonnet",
+        "runId": "14a9b978-af6c-402d-9dab-19248a0410b0",
+        "handoffId": "b649a940-8471-4a1f-a676-d75893536241",
+        "version": 2,
+        "state": "finished"
+      },
+      {
+        "provider": "openrouter",
+        "model": "qwen/qwen3-coder-next",
+        "runId": "7bef5984-7c2f-4428-bbd6-edaf157465b1",
+        "handoffId": "bf715d75-27fe-42e3-a506-c905686244fd",
+        "version": 3,
+        "state": "finished"
+      },
+      {
+        "provider": "ollama",
+        "model": "qwen3.5:4b",
+        "runId": "2c98f741-be84-4387-9606-aabc3437c56f",
+        "handoffId": "d8f13b88-b988-44c8-8fa0-d00b97323da4",
+        "version": 4,
+        "state": "finished"
+      },
+      {
+        "provider": "openrouter",
+        "model": "moonshotai/kimi-k2.5",
+        "runId": "f77431e5-cbdc-4fde-b8cd-91725d59efc4",
+        "handoffId": "b22791e9-e716-4713-9eba-46daf73bfde7",
+        "version": 5,
+        "state": "finished"
+      },
+      {
+        "provider": "cursor",
+        "model": "composer-2.5[fast=true]",
+        "runId": "f4ed9232-0b70-4ffe-ab55-9a77e825e102",
+        "handoffId": "273d2841-97b5-42d7-b1e1-e017a99ef2f0",
+        "version": 6,
+        "state": "finished"
+      },
+      {
+        "provider": "codex",
+        "model": "gpt-6.1-sol",
+        "runId": "b52dfbad-0096-4846-80ef-ab6186d1dc3c",
+        "handoffId": "031fdc43-76bc-459f-a8e0-c5db07312f5f",
+        "version": 7,
+        "state": "finished"
+      },
+      {
+        "provider": "cursor",
+        "model": "composer-2.5[fast=true]",
+        "runId": "5d0bd427-33d4-400c-abd4-7ad7e29e10db",
+        "handoffId": "b884d8a2-7004-4f39-81b2-869b900ca90d",
+        "version": 8,
+        "state": "finished"
+      },
+      {
+        "provider": "claude",
+        "model": "sonnet",
+        "runId": "37975236-7cb1-48b8-9a7c-b860f367cfdf",
+        "handoffId": "aec7aaa2-9a65-4167-91ab-6b4d53ec9c6f",
+        "version": 9,
+        "state": "finished"
+      },
+      {
+        "provider": "cursor",
+        "model": "composer-2.5[fast=true]",
+        "runId": "a88d8ebc-dcc6-4e6f-b8e3-07a067b9ed7b",
+        "handoffId": "3b736dd3-afbf-4ef9-85fa-6d540dfd9c86",
+        "version": 10,
+        "state": "finished"
+      }
+    ],
+    "count": 9,
+    "sourceReport": "build/evidence/handoff-2026-10-05T10-09-51.883Z.json",
+    "reportSha256": "7748bd24c2c85229f52f44a2f88129dc0cdfc605067c68590e94d79813eca2bd",
+    "limitations": [
+      "Real adapters through Service, shared three-repository fixture, exact file assertions and Git restore. Does not replace native UI acceptance or five personal-use sessions.",
+      "Continuation reports retain earlier versions of the implementation; not every step ran against the final source tree"
+    ]
+  },
+  "native": {
+    "at": "2026-10-05T10:15:19.189Z",
+    "scope": "Manual native UI integration, synthetic task only; not XCUITest acceptance",
+    "taskId": "3e0fbc3c-1ce8-4165-883b-3530860412be",
+    "runs": [
+      {
+        "provider": "codex",
+        "model": "gpt-6.1-sol",
+        "state": "finished"
+      },
+      {
+        "provider": "claude",
+        "model": "sonnet",
+        "state": "finished"
+      }
+    ],
+    "repositoryProof": [
+      {
+        "name": "desktop",
+        "worktreeHead": "e20e2f59af3db318cfa1428e64d8662841d07d9d",
+        "worktreeClean": true,
+        "originalClean": true,
+        "originalVersion": 1,
+        "worktreeVersion": 2
+      },
+      {
+        "name": "backend",
+        "worktreeHead": "c53f765bdec72f6509c56317fad698e6cce72b92",
+        "worktreeClean": true,
+        "originalClean": true,
+        "originalVersion": 1,
+        "worktreeVersion": 2
+      },
+      {
+        "name": "frontend",
+        "worktreeHead": "00bbd3c606ae4b3b8aa1c7db36b4e1d336ab78f8",
+        "worktreeClean": true,
+        "originalClean": true,
+        "originalVersion": 1,
+        "worktreeVersion": 2
+      }
+    ],
+    "verifications": [
+      {
+        "state": "passed",
+        "output": "CONTRACT_OK\n"
+      }
+    ],
+    "deliveries": [
+      {
+        "state": "delivered"
+      }
+    ],
+    "limits": [
+      "One native handoff, not five personal sessions",
+      "macOS 26.6.2 only",
+      "Local commits in native UI; remote retry covered by separate integration fixture"
+    ]
+  },
+  "performance": {
+    "date": "2026-10-05T10:09:52.905Z",
+    "commit": "f1600068c3c843c46b93089816058b18e8a68030",
+    "dirty": true,
+    "sourceFingerprint": "5dd2cb8477ea5dd383c81f289435539ae1910d6d9760036c8bb02f6f7b6526eb",
+    "machine": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "kernel": "25.6.0",
+      "os": "26.6.2",
+      "hardware": "Mac16,5"
+    },
+    "node": "22.23.1",
+    "dependencies": {
+      "@qwen-code/sdk": "0.1.17",
+      "better-sqlite3": "13.0.3",
+      "zod": "4.6.5"
+    },
+    "status": "passed",
+    "scope": "Runtime task snapshot and JSON encode/decode only. Does not certify native UI task-switch p95.",
+    "projects": 50,
+    "tasks": 1000,
+    "events": 100000,
+    "setupMs": 7082.6460830000005,
+    "samples": 1000,
+    "p95Ms": 0.24033299999973678,
+    "maximumMs": 1.3701670000000377
+  },
+  "packaging": {
+    "status": "passed",
+    "sha256": "73ddbf2b9aa35f355304685f06523a6bd9caaf7dc5d3440235b1ee91c8b75dda",
+    "submissionId": "8f3c2215-8be5-46ac-b269-016a7500932a",
+    "finderSmoke": {
+      "at": "2026-10-05T09:53:53.619875+00:00",
+      "launchedFromFinder": true,
+      "pidApp": 45781,
+      "pidBundledNode": 45787,
+      "sourcePath": "/Volumes/Lagoto P00 spike/Lagoto.app",
+      "sqliteCreateAndRelaunch": true,
+      "project": "Collaudo pacchetto notarizzato",
+      "os": "26.6.2",
+      "cleanMacOS15": false,
+      "systemNodeRemoved": false,
+      "nodeProcessObservedInsideBundle": true
+    },
+    "limitations": [
+      "Older development bundle, not the final milestone sources",
+      "The historical package did not embed build provenance; source fingerprint recorded at packaging completion is not proof of exact build sources",
+      "Clean macOS 15 install and published download not tested"
+    ]
+  },
+  "regression": {
+    "sourceReport": "build/evidence/gates/2026-10-05T10-23-30.875Z/P01.json",
+    "sourceFingerprint": "44fd7c9eb9def32d67395c4cea50fb186bda3773779ff107b3eba8a3225afbed",
+    "commit": "f1600068c3c843c46b93089816058b18e8a68030",
+    "dirty": true,
+    "tests": {
+      "total": 45,
+      "passed": 45,
+      "failed": 0,
+      "skipped": 0
+    },
+    "nativeCounts": null,
+    "phaseGates": "failed: incomplete mandatory coverage"
+  }
+}

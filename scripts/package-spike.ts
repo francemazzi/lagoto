@@ -13,6 +13,7 @@ const output = resolve('build', `spike-${new Date().toISOString().replaceAll(':'
 const stage = join(output, 'stage'); mkdirSync(stage, { recursive: true });
 const app = join(stage, 'Lagoto.app');
 cpSync('build/Xcode/Build/Products/Release/Lagoto.app', app, { recursive: true, verbatimSymlinks: true });
+const buildProvenance=JSON.parse(readFileSync(join(app,'Contents/Resources/build-provenance.json'),'utf8'));
 symlinkSync('/Applications', join(stage, 'Applications'));
 run('codesign', ['--verify', '--deep', '--strict', app]);
 const dmg = join(output, 'Lagoto-P00-spike-macos-arm64.dmg');
@@ -28,6 +29,6 @@ run('xcrun', ['stapler', 'validate', dmg]);
 run('spctl', ['--assess', '--type', 'execute', '--verbose=2', app]);
 const sha256 = createHash('sha256').update(readFileSync(dmg)).digest('hex');
 writeFileSync(`${dmg}.sha256`, `${sha256}  Lagoto-P00-spike-macos-arm64.dmg\n`);
-writeFileSync(join(output, 'evidence.json'), JSON.stringify({ ...provenance(), status: 'passed', scope: 'P00 signing/notarization spike only',
+writeFileSync(join(output, 'evidence.json'), JSON.stringify({ ...provenance(), buildProvenance, status: 'passed', scope: 'P00 signing/notarization spike only',
   dmg, sha256, submissionId: submission.id, limitations: ['Not a product release', 'Finder launch on a clean macOS 15 machine not verified', 'Published download smoke not applicable: not published'] }, null, 2));
 console.log(output);

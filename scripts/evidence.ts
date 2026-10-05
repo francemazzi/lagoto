@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { platform, arch, release } from 'node:os';
 import { executable, cleanEnvironment } from '../runtime/process.js';
 
-export function sourceFingerprint(roots = ['runtime', 'macos/Sources', 'scripts', 'tests', 'fixtures', 'package.json', 'pnpm-lock.yaml', 'macos/project.yml']) {
+export function sourceFingerprint(roots = ['runtime', 'macos/Sources', 'macos/Tests', 'macos/UITests', 'scripts', 'tests', 'fixtures', 'package.json', 'pnpm-lock.yaml', 'macos/project.yml', 'macos/Node.entitlements', '.github']) {
   const hash = createHash('sha256');
   const visit = (path: string) => {
     if (lstatSync(path).isDirectory()) for (const name of readdirSync(path).sort()) visit(join(path, name));

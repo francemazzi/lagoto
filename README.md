@@ -24,7 +24,7 @@ Lagoto non vuole essere un altro IDE né un nuovo agente: vuole conservare lo st
 
 ## Stato
 
-Sviluppo avviato per macOS 15+ su Apple Silicon, con SwiftUI e Node incluso. Sono presenti uno spike nativo, persistenza, adapter e prove reali parziali. **La beta v0.1.0 non è ancora rilasciabile:** i gate P00–P12 restano aperti e il percorso completo nella UI non è implementato. [Stato preciso, comandi ed evidenze](docs/evidence/implementation-2026-10-05.md). Non serve un account Lagoto.
+App di sviluppo per macOS 15+ su Apple Silicon, con SwiftUI e Node incluso. Conversazione, profili, worktree, cambio modello, checkpoint Git, verifiche, revisione e backup sono implementati. Sono stati provati dieci turni e nove passaggi reali fra i sei percorsi di integrazione; un DMG di sviluppo ha superato notarizzazione e avvio Finder. **La beta v0.1.0 non è ancora rilasciabile:** i gate P00–P12 restano aperti. [Stato preciso, limiti ed evidenze](docs/evidence/progress-2026-10-05.md). Non serve un account Lagoto.
 
 [Roadmap di sviluppo](ROADMAP.md) · [Documentazione e ricerca](docs/README.md) · [Calcolo della batteria](docs/daily-battery.md) · [Licenza](LICENSE)
 
@@ -40,4 +40,4 @@ pnpm gate P00
 pnpm gate all
 ```
 
-I gate restituiscono un errore finché mancano le prove obbligatorie. `build/Xcode/Build/Products/Debug/Lagoto.app` è uno spike locale, non la beta. Gli smoke reali e il packaging Developer ID sono documentati nel report; nessuna chiave è richiesta per i test deterministici.
+I gate restituiscono un errore finché mancano le prove obbligatorie. `build/Xcode/Build/Products/Debug/Lagoto.app` è la build di sviluppo locale, non la beta. Apri Integrazioni, crea e verifica un profilo; aggiungi repository Git a un progetto e avvia un nuovo lavoro. Il cambio di modello conserva task e worktree con un’anteprima del contesto. Verifiche, checkpoint e consegna sono nel pannello Dettagli del lavoro. Nessuna chiave è richiesta per i test deterministici.

@@ -5,37 +5,48 @@ import { fileURLToPath } from 'node:url';
 import { AppError } from './protocol.js';
 import { JsonProcess, executable, cleanEnvironment, type ProcessMessage } from './process.js';
 import { ScopedFiles } from './scoped-files.js';
+import { cursorSandbox } from './sandbox.js';
 
 export type Profile = { id: string; provider: 'codex' | 'claude' | 'cursor' | 'qwen' | 'kimi' | 'ollama' | 'openrouter'; model: string; name: string; endpoint: string | null; executable: string | null; capabilities: string };
-export type AdapterEvent = { kind: 'text' | 'reasoning' | 'tool' | 'result' | 'usage' | 'system' | 'error' | 'raw'; text?: string; payload: unknown; itemId?: string };
+export type AdapterEvent = { kind: 'text' | 'text_snapshot' | 'reasoning' | 'tool' | 'result' | 'usage' | 'system' | 'error' | 'raw'; text?: string; payload: unknown; itemId?: string };
 export type Permission = (tool: string, input: unknown) => Promise<boolean>;
-export type RunOptions = { profile: Profile; cwd: string; directories: string[]; prompt: string; mode: 'plan' | 'agent'; effort?: string; secret?: string; home: string; onEvent: (event: AdapterEvent) => void; permission: Permission };
+export type RunOptions = { profile: Profile; cwd: string; directories: string[]; prompt: string; mode: 'plan' | 'agent'; effort?: string; secret?: string; home: string; onEvent: (event: AdapterEvent) => void; permission: Permission; onProcess?:(client:JsonProcess)=>void };
 export interface RunningAdapter { sessionId: string | null; completion: Promise<void>; stop(): Promise<void> }
 
-export async function codexClient(cwd: string, configured?: string | null) {
+export async function codexClient(cwd: string, configured?: string | null,onProcess?:(client:JsonProcess)=>void) {
   const path = executable('codex', configured); if (!path) throw new AppError(404, 'Codex CLI non trovato');
   const client = new JsonProcess(path, ['app-server'], cwd);
   try {
+    onProcess?.(client);
     await client.request('initialize', { clientInfo: { name: 'lagoto', version: '0.1.0' }, capabilities: { experimentalApi: true } });
     client.send({ jsonrpc: '2.0', method: 'initialized', params: {} }); return client;
   } catch (error) { await client.stop(); throw error; }
 }
 
-export function normalizeClaude(message: ProcessMessage): AdapterEvent[] {
+export function normalizeClaude(message: ProcessMessage, currentMessage='message'): AdapterEvent[] {
   const raw: AdapterEvent = { kind: 'raw', payload: message };
   if (message.type === 'stream_event') {
     const event = message.event;
-    if (event?.type === 'content_block_delta' && typeof event.delta?.text === 'string') return [raw, { kind: 'text', text: event.delta.text, itemId: `${event.index ?? 0}`, payload: {} }];
+    if (event?.type === 'content_block_delta' && typeof event.delta?.text === 'string') return [raw, { kind: 'text', text: event.delta.text, itemId: `${currentMessage}:${event.index ?? 0}`, payload: {} }];
     if (event?.type === 'content_block_delta' && typeof event.delta?.thinking === 'string') return [raw, { kind: 'reasoning', text: event.delta.thinking, payload: {} }];
   }
-  if (message.type === 'assistant') return [raw, ...((message.message?.content ?? []) as ProcessMessage[]).filter(block => block.type === 'tool_use').map(block => ({ kind: 'tool' as const, payload: block }))];
+  if (message.type === 'assistant') return [raw, ...((message.message?.content ?? []) as ProcessMessage[]).flatMap((block,index):AdapterEvent[] =>
+    block.type==='tool_use'?[{kind:'tool',payload:block}]:block.type==='text'?[{kind:'text_snapshot',text:block.text,itemId:`${message.message?.id ?? currentMessage}:${index}`,payload:{}}]:[])];
   if (message.type === 'user') return [raw, ...((Array.isArray(message.message?.content) ? message.message.content : []) as ProcessMessage[]).filter(block => block.type === 'tool_result').map(block => ({ kind: 'tool' as const, payload: block }))];
   if (message.type === 'result') return [raw, { kind: message.is_error ? 'error' : 'result', text: message.result, payload: message }, { kind: 'usage', payload: { usage: message.usage, cost: message.total_cost_usd, scope: 'session', source: 'runtime-estimate' } }];
   return [raw];
 }
 
+export function claudeNormalizer() {
+  let messageId='message';let sequence=0;
+  return (message:ProcessMessage)=>{
+    if(message.type==='stream_event' && message.event?.type==='message_start')messageId=message.event.message?.id ?? `message-${++sequence}`;
+    return normalizeClaude(message,messageId);
+  };
+}
+
 async function startCodex(options: RunOptions): Promise<RunningAdapter> {
-  const client = await codexClient(options.cwd, options.profile.executable);
+  const client = await codexClient(options.cwd, options.profile.executable,options.onProcess);
   let turnId: string | null = null;
   let resolve!: () => void; let reject!: (error: Error) => void; let finished = false;
   const completion = new Promise<void>((yes, no) => { resolve = yes; reject = no; });
@@ -52,6 +63,8 @@ async function startCodex(options: RunOptions): Promise<RunningAdapter> {
     const p = message.params ?? {};
     if (message.method === 'item/agentMessage/delta') options.onEvent({ kind: 'text', text: p.delta, itemId: p.itemId, payload: {} });
     else if (message.method === 'item/reasoning/summaryTextDelta') options.onEvent({ kind: 'reasoning', text: p.delta, itemId: p.itemId, payload: {} });
+    else if(message.method==='item/completed'&&p.item?.type==='agentMessage')options.onEvent({kind:'text_snapshot',text:p.item.text,itemId:p.item.id,payload:{}});
+    else if(message.method==='error')options.onEvent({kind:'error',text:p.error?.message,payload:p});
     else if (['item/started', 'item/completed'].includes(message.method) && !['agentMessage','reasoning','userMessage'].includes(p.item?.type)) options.onEvent({ kind: 'tool', payload: p.item });
     else if (message.method === 'thread/tokenUsage/updated') options.onEvent({ kind: 'usage', payload: p });
     else if (message.method === 'turn/completed') {
@@ -78,6 +91,8 @@ async function startClaude(options: RunOptions): Promise<RunningAdapter> {
   for (const directory of options.directories.slice(1)) args.push('--add-dir', directory);
   if (options.effort) args.push('--effort', options.effort);
   const client = new JsonProcess(path, args, options.cwd);
+  try{options.onProcess?.(client);}catch(error){await client.stop();throw error;}
+  const normalize = claudeNormalizer();
   let finished = false; let sessionId: string | null = null;
   let resolve!: () => void; let reject!: (error: Error) => void;
   const completion = new Promise<void>((yes, no) => { resolve = yes; reject = no; });
@@ -86,13 +101,14 @@ async function startClaude(options: RunOptions): Promise<RunningAdapter> {
   client.onMessage = message => {
     if (message.session_id) sessionId = message.session_id;
     if (message.type === 'control_request') {
+      options.onEvent({kind:'raw',payload:message});
       if (message.request?.subtype === 'can_use_tool') {
         void options.permission(message.request.tool_name, message.request.input).then(allow => client.send({ type: 'control_response', response: { subtype: 'success', request_id: message.request_id,
           response: allow ? { behavior: 'allow', updatedInput: message.request.input } : { behavior: 'deny', message: 'Operazione rifiutata' } } })).catch(error => reject(error));
       } else client.send({ type: 'control_response', response: { subtype: 'error', request_id: message.request_id, error: 'Unsupported control request' } });
       return;
     }
-    for (const event of normalizeClaude(message)) options.onEvent(event);
+    for (const event of normalize(message)) options.onEvent(event);
     if (message.type === 'result') { finished = true; if (message.is_error) reject(new AppError(502, 'Turno Claude fallito')); else resolve(); }
   };
   client.send({ type: 'control_request', request_id: randomUUID(), request: { subtype: 'initialize', hooks: {} } });
@@ -109,7 +125,9 @@ async function startQwen(options: RunOptions): Promise<RunningAdapter> {
   await mkdir(options.home, { recursive: true, mode: 0o700 });
   const client = new JsonProcess(process.execPath, [fileURLToPath(new URL('./qwen-worker.js', import.meta.url))], options.cwd,
     cleanEnvironment({ HOME: options.home, OPENAI_API_KEY: options.secret ?? 'ollama', OPENAI_BASE_URL: options.profile.endpoint, OPENAI_MODEL: options.profile.model }));
+  try{options.onProcess?.(client);}catch(error){await client.stop();throw error;}
   let done = false; let sessionId: string | null = null;
+  const normalize = claudeNormalizer();
   let resolve!: () => void; let reject!: (error: Error) => void;
   const completion = new Promise<void>((yes, no) => { resolve = yes; reject = no; });
   void completion.catch(() => {});
@@ -121,7 +139,7 @@ async function startQwen(options: RunOptions): Promise<RunningAdapter> {
     if (message.method === 'event') {
       const native = message.params;
       if (native.session_id) sessionId = native.session_id;
-      for (const event of normalizeClaude(native)) options.onEvent(event);
+      for (const event of normalize(native)) options.onEvent(event);
     } else if (message.method === 'complete') { done = true; resolve(); }
     else if (message.method === 'failure') { done = true; reject(new AppError(502, message.params.message)); }
   };
@@ -138,7 +156,10 @@ async function startCursor(options: RunOptions): Promise<RunningAdapter> {
   const args = ['--sandbox', 'enabled'];
   for (const directory of options.directories.slice(1)) args.push('--add-dir', directory);
   args.push('acp');
-  const client = new JsonProcess(path, args, options.cwd, cleanEnvironment({ CURSOR_CONFIG_DIR: options.home }));
+  const sandbox = await cursorSandbox(path, args, options.directories, options.home, options.mode === 'agent');
+  const client = new JsonProcess(sandbox.command, sandbox.args, options.cwd,
+    cleanEnvironment({ CURSOR_CONFIG_DIR: options.home, CURSOR_DATA_DIR: sandbox.temporary, TMPDIR: sandbox.temporary }));
+  try{options.onProcess?.(client);}catch(error){await client.stop();throw error;}
   const files = new ScopedFiles(options.directories);
   let activeSession: string | undefined;
   client.onMessage = message => {

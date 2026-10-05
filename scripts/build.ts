@@ -2,8 +2,10 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, cpSync, writeFileSync, existsSync, readdirSync, lstatSync, chmodSync, rmSync, openSync, readSync, closeSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { collectLicenses } from './licenses.js';
+import {provenance,sourceFingerprint} from './evidence.js';
 
 const root = process.cwd();
+const buildProvenance=provenance();
 if (process.platform !== 'darwin' || process.arch !== 'arm64' || process.versions.node !== '22.23.1')
   throw new Error('This packaging spike requires macOS arm64 and the pinned Node 22.23.1 runtime');
 function run(command: string, args: string[], cwd = root) { execFileSync(command, args, { cwd, stdio: 'inherit' }); }
@@ -30,6 +32,8 @@ cpSync(join(stage, 'node_modules'), join(runtime, 'node_modules'), { recursive: 
     && !/[/\\]vendor[/\\]ripgrep[/\\](?:x64-darwin|(?:arm64|x64)-(?:linux|win32))(?:[/\\]|$)/.test(source) });
 cpSync('LICENSE', join(app, 'Contents/Resources/LICENSE'));
 collectLicenses(runtime, join(app, 'Contents/Resources/Licenses'));
+if(sourceFingerprint()!==buildProvenance.sourceFingerprint)throw new Error('Sources changed during the build; rebuild before signing');
+writeFileSync(join(app,'Contents/Resources/build-provenance.json'),JSON.stringify(buildProvenance,null,2));
 const signing = process.env.LAGOTO_SIGN_IDENTITY ?? '-';
 if (configuration === 'Release' && signing === '-') throw new Error('Release requires LAGOTO_SIGN_IDENTITY (Developer ID)');
 const entitlements = resolve('macos/Node.entitlements');

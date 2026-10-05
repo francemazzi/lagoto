@@ -42,11 +42,13 @@ if (nativePassed) {
 // Register complete coverage only after every scenario in the named requirement exists.
 // The current primitive tests deliberately do not close broader Pxx-Inn requirements.
 const evidence: Evidence[] = [];
-const gateAssertions = testReport?.testResults?.flatMap((suite: any) => suite.assertionResults ?? []).filter((test: any) => test.fullName?.includes('P01-I05')) ?? [];
-if (gateAssertions.length) evidence.push({ id: 'P01-I05', status: gateAssertions.every((test: any) => test.status === 'passed') ? 'passed' : 'failed',
-  executed: gateAssertions.filter((test: any) => ['passed', 'failed'].includes(test.status)).length,
-  skipped: gateAssertions.filter((test: any) => !['passed', 'failed'].includes(test.status)).length,
-  complete: false, kind: 'deterministic', reason: 'Gate evaluator covered; fake adapter, CI and end-to-end gate corruption cases remain.' });
+const assertions=testReport?.testResults?.flatMap((suite:any)=>suite.assertionResults??[])??[];
+for(const id of required){
+  const matching=assertions.filter((test:any)=>test.fullName?.includes(id));if(!matching.length)continue;
+  evidence.push({id,status:matching.every((t:any)=>t.status==='passed')?'passed':'failed',executed:matching.filter((t:any)=>['passed','failed'].includes(t.status)).length,
+    skipped:matching.filter((t:any)=>!['passed','failed'].includes(t.status)).length,complete:false,kind:'deterministic',
+    reason:`Partial scenario coverage only: ${matching.map((t:any)=>t.fullName).join('; ')}`});
+}
 for (const phase of phases) {
   const result = evaluateGate(required.filter(id => id.startsWith(phase)), evidence);
   const report = { ...metadata, phase, ...result, status: (!testsPassed || !nativePassed || commands.some(c => c.status !== 0) || !testReport?.numTotalTests || testReport.numPendingTests > 0 || !nativeCounts?.total || nativeCounts.failed > 0 || nativeCounts.skipped > 0) ? 'failed' : result.status,

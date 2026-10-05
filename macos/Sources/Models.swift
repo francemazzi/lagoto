@@ -26,6 +26,7 @@ enum JSONValue: Codable, Sendable, Equatable {
     var string: String? { if case .string(let s) = self { return s }; return nil }
     var array: [JSONValue] { if case .array(let a) = self { return a }; return [] }
     var number: Double? { if case .number(let n) = self { return n }; return nil }
+    var bool: Bool? { if case .bool(let b) = self { return b }; return nil }
     var pretty: String { guard let data = try? JSONEncoder.pretty.encode(self) else { return "" }; return String(decoding: data, as: UTF8.self) }
 }
 extension JSONEncoder {
@@ -36,3 +37,19 @@ struct WorkTask: Decodable, Identifiable, Sendable { let id: String; let project
 struct Repository: Decodable, Identifiable, Sendable { let id: String; let name: String; let path: String; let git_root: String?; let remote: String? }
 struct RPCEnvelope: Decodable, Sendable { let id: String?; let result: JSONValue?; let error: RPCError?; let method: String?; let params: JSONValue? }
 struct RPCError: Decodable, Error, LocalizedError, Sendable { let code: Int; let message: String; var errorDescription: String? { message } }
+struct ModelProfile: Decodable, Identifiable, Sendable {
+    let id: String; let name: String; let provider: String; let model: String; let endpoint: String?; let capabilities: JSONValue
+    var modes: [String] { capabilities["modes"].array.compactMap(\.string) }
+    var efforts: [String] { capabilities["efforts"].array.compactMap(\.string) }
+    var verified: Bool { capabilities["verification"].string == "passed" && !modes.isEmpty }
+}
+struct TranscriptBlock: Decodable, Identifiable, Sendable {
+    let id: String; let run_id: String?; let kind: String; let text: String; let detail: JSONValue; let first_seq: Int; let last_seq: Int
+}
+struct RunRecord: Decodable, Identifiable, Sendable {
+    let id: String; let profile_id: String; let model: String; let state: String; let profile_name: String; let provider: String
+    var active: Bool { ["starting", "running", "waiting_permission", "stopping"].contains(state) }
+}
+struct TaskSnapshot: Decodable, Sendable {
+    let blocks: [TranscriptBlock]; let runs: [RunRecord]; let repositories: [JSONValue]; let queued: [JSONValue]; let hasEarlier: Bool; let cursor: Int
+}

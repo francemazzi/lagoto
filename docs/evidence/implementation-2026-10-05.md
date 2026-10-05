@@ -1,5 +1,7 @@
 # Implementazione e prove — 5 ottobre 2026
 
+> Inventario storico della prima implementazione. Per gli sviluppi successivi della stessa giornata vedere [avanzamento della build nativa](progress-2026-10-05.md).
+
 **Esito: sviluppo parziale, beta non rilasciata. Nessuna fase P00–P12 è chiusa.**
 
 Branch: `codex/lagoto-native-beta`, base `30c5b59af57a3b6fd3462b179d5168f36b71a518`. I probe iniziali sono stati eseguiti con working tree modificato; quelli più recenti riportano anche fingerprint delle sorgenti. I report finali dei gate registrano il commit effettivamente provato. Non interpretare la base Git come se contenesse l’implementazione successiva.

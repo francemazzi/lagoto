@@ -34,7 +34,7 @@ export class BudgetLedger {
       const previous = this.store.db.prepare('SELECT * FROM ledger WHERE source_key=?').get(key) as { allowance_id: string; amount: number } | undefined;
       if (previous) { if (previous.allowance_id !== id || previous.amount !== amount) throw new AppError(409, 'Chiave idempotente riutilizzata con dati diversi'); return previous; }
       const a = this.store.db.prepare('SELECT * FROM allowances WHERE id=?').get(id) as Allowance | undefined;
-      if (!a || a.assigned - a.spent - a.reserved < amount) throw new AppError(409, 'Budget disponibile insufficiente');
+      if (!a || a.assigned - a.spent - a.reserved <= 0 || a.assigned - a.spent - a.reserved < amount) throw new AppError(409, 'Budget disponibile insufficiente');
       this.store.db.prepare('UPDATE allowances SET reserved=reserved+? WHERE id=?').run(amount, id);
       this.store.db.prepare('INSERT INTO ledger VALUES(?,?,?,?,?,?)').run(randomUUID(), id, 'reservation', amount, key, now()); return { allowance_id: id, amount };
     }).immediate();
@@ -49,5 +49,51 @@ export class BudgetLedger {
       this.store.db.prepare('UPDATE allowances SET reserved=reserved-?,spent=spent+? WHERE id=?').run(old.amount, cost, old.allowance_id);
       this.store.db.prepare('INSERT INTO ledger VALUES(?,?,?,?,?,?)').run(randomUUID(), old.allowance_id, 'charge', cost, `settle:${key}`, now());
     }).immediate();
+  }
+}
+
+type Pool={id:string;name:string;residual:number;reserve:number;reset_at:string;cycle:string;unit:string;timezone:string};
+/** A personal token budget, never a claim about a subscription's actual provider quota. */
+export class RunBudgets {
+  private ledger:BudgetLedger;
+  constructor(private store:Store){this.ledger=new BudgetLedger(store);}
+  status(profileId:string,date=new Date()){
+    const config=this.store.db.prepare('SELECT p.*,pp.reservation FROM budget_pools p JOIN profile_pools pp ON pp.pool_id=p.id WHERE pp.profile_id=?').get(profileId) as (Pool&{reservation:number})|undefined;
+    if(!config)return {configured:false,providerQuota:'unknown' as const};
+    const days=daysUntilReset(date,new Date(config.reset_at),config.timezone);
+    const pending=this.store.db.prepare('SELECT COALESCE(SUM(a.reserved),0) AS total FROM allowances a WHERE a.pool=? AND NOT(a.day=? AND a.cycle=?)').get(config.id,localDate(date,config.timezone),config.cycle) as {total:number};
+    const assigned=allowanceAmount(config.residual-pending.total,config.reserve,days);
+    const allowance=this.ledger.open(config.id,localDate(date,config.timezone),config.cycle,config.unit,assigned);
+    return {configured:true,providerQuota:'unknown' as const,pool:config,allowance,percent:battery(allowance.assigned,allowance.spent,allowance.reserved),expired:days===0};
+  }
+  reserve(runId:string,profileId:string){
+    const status=this.status(profileId);if(!status.configured)return;
+    if(status.expired)throw new AppError(409,'Il ciclo del budget personale è scaduto: aggiorna il residuo');
+    this.ledger.reserve(status.allowance!.id,status.pool!.reservation,`run:${runId}`);
+    this.store.db.prepare('INSERT INTO run_budgets(run_id,pool_id,allowance_id) VALUES(?,?,?)').run(runId,status.pool!.id,status.allowance!.id);
+  }
+  observe(runId:string,payload:any){
+    const row=this.store.db.prepare('SELECT * FROM run_budgets WHERE run_id=?').get(runId) as {reported:number|null;settled:number;allowance_id:string}|undefined;
+    if(!row||row.settled)return false;
+    const raw=payload.payload??payload;
+    const u=raw.tokenUsage?.total??raw.usage??raw;
+    const value=u.totalTokens??u.total_tokens??(typeof u.input_tokens==='number' && typeof u.output_tokens==='number'
+      ? u.input_tokens+u.output_tokens+(u.cache_read_input_tokens??0)+(u.cache_creation_input_tokens??0):undefined);
+    if(!Number.isSafeInteger(value)||value<0)return false;
+    const total=Math.max(row.reported??0,value);
+    this.store.db.prepare('UPDATE run_budgets SET reported=? WHERE run_id=?').run(total,runId);
+    const a=this.store.db.prepare('SELECT * FROM allowances WHERE id=?').get(row.allowance_id) as Allowance;
+    const own=this.store.db.prepare('SELECT amount FROM ledger WHERE source_key=?').get(`run:${runId}`) as {amount:number};
+    return a.assigned-a.spent-a.reserved+own.amount-total<=0;
+  }
+  finish(runId:string,state:string){
+    this.store.db.transaction(()=>{
+      const row=this.store.db.prepare('SELECT * FROM run_budgets WHERE run_id=?').get(runId) as {pool_id:string;reported:number|null;settled:number}|undefined;
+      // No measured usage or uncertain stop: retain the reservation, including after restart.
+      if(!row||row.settled||row.reported===null||state==='unknown')return;
+      this.ledger.settle(`run:${runId}`,row.reported);
+      this.store.db.prepare('UPDATE budget_pools SET residual=residual-? WHERE id=?').run(row.reported,row.pool_id);
+      this.store.db.prepare('UPDATE run_budgets SET settled=1 WHERE run_id=?').run(runId);
+    })();
   }
 }
