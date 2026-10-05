@@ -1,0 +1,5 @@
+[
+  {"jsonrpc":"2.0","id":"unicode","result":{"text":"Caffè 🐕","blocks":[{"type":"tool","done":false,"usage":null}],"sequence":3}},
+  {"jsonrpc":"2.0","id":"error","error":{"code":409,"message":"Writer attivo"}},
+  {"jsonrpc":"2.0","method":"event","params":{"seq":4,"task_id":"task-fixture","kind":"text","payload":{"text":"| A | B |\n|---|---|\n| 1 | 2 |\n\n```swift\nprint(\"Ciao\")\n```"}}}
+]

@@ -1,6 +1,6 @@
 # Integrazioni, modelli e accesso
 
-**Stato:** specifica; nessun provider collaudato in Lagoto · **Fonti consultate:** 28 settembre 2026.
+**Stato:** specifica e adapter sperimentali; smoke positivi limitati alle combinazioni nel [report](evidence/implementation-2026-10-05.md). Nessun gate completo.
 
 ## Separare cinque dimensioni
 
@@ -16,7 +16,7 @@ Ogni run registra harness/versione, endpoint, profilo account opaco, modello ric
 | Kimi cloud | API Moonshot con credenziale e piano propri | Qwen Code SDK dietro adapter | P00, P06 |
 | Modello locale | Server Ollama e modello disponibile sul Mac | Qwen Code SDK + Ollama | P00, P06 |
 | Endpoint personalizzato | Configurazione avanzata, credenziale vincolata alla destinazione | Adapter Qwen, solo combinazioni provate | Dopo gate specifico, senza garanzia universale |
-| Cursor | Autenticazione CLI e ACP documentati | Adapter successivo | P10 |
+| Cursor | Autenticazione CLI e ACP documentati | Adapter ACP stdio obbligatorio nella beta | P00, P10 |
 | Kimi Code nativo / Grok multi-agent | Percorsi distinti da studiare se richiesti | Eventuale adapter futuro | Fuori dall’MVP iniziale |
 
 Le fonti per i percorsi sopra sono nel [registro tecnico](sources.md). La [matrice di compatibilità](compatibility.md) conserva lo stato non verificato finché manca evidenza sulla combinazione esatta.

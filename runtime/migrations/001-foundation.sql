@@ -1,0 +1,16 @@
+CREATE TABLE IF NOT EXISTS migrations(version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS projects(id TEXT PRIMARY KEY, name TEXT NOT NULL, archived INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS repositories(id TEXT PRIMARY KEY, project_id TEXT NOT NULL REFERENCES projects(id), name TEXT NOT NULL, path TEXT NOT NULL, git_root TEXT, remote TEXT, UNIQUE(project_id, path));
+CREATE TABLE IF NOT EXISTS tasks(id TEXT PRIMARY KEY, project_id TEXT NOT NULL REFERENCES projects(id), title TEXT NOT NULL, objective TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'ready', created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS task_repositories(task_id TEXT NOT NULL REFERENCES tasks(id), repository_id TEXT NOT NULL REFERENCES repositories(id), path TEXT NOT NULL, branch TEXT NOT NULL, base TEXT NOT NULL, PRIMARY KEY(task_id, repository_id));
+CREATE TABLE IF NOT EXISTS profiles(id TEXT PRIMARY KEY, name TEXT NOT NULL, provider TEXT NOT NULL, model TEXT NOT NULL, endpoint TEXT, executable TEXT, enabled INTEGER NOT NULL DEFAULT 1, capabilities TEXT NOT NULL DEFAULT '{}');
+CREATE TABLE IF NOT EXISTS runs(id TEXT PRIMARY KEY, task_id TEXT NOT NULL REFERENCES tasks(id), profile_id TEXT NOT NULL REFERENCES profiles(id), state TEXT NOT NULL, model TEXT NOT NULL, session_id TEXT, created_at TEXT NOT NULL, ended_at TEXT);
+CREATE UNIQUE INDEX IF NOT EXISTS one_active_run ON runs(task_id) WHERE state IN ('starting','running','stopping','waiting_permission','unknown');
+CREATE TABLE IF NOT EXISTS events(seq INTEGER PRIMARY KEY AUTOINCREMENT, id TEXT UNIQUE NOT NULL, task_id TEXT NOT NULL REFERENCES tasks(id), run_id TEXT REFERENCES runs(id), kind TEXT NOT NULL, payload TEXT NOT NULL, source_key TEXT UNIQUE, created_at TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS events_task ON events(task_id,seq);
+CREATE TABLE IF NOT EXISTS checkpoints(id TEXT PRIMARY KEY, task_id TEXT NOT NULL REFERENCES tasks(id), manifest TEXT NOT NULL, created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS decisions(id TEXT PRIMARY KEY, task_id TEXT NOT NULL REFERENCES tasks(id), content TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'active', created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS verifications(id TEXT PRIMARY KEY, task_id TEXT NOT NULL REFERENCES tasks(id), command TEXT NOT NULL, fingerprint TEXT NOT NULL, state TEXT NOT NULL, output TEXT NOT NULL, created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS external_actions(id TEXT PRIMARY KEY, task_id TEXT, kind TEXT NOT NULL, state TEXT NOT NULL, payload TEXT NOT NULL, created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS allowances(id TEXT PRIMARY KEY, pool TEXT NOT NULL, day TEXT NOT NULL, cycle TEXT NOT NULL, unit TEXT NOT NULL, assigned INTEGER NOT NULL, spent INTEGER NOT NULL DEFAULT 0, reserved INTEGER NOT NULL DEFAULT 0, UNIQUE(pool,day,cycle));
+CREATE TABLE IF NOT EXISTS ledger(id TEXT PRIMARY KEY, allowance_id TEXT NOT NULL REFERENCES allowances(id), kind TEXT NOT NULL, amount INTEGER NOT NULL, source_key TEXT UNIQUE NOT NULL, created_at TEXT NOT NULL);

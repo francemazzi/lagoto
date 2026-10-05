@@ -1,0 +1,14 @@
+node_modules/
+build/
+dist/
+.build/
+.DS_Store
+*.xcuserstate
+xcuserdata/
+.env*
+!.env.example
+coverage/
+test-results/
+*.dmg
+*.xcarchive
+*.xcresult

@@ -1,10 +1,10 @@
 # Evidenze e stato delle prove
 
-**Aggiornamento:** 28 settembre 2026.
+**Aggiornamento:** 5 ottobre 2026.
 
 Questa cartella distingue controlli documentali da prove dell’app. [Revisione documentale](documentation-review.md) riguarda soltanto Markdown, tracciabilità e aritmetica degli esempi. Non chiude P00 o altre fasi.
 
-Non esistono ancora report di integrazioni Lagoto riuscite. Durante l’implementazione creare un report per fase e conservare versioni ed esiti; non popolare anticipatamente file P00–P12 come se i test fossero avvenuti.
+Il [report di implementazione](implementation-2026-10-05.md) e il [riepilogo dei probe reali](p00-smoke-summary.json) registrano prove parziali riuscite e fallite. Nessuna fase P00–P12 è chiusa. I report macchina di `pnpm gate` rimangono in `build/evidence/gates/`; non popolare anticipatamente report “passed”.
 
 ## Modello per un report futuro
 

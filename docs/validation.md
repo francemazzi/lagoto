@@ -2,11 +2,11 @@
 
 **Stato:** specifica delle prove future · **Aggiornamento:** 28 settembre 2026.
 
-Il controllo di questa consegna riguarda soltanto la documentazione. Nessuna prova applicativa sotto è dichiarata eseguita. I risultati reali richiederanno implementazione, ambiente e report secondo [Evidenze](evidence/README.md).
+I criteri di questo documento rimangono obbligatori. Il [report di implementazione](evidence/implementation-2026-10-05.md) registra le prove parziali già eseguite; non chiude automaticamente gli scenari seguenti.
 
 ## Tracciabilità
 
-Ogni checkbox della [roadmap](../ROADMAP.md) ha un test di accettazione `Pxx-Inn` corrispondente al requisito `Pxx.n`. La sua descrizione è l’esito minimo; le tabelle seguenti aggiungono scenari trasversali obbligatori. Il runner futuro deve fallire su test mancanti, zero test eseguiti, skip inattesi o mock usati al posto di smoke richiesti.
+Ogni checkbox della [roadmap](../ROADMAP.md) ha un test di accettazione `Pxx-Inn` corrispondente al requisito `Pxx.n`. La sua descrizione è l’esito minimo; le tabelle seguenti aggiungono scenari trasversali obbligatori. Il runner `pnpm gate Pxx` / `pnpm gate all` deve fallire su test mancanti, zero test eseguiti, skip inattesi o mock usati al posto di smoke richiesti.
 
 | Area | Requisiti di riferimento | Prova di completamento |
 | --- | --- | --- |
@@ -17,7 +17,7 @@ Ogni checkbox della [roadmap](../ROADMAP.md) ha un test di accettazione `Pxx-Inn
 | Budget | P00.8, P05.7, P09.1–P09.2, P09.6–P09.9 | Calcoli deterministici e riconciliazione senza duplicati |
 | Memoria e handoff | P07.1–P07.6, P08.1–P08.6 | Recupero byte/stato e continuità eterogenea |
 | Contesto e completamento | P09.3–P09.5, P11.1–P11.2 | Misure semantiche e prove valide sulla revisione corrente |
-| Estensioni | P10.1–P10.6 | Cursor/figli osservabili solo sui percorsi verificati |
+| Cursor obbligatorio e figli | P10.1–P10.6 | Cursor/figli osservabili solo sui percorsi verificati |
 | Rilascio e recupero | P00.4–P00.5, P11.4–P11.6, P12.1–P12.6 | Pacchetto nativo, backup, fault injection e uso personale |
 
 ## Batteria e contabilità

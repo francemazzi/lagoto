@@ -4,6 +4,8 @@
 **Stato:** scelta progettuale accettata nel piano; fattibilità tecnica da verificare in P00.
 **Ambito:** primo prodotto personale macOS. Nessuna implementazione attestata.
 
+Aggiornamento del 5 ottobre 2026: [ADR 0002](0002-native-macos.md) sostituisce lo stack desktop Tauri/React/Prisma e rende Cursor obbligatorio. La scelta degli harness e i confini di responsabilità di questo documento restano validi.
+
 ## Contesto
 
 Servono login nativi dei servizi, Qwen/Kimi cloud e modelli locali, con budget condivisi e continuità del lavoro. Un solo protocollo non uniforma autenticazione, quote, strumenti e memoria. Ricostruire un agente completo aumenterebbe il lavoro prima di dimostrare che il cambio modello conserva file e prove.

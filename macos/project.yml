@@ -1,0 +1,57 @@
+name: Lagoto
+options:
+  bundleIdPrefix: org.frasma
+  deploymentTarget:
+    macOS: '15.0'
+settings:
+  base:
+    SWIFT_VERSION: '6.0'
+    MACOSX_DEPLOYMENT_TARGET: '15.0'
+    ARCHS: arm64
+    ENABLE_HARDENED_RUNTIME: YES
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: '-'
+    GENERATE_INFOPLIST_FILE: YES
+    MARKETING_VERSION: '0.1.0'
+    CURRENT_PROJECT_VERSION: '1'
+  configs:
+    Debug:
+      ENABLE_HARDENED_RUNTIME: NO
+targets:
+  Lagoto:
+    type: application
+    platform: macOS
+    sources: [Sources]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.frasma.lagoto
+        INFOPLIST_KEY_CFBundleDisplayName: Lagoto
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.developer-tools
+  LagotoTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests
+      - path: ../fixtures/protocol-v1.json
+        buildPhase: resources
+    settings:
+      base:
+        ENABLE_HARDENED_RUNTIME: NO
+    dependencies:
+      - target: Lagoto
+  LagotoUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    sources: [UITests]
+    settings:
+      base:
+        ENABLE_HARDENED_RUNTIME: NO
+    dependencies:
+      - target: Lagoto
+schemes:
+  Lagoto:
+    build:
+      targets:
+        Lagoto: all
+    test:
+      targets: [LagotoTests, LagotoUITests]
