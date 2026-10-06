@@ -1,0 +1,44 @@
+{
+  "name": "lagoto",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "GPL-3.0-only",
+  "files": [
+    "dist/runtime",
+    "LICENSE"
+  ],
+  "packageManager": "pnpm@10.33.3",
+  "engines": {
+    "node": ">=22.12.0 <23"
+  },
+  "scripts": {
+    "build": "tsx scripts/build.ts",
+    "build:runtime": "tsc -p tsconfig.json && tsx scripts/copy-resources.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "gate": "tsx scripts/gate.ts",
+    "dev:runtime": "pnpm build:runtime && node dist/runtime/server.js",
+    "inventory": "tsx scripts/inventory.ts",
+    "smoke:provider": "pnpm build:runtime && node dist/scripts/smoke-provider.js",
+    "smoke:controls": "pnpm build:runtime && node dist/scripts/smoke-controls.js"
+  },
+  "dependencies": {
+    "@qwen-code/sdk": "0.1.17",
+    "better-sqlite3": "13.0.3",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "9.6.0",
+    "@types/node": "22.20.5",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vitest": "5.0.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "esbuild"
+    ]
+  }
+}

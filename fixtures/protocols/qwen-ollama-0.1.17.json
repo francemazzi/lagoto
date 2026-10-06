@@ -1,0 +1,2444 @@
+{
+  "provenance": {
+    "date": "2026-10-05T11:21:02.368Z",
+    "commit": "0175d7e02f7e9938e3cec6e7b895b4bac701ca9f",
+    "dirty": true,
+    "sourceFingerprint": "5ce280464be76109c31a0ea4b21a84f9147c52262d5a1e195b0993cb2df7adb9",
+    "model": "qwen3.5:4b",
+    "nativeVersions": {
+      "codex": "codex-cli 0.159.2",
+      "claude": "2.1.283 (Claude Code)",
+      "cursor-agent": "2026.10.01-e373342",
+      "git": "git version 2.39.1",
+      "gh": "gh version 2.87.3 (2026-02-23)",
+      "ollama": "ollama version is 0.34.4"
+    },
+    "dependencies": {
+      "@qwen-code/sdk": "0.1.17",
+      "better-sqlite3": "13.0.3",
+      "zod": "4.6.5"
+    }
+  },
+  "scope": "Real Qwen SDK/Ollama offline capture. Synthetic fixture paths sanitized. Replay does not replace a live smoke.",
+  "events": [
+    {
+      "type": "system",
+      "subtype": "init",
+      "uuid": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "cwd": "/synthetic/three-repositories/backend",
+      "tools": [
+        "web_fetch",
+        "get_goal",
+        "update_goal",
+        "tool_call",
+        "tool_search",
+        "read_mcp_resource",
+        "agent",
+        "list_agents",
+        "task_stop",
+        "send_message",
+        "skill",
+        "read_file",
+        "manage_memory",
+        "search_memory",
+        "zoom_image",
+        "grep_search",
+        "glob",
+        "edit",
+        "notebook_edit",
+        "write_file",
+        "run_shell_command",
+        "report_findings",
+        "ask_user_question",
+        "enter_worktree",
+        "exit_worktree",
+        "cron_create",
+        "cron_list",
+        "cron_delete",
+        "loop_wakeup",
+        "monitor"
+      ],
+      "mcp_servers": [],
+      "model": "qwen3.5:4b",
+      "permission_mode": "default",
+      "slash_commands": [
+        "advisor",
+        "auth",
+        "bug",
+        "clear",
+        "compress",
+        "compress-fast",
+        "config",
+        "context",
+        "curator",
+        "diff",
+        "docs",
+        "doctor",
+        "effort",
+        "export",
+        "extensions",
+        "goal",
+        "hooks",
+        "import-config",
+        "init",
+        "insight",
+        "language",
+        "model",
+        "output-style",
+        "stats",
+        "status",
+        "summary",
+        "tasks",
+        "update"
+      ],
+      "qwen_code_version": "0.24.7",
+      "agents": []
+    },
+    {
+      "type": "stream_event",
+      "uuid": "28a4ffcf-4595-4619-be72-5b646b2b4f6e",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "goal_state",
+        "goal_state": {
+          "v": 2,
+          "goal": null,
+          "activity": "idle"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "08b77f48-fab3-4eed-a8dc-502c1d3b8356",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "message_start",
+        "message": {
+          "id": "1a891029-a6f2-4fc9-be34-69ceb869d6e1",
+          "role": "assistant",
+          "model": "qwen3.5:4b",
+          "content": []
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "8fac90ae-bc47-483f-91bf-40132a9df8a7",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_start",
+        "index": 0,
+        "content_block": {
+          "type": "thinking",
+          "thinking": "",
+          "signature": ""
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "9bb58c14-607b-4a3a-81b6-fdb5bd7ba367",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": "I"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "9f9ec217-15b0-4e9b-aa79-14955fedab2f",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " need"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "2425749e-88b1-45a2-826d-4e7442e9579c",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " to"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "770894b7-80d8-4374-a3e4-d7dca87f9dfb",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " read"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "f559808b-1711-4227-8a08-56d67261b02c",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " the"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "a908b632-7e91-462f-9c2f-c4078d44bb1c",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " fixture"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "38ed687b-7492-456a-b90b-76c41ee32b3f",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": ".txt"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "ff29bfd7-6f00-4da7-8d67-533e9f0fcd5c",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " files"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "6a3e7504-4d7a-4d23-acaf-5dca85793a58",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " from"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "fa805881-f7f8-435c-aca0-1a1886096a5e",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " all"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "5524ac67-5b52-4231-86b7-44bf7edaad9a",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " three"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "92bee9bc-eba5-4dfe-937f-9296a68798ef",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " directories"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "065ac97c-62ec-422a-83dd-c445ea9b2173",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " using"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "2e42507d-a8c2-4455-a593-96b11ba83d6d",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " the"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "1faf36f5-6493-4c70-af83-e3a1cf4867b0",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " read"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "7acda20d-9f84-4bf6-b8c2-5b93ab0d16a7",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": "_file"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "c4f72e6f-f315-44d3-acaf-c11bf4dc1193",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " tool"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "0321f577-4d0e-4ad0-93f9-bf0216d86cfb",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " rather"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "39f24722-a834-452b-96c4-aadd5a93855c",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " than"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "bab34445-8a61-4884-bc9a-d582ea5a4e38",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " shell"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "dc668115-d0ef-437d-8df4-7efd5a17d253",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " commands"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "4ebb3fb7-0b92-4855-9a98-40f87772347e",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": "."
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "04b86a0e-664b-40b0-a39b-71345161a210",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_stop",
+        "index": 0
+      }
+    },
+    {
+      "type": "assistant",
+      "uuid": "1a891029-a6f2-4fc9-be34-69ceb869d6e1",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "message": {
+        "id": "1a891029-a6f2-4fc9-be34-69ceb869d6e1",
+        "type": "message",
+        "role": "assistant",
+        "model": "qwen3.5:4b",
+        "content": [
+          {
+            "type": "thinking",
+            "thinking": "I need to read the fixture.txt files from all three directories using the read_file tool rather than shell commands.",
+            "signature": ""
+          }
+        ],
+        "stop_reason": null,
+        "usage": {
+          "input_tokens": 0,
+          "output_tokens": 0
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "ae86f779-9b40-4245-b7d3-a1edd2593c21",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_start",
+        "index": 0,
+        "content_block": {
+          "type": "tool_use",
+          "id": "call_5bd8oe6v",
+          "name": "read_file",
+          "input": {}
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "e80e7a1d-103a-42ec-a923-01c216f31223",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "input_json_delta",
+          "partial_json": "{\"file_path\":\"/var/folders/j2/2r3wdfm14svbt85twrwqyq7r0000gp/T/lagoto-offline-OhrJON/backend/fixture.txt\"}"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "da6335fb-d864-4f56-b57e-6b6ae0361ee9",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_stop",
+        "index": 0
+      }
+    },
+    {
+      "type": "assistant",
+      "uuid": "c5ba6d75-e4d1-41a3-acaf-d10c5d34daa9",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "message": {
+        "id": "c5ba6d75-e4d1-41a3-acaf-d10c5d34daa9",
+        "type": "message",
+        "role": "assistant",
+        "model": "qwen3.5:4b",
+        "content": [
+          {
+            "type": "tool_use",
+            "id": "call_5bd8oe6v",
+            "name": "read_file",
+            "input": {
+              "file_path": "/var/folders/j2/2r3wdfm14svbt85twrwqyq7r0000gp/T/lagoto-offline-OhrJON/backend/fixture.txt"
+            }
+          }
+        ],
+        "stop_reason": "tool_use",
+        "usage": {
+          "input_tokens": 15426,
+          "output_tokens": 94,
+          "cache_read_input_tokens": 0,
+          "total_tokens": 15520
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "c0e467a4-d74b-4495-af7a-51a8c01b2965",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "message_stop"
+      }
+    },
+    {
+      "type": "user",
+      "uuid": "87c0d062-0cab-4ba8-b38a-6cc84799889f",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "message": {
+        "role": "user",
+        "content": [
+          {
+            "type": "tool_result",
+            "tool_use_id": "call_5bd8oe6v",
+            "is_error": false,
+            "content": "LAGOTO_BACKEND_V1\n"
+          }
+        ]
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "33e017ae-08cc-4fd2-9439-fee3dbaba033",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "message_start",
+        "message": {
+          "id": "bd730726-12a2-4358-9e63-7e3e29c5483e",
+          "role": "assistant",
+          "model": "qwen3.5:4b",
+          "content": []
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "d7614685-3903-404f-ae0d-1881142e17c3",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_start",
+        "index": 0,
+        "content_block": {
+          "type": "thinking",
+          "thinking": "",
+          "signature": ""
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "f5e9f6cd-0b23-4259-b263-671abedbf0a9",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": "Now"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "bcf0772a-e2f2-4e0c-99a3-4d74f94f33ce",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " I"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "8a15b86c-6455-4b6f-b8dc-cdf8cb0d2d46",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " need"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "a5c268d9-7d63-4928-8bc3-682627c2541d",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " to"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "267f17b0-23fa-45a3-b1e4-b766937ead42",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " read"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "cd70fe0b-d60f-40c8-a599-5b293458cd4f",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " the"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "08e40abe-1cc6-411e-bf96-019ee5785692",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " frontend"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "6bed3727-9c57-48b2-bb22-cde4ad176643",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " fixture"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "70ca7dda-7eaf-4d46-a713-609f93ad01dd",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " file"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "1e781245-45ec-425e-b3be-f64e05e4e064",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": "."
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "ba0e9e60-32eb-4154-bfdb-6d976f4dcf63",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_stop",
+        "index": 0
+      }
+    },
+    {
+      "type": "assistant",
+      "uuid": "bd730726-12a2-4358-9e63-7e3e29c5483e",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "message": {
+        "id": "bd730726-12a2-4358-9e63-7e3e29c5483e",
+        "type": "message",
+        "role": "assistant",
+        "model": "qwen3.5:4b",
+        "content": [
+          {
+            "type": "thinking",
+            "thinking": "Now I need to read the frontend fixture file.",
+            "signature": ""
+          }
+        ],
+        "stop_reason": null,
+        "usage": {
+          "input_tokens": 0,
+          "output_tokens": 0
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "b9038830-06ab-49ec-a9ad-565ff6b125a5",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_start",
+        "index": 0,
+        "content_block": {
+          "type": "tool_use",
+          "id": "call_ap9iuk8y",
+          "name": "read_file",
+          "input": {}
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "346a2edf-7621-4b3c-b027-dddce5983ffa",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "input_json_delta",
+          "partial_json": "{\"file_path\":\"/var/folders/j2/2r3wdfm14svbt85twrwqyq7r0000gp/T/lagoto-offline-OhrJON/frontend/fixture.txt\"}"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "8053f879-8170-4798-a081-e96a13b396dd",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_stop",
+        "index": 0
+      }
+    },
+    {
+      "type": "assistant",
+      "uuid": "913120a5-e021-418b-9a9c-181dc4322b67",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "message": {
+        "id": "913120a5-e021-418b-9a9c-181dc4322b67",
+        "type": "message",
+        "role": "assistant",
+        "model": "qwen3.5:4b",
+        "content": [
+          {
+            "type": "tool_use",
+            "id": "call_ap9iuk8y",
+            "name": "read_file",
+            "input": {
+              "file_path": "/var/folders/j2/2r3wdfm14svbt85twrwqyq7r0000gp/T/lagoto-offline-OhrJON/frontend/fixture.txt"
+            }
+          }
+        ],
+        "stop_reason": "tool_use",
+        "usage": {
+          "input_tokens": 15540,
+          "output_tokens": 82,
+          "cache_read_input_tokens": 0,
+          "total_tokens": 15622
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "b3b0cfc6-8c52-4832-9136-fac1e19e3ff7",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "message_stop"
+      }
+    },
+    {
+      "type": "user",
+      "uuid": "2d5b10cc-155d-4999-bad8-b9cbdddd6bdf",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "message": {
+        "role": "user",
+        "content": [
+          {
+            "type": "tool_result",
+            "tool_use_id": "call_ap9iuk8y",
+            "is_error": false,
+            "content": "LAGOTO_FRONTEND_V1\n"
+          }
+        ]
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "f7dcb59a-4112-41cd-a1b5-58010d5c4ac3",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "message_start",
+        "message": {
+          "id": "52bf0c3e-1794-4e9e-b37a-54117a321261",
+          "role": "assistant",
+          "model": "qwen3.5:4b",
+          "content": []
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "0811d3bc-e76f-428e-9edb-ac4ec0a7c174",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_start",
+        "index": 0,
+        "content_block": {
+          "type": "thinking",
+          "thinking": "",
+          "signature": ""
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "feefacfd-891c-4a45-8bfc-cfd4de8a2e5b",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": "Now"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "f5a4e313-0888-46d9-9172-56b373b0eff5",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " I"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "e6734b4f-b545-40d4-9f9f-8ac7ecced46c",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " need"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "e2b38395-bd9a-4471-8553-3c322687069b",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " to"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "b2992b4d-8e00-4489-bcee-3720f0f349be",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " read"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "487931dd-4c37-4886-bcdc-c6841a8add43",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " the"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "72fb1dae-2453-483f-8984-83c235cd3e72",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " desktop"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "739e421e-f7c6-43bf-af65-68a10bec7721",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " fixture"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "ac9d39a6-813f-4bcd-929c-7aa794a2c292",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": ".txt"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "03b92193-9987-442a-b24c-7ff15e2c12f5",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " file"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "033ad54c-cf68-4f2c-a716-4a27cd7a8260",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": "."
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "187ded12-5f73-4e4f-a54a-efae0cbb0e11",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_stop",
+        "index": 0
+      }
+    },
+    {
+      "type": "assistant",
+      "uuid": "52bf0c3e-1794-4e9e-b37a-54117a321261",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "message": {
+        "id": "52bf0c3e-1794-4e9e-b37a-54117a321261",
+        "type": "message",
+        "role": "assistant",
+        "model": "qwen3.5:4b",
+        "content": [
+          {
+            "type": "thinking",
+            "thinking": "Now I need to read the desktop fixture.txt file.",
+            "signature": ""
+          }
+        ],
+        "stop_reason": null,
+        "usage": {
+          "input_tokens": 0,
+          "output_tokens": 0
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "e28d3041-f7d5-4ca4-8abe-26e3268ad99d",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_start",
+        "index": 0,
+        "content_block": {
+          "type": "tool_use",
+          "id": "call_pe73z6tr",
+          "name": "read_file",
+          "input": {}
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "9c41f28f-9139-4147-9c00-3865c3e00871",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "input_json_delta",
+          "partial_json": "{\"file_path\":\"/var/folders/j2/2r3wdfm14svbt85twrwqyq7r0000gp/T/lagoto-offline-OhrJON/desktop/fixture.txt\"}"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "6897e5b0-e20c-4500-9e6d-9f93a1270812",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_stop",
+        "index": 0
+      }
+    },
+    {
+      "type": "assistant",
+      "uuid": "c13f54e7-fc08-4b06-a119-237812f400aa",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "message": {
+        "id": "c13f54e7-fc08-4b06-a119-237812f400aa",
+        "type": "message",
+        "role": "assistant",
+        "model": "qwen3.5:4b",
+        "content": [
+          {
+            "type": "tool_use",
+            "id": "call_pe73z6tr",
+            "name": "read_file",
+            "input": {
+              "file_path": "/var/folders/j2/2r3wdfm14svbt85twrwqyq7r0000gp/T/lagoto-offline-OhrJON/desktop/fixture.txt"
+            }
+          }
+        ],
+        "stop_reason": "tool_use",
+        "usage": {
+          "input_tokens": 15643,
+          "output_tokens": 83,
+          "cache_read_input_tokens": 0,
+          "total_tokens": 15726
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "6c8a1caa-e768-4e1f-bade-138fbc719835",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "message_stop"
+      }
+    },
+    {
+      "type": "user",
+      "uuid": "52ce763c-238a-4bbb-a566-8aa0dc6829ac",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "message": {
+        "role": "user",
+        "content": [
+          {
+            "type": "tool_result",
+            "tool_use_id": "call_pe73z6tr",
+            "is_error": false,
+            "content": "LAGOTO_DESKTOP_V1\n"
+          }
+        ]
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "407814a8-e6bf-412d-8252-c24d02d460c1",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "message_start",
+        "message": {
+          "id": "d2dab3a5-ac1d-453d-b68d-938300c6a5a1",
+          "role": "assistant",
+          "model": "qwen3.5:4b",
+          "content": []
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "05ffaa02-f55e-42dc-b067-a2be3f0ea3af",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_start",
+        "index": 0,
+        "content_block": {
+          "type": "thinking",
+          "thinking": "",
+          "signature": ""
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "86715121-fcaf-425d-adec-0f0994f53523",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": "Now"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "5594edeb-01cd-4fb3-a004-58946e85ec4c",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " I"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "00369528-9dc2-418d-8151-9bf83f29a560",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " have"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "a3996e48-6da5-42df-a4cc-5c867853fbb3",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " all"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "bb1a93d0-7a3f-4fde-80f4-f559e74e1862",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " three"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "9371e0d3-9eaf-4ae3-94d1-9fbc68cc36ab",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " values"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "de8c3818-221a-48b1-adb6-40610688ddbb",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " from"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "3a4d5461-fa6c-4832-bfae-b571a710d7c7",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " the"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "bb921334-009b-4d43-9a49-157b0efcff33",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " fixture"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "5f5f9f8d-781b-4eea-8f6c-c90ca097efb8",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " files"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "9ab81c53-ba9b-4378-b36c-39418699a892",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": ","
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "871772b8-e8c8-40df-aef4-208e26c12e89",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " so"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "d325a612-814e-4d8f-9102-01336af5eb9b",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " I"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "bceae5d2-bcb7-4e07-9d8e-2113d0b4a044",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": "'ll"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "fff6acd7-39a6-4b21-833a-f2ec3306af41",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " write"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "24e10807-ce23-4058-8966-3db2acf6a69e",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " a"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "26afa0dc-5d0c-4306-8bec-3b3dcdd1244c",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " result"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "359f91cf-75d1-49ef-8437-54ef1cf93650",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": ".txt"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "657b357a-a63a-4e2d-9a04-601d2d3b5bc8",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " file"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "dfc52359-1bc6-4faa-a18c-6d2d7d6b1014",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " to"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "31a33e94-d71b-45f4-b1c9-4957864e4451",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " the"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "97d995d5-21ad-464f-a805-0e7ac807a1e3",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " backend"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "fa437d63-0b70-496f-98bb-965d44cf4db6",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " directory"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "0b7358a7-d383-456f-9f4f-3f849bc6bd56",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " containing"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "0a134046-02dc-4a72-9301-56e1c1d5d3ca",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " them"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "1d886e3c-aa4f-47b3-90e1-5cadbae7410c",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " on"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "b0b8c03d-5967-4817-b495-33b9c4360e93",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " separate"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "c620a844-56c8-4763-a70c-e7446a4f7ed3",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " lines"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "ad9e0bd0-5ad4-40b5-9a54-cae210eb4dda",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " with"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "1b86666f-d09f-4e4b-ae7c-62c88133d923",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " a"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "f1a31a07-9ea7-49de-b607-ef36676d5d6c",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " final"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "8cdd79c0-c41d-43a4-abc8-8de022331401",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " newline"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "7e037191-4c7d-439d-a8b1-a33639d6e01a",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": "."
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "68f5ce51-14bc-4d71-beec-b5bc6508d618",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_stop",
+        "index": 0
+      }
+    },
+    {
+      "type": "assistant",
+      "uuid": "d2dab3a5-ac1d-453d-b68d-938300c6a5a1",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "message": {
+        "id": "d2dab3a5-ac1d-453d-b68d-938300c6a5a1",
+        "type": "message",
+        "role": "assistant",
+        "model": "qwen3.5:4b",
+        "content": [
+          {
+            "type": "thinking",
+            "thinking": "Now I have all three values from the fixture files, so I'll write a result.txt file to the backend directory containing them on separate lines with a final newline.",
+            "signature": ""
+          }
+        ],
+        "stop_reason": null,
+        "usage": {
+          "input_tokens": 0,
+          "output_tokens": 0
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "7d7ea3ba-d5c1-437d-9548-3e09f7a7a116",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_start",
+        "index": 0,
+        "content_block": {
+          "type": "tool_use",
+          "id": "call_tskghvws",
+          "name": "write_file",
+          "input": {}
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "decca4ff-72cf-466b-823f-33210e52780e",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "input_json_delta",
+          "partial_json": "{\"file_path\":\"/var/folders/j2/2r3wdfm14svbt85twrwqyq7r0000gp/T/lagoto-offline-OhrJON/backend/result.txt\",\"content\":\"LAGOTO_BACKEND_V1\\nLAGOTO_FRONTEND_V1\\nLAGOTO_DESKTOP_V1\\n\"}"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "84f2a437-ab7a-4395-a43e-680d982ae0b6",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_stop",
+        "index": 0
+      }
+    },
+    {
+      "type": "assistant",
+      "uuid": "c971e6fe-f3ae-4f0e-bf99-251b11ff45e7",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "message": {
+        "id": "c971e6fe-f3ae-4f0e-bf99-251b11ff45e7",
+        "type": "message",
+        "role": "assistant",
+        "model": "qwen3.5:4b",
+        "content": [
+          {
+            "type": "tool_use",
+            "id": "call_tskghvws",
+            "name": "write_file",
+            "input": {
+              "file_path": "/var/folders/j2/2r3wdfm14svbt85twrwqyq7r0000gp/T/lagoto-offline-OhrJON/backend/result.txt",
+              "content": "LAGOTO_BACKEND_V1\nLAGOTO_FRONTEND_V1\nLAGOTO_DESKTOP_V1\n"
+            }
+          }
+        ],
+        "stop_reason": "tool_use",
+        "usage": {
+          "input_tokens": 15747,
+          "output_tokens": 135,
+          "cache_read_input_tokens": 0,
+          "total_tokens": 15882
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "6862737e-ddbf-4df6-a488-261cc4f45f0b",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "message_stop"
+      }
+    },
+    {
+      "type": "user",
+      "uuid": "2fbe525b-9684-4bf5-9e7b-3ed2f01f87f9",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "message": {
+        "role": "user",
+        "content": [
+          {
+            "type": "tool_result",
+            "tool_use_id": "call_tskghvws",
+            "is_error": false,
+            "content": "Successfully created and wrote to new file: /var/folders/j2/2r3wdfm14svbt85twrwqyq7r0000gp/T/lagoto-offline-OhrJON/backend/result.txt."
+          }
+        ]
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "1a1dc32f-7dec-488c-a359-d06277459775",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "message_start",
+        "message": {
+          "id": "83b2a4c0-61e5-4f6e-ae0b-00ffff827e41",
+          "role": "assistant",
+          "model": "qwen3.5:4b",
+          "content": []
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "c834ef56-53ed-4920-a7b5-a62bb1980b7f",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_start",
+        "index": 0,
+        "content_block": {
+          "type": "thinking",
+          "thinking": "",
+          "signature": ""
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "e612566e-caa7-479c-8f36-2369dd975ae0",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": "I"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "370894d8-5350-4c0d-80f7-edde7ecf004f",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": "'ve"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "95185bba-546c-4a01-9c89-35cdb1193daa",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " read"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "abbdca51-2b62-4377-824f-6e2e7355666c",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " all"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "7587fec9-2ad8-46b9-a82a-9c3c5e3525a4",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " three"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "bd3df6e9-cbfd-4f5b-9c96-c5cf3430e5f2",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " fixture"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "e6e274fc-bacf-4a66-bbda-747512830c3e",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " files"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "da6fd772-83da-43bb-bf93-a32626c008a6",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": ","
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "240191fb-208a-4cd1-b861-a818eaedc6ae",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " created"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "c2f26d04-1bf6-4d67-91c5-248bb8d1d59d",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " result"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "e49ba1b0-4fdb-4c72-828a-a7cff3cf1d15",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": ".txt"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "78306c36-c8e5-4ad7-a920-ca4524fe3b39",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " with"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "05d0f415-17d6-410a-80bd-7aa610c5745a",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " the"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "340e78d7-35b3-4cbf-a2d0-99648055fde4",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " content"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "87224ba2-1003-4c03-b434-9b7fd3c2a298",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " on"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "4f8a91f2-5990-4522-9ed8-64370e97da9c",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " separate"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "e0f494d2-b573-4a8c-b0c8-fc303f320ddc",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " lines"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "a7bfc708-c495-41a6-b99a-735299011faf",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " followed"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "59e82d8e-cbf6-4bfc-b539-45651cd600b8",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " by"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "23effe45-b123-4c15-ab9f-ea910a0496df",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " a"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "5f448386-415b-4d7a-b3e2-ed6ac9e2aa9e",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " final"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "0e55482c-113d-4dec-bd8b-e99cce034773",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " newline"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "ea521f69-1bba-45b5-9889-53fadb9d9e42",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": ","
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "026db779-5b64-478f-a0c7-c421acf37b9e",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " and"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "cd4269d9-308d-4b28-90f2-54c91dd820db",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " now"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "cfd85ec9-49c4-415d-8f02-a84d450ce06a",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " need"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "b3b39204-96b1-46a8-b1cc-c2c67fa9b95f",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " to"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "b80af79c-1852-44bf-8730-04e556ecf3bc",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " confirm"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "320814c9-412b-4d2b-ad4e-ed8678e3e39f",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " completion"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "fb2be5b8-7a61-4e17-a963-a1152c1d943c",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " as"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "11625437-8512-4f57-9705-e71912457a43",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": " instructed"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "21f683de-0993-4cf9-8d75-6a75d7df78ba",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "thinking_delta",
+          "thinking": "."
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "ec401aeb-34de-4159-93cb-49747298c4ed",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_stop",
+        "index": 0
+      }
+    },
+    {
+      "type": "assistant",
+      "uuid": "83b2a4c0-61e5-4f6e-ae0b-00ffff827e41",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "message": {
+        "id": "83b2a4c0-61e5-4f6e-ae0b-00ffff827e41",
+        "type": "message",
+        "role": "assistant",
+        "model": "qwen3.5:4b",
+        "content": [
+          {
+            "type": "thinking",
+            "thinking": "I've read all three fixture files, created result.txt with the content on separate lines followed by a final newline, and now need to confirm completion as instructed.",
+            "signature": ""
+          }
+        ],
+        "stop_reason": null,
+        "usage": {
+          "input_tokens": 0,
+          "output_tokens": 0
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "0d5309c5-4912-4d2a-9673-14467ad38bb2",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_start",
+        "index": 0,
+        "content_block": {
+          "type": "text",
+          "text": ""
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "26460179-eca3-4421-b69a-9a76cf2fda62",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "text_delta",
+          "text": "LAG"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "84ee9f35-f4c5-4130-964e-6786383d77dc",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "text_delta",
+          "text": "OTO"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "232bb98c-ba7f-45de-8930-85e44dab8cc3",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_delta",
+        "index": 0,
+        "delta": {
+          "type": "text_delta",
+          "text": "_OK"
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "59fe89e7-621c-4342-85b3-1f7dc9972af3",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "content_block_stop",
+        "index": 0
+      }
+    },
+    {
+      "type": "assistant",
+      "uuid": "7804772c-a180-4ae5-90cd-8325a098482f",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "message": {
+        "id": "7804772c-a180-4ae5-90cd-8325a098482f",
+        "type": "message",
+        "role": "assistant",
+        "model": "qwen3.5:4b",
+        "content": [
+          {
+            "type": "text",
+            "text": "LAGOTO_OK"
+          }
+        ],
+        "stop_reason": null,
+        "usage": {
+          "input_tokens": 15950,
+          "output_tokens": 39,
+          "cache_read_input_tokens": 0,
+          "total_tokens": 15989
+        }
+      }
+    },
+    {
+      "type": "stream_event",
+      "uuid": "8aeddacf-5f71-49ce-b171-d166aeb7c3e9",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "parent_tool_use_id": null,
+      "event": {
+        "type": "message_stop"
+      }
+    },
+    {
+      "type": "result",
+      "subtype": "success",
+      "uuid": "efd545a6-3125-4f96-8fc9-dbf3f3e0058c",
+      "session_id": "09567903-5766-488b-b2cd-a0a552a22ff8",
+      "is_error": false,
+      "duration_ms": 91876,
+      "duration_api_ms": 79249,
+      "num_turns": 5,
+      "result": "LAGOTO_OK",
+      "usage": {
+        "input_tokens": 85075,
+        "output_tokens": 987,
+        "cache_read_input_tokens": 0,
+        "total_tokens": 86062
+      },
+      "permission_denials": []
+    }
+  ]
+}

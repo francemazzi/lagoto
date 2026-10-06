@@ -1,6 +1,6 @@
 # Architettura e contratti
 
-**Stato:** progetto da implementare · **Aggiornamento:** 28 settembre 2026.
+**Stato:** architettura approvata, implementazione parziale · **Aggiornamento:** 5 ottobre 2026. [Evidenze](evidence/implementation-2026-10-05.md).
 
 ## Responsabilità
 
@@ -8,7 +8,7 @@ Lagoto è il coordinatore locale dello stato del lavoro. Gli harness gestiscono 
 
 ```mermaid
 flowchart TD
-  UI[React: Progetti, Integrazioni, Modelli] --> IPC[Tauri: bridge ristretto]
+  UI[SwiftUI: Progetti, Integrazioni, Modelli] --> IPC[JSON-RPC privato stdin/stdout]
   IPC --> Core[Backend locale TypeScript]
   Core --> State[SQLite e artefatti per hash]
   Core --> Control[Task, permessi, budget, checkpoint]
@@ -25,16 +25,16 @@ Il diagramma rappresenta componenti pianificati. Le frecce verso servizi cloud n
 
 | Livello | Scelta | Vincolo |
 | --- | --- | --- |
-| Desktop | Tauri 2, Rust per lifecycle/IPC/OS | Packaging e confini del bridge provati in P00–P01 |
-| UI | React, TypeScript, Vite | Nessun accesso diretto a shell o credenziali |
+| Desktop | SwiftUI e AppKit per lifecycle/IPC/OS | Packaging e confini del bridge provati in P00–P01 |
+| UI | SwiftUI, tema di sistema e VoiceOver | Nessun accesso diretto a shell o credenziali |
 | Backend | Node.js incluso come sidecar, TypeScript | Versione compatibile con SDK e packaging, fissata in P00 |
-| Contratti | Tipi condivisi e validazione Zod | Eventi originali conservati accanto alla normalizzazione |
-| Dati | SQLite; Prisma candidato da provare | Singolo writer DB, migrazioni, backup consistente |
+| Contratti | Swift Codable e TypeScript/Zod, fixture comuni | Eventi originali conservati accanto alla normalizzazione |
+| Dati | SQLite con better-sqlite3 | Singolo writer DB, migrazioni, backup consistente |
 | Artefatti | Blob locali per hash, manifest versionati | Byte recuperabili; redazione ed esclusioni esplicite |
 | Processi | Supervisor, stdio strutturato | Identità di processo oltre il solo PID; figli osservabili |
-| Verifiche | Vitest; percorso UI nativo da provare | WebdriverIO/Tauri candidato; smoke macOS quando necessari |
+| Verifiche | Vitest, XCTest e XCUITest | Gate con prove native e smoke reali distinti |
 
-Tauri documenta sidecar, Node e sicurezza; il percorso nativo di test e Prisma nel pacchetto sono ipotesi da convalidare, non capability già dimostrate. Vedi [fonti Tauri e Git](sources.md#desktop-e-git).
+La scelta SwiftUI e better-sqlite3 è registrata in [ADR 0002](adr/0002-native-macos.md). Firma, notarizzazione e test su macOS 15 restano gate del pacchetto distribuito.
 
 Nessun server HTTP di Lagoto in ascolto nel percorso iniziale. Ollama rimane un servizio separato. Nessun account Lagoto, cloud sync, Redis, vector database o framework di orchestration obbligatorio nell’MVP.
 
@@ -75,14 +75,14 @@ Le misure distinguono `reported`, `estimated`, `manual`, `unavailable`, `stale`;
 
 ## Confini di controllo
 
-1. Il renderer invia solo comandi tipizzati e allowlistati per progetto/task. CSP, rendering senza HTML attivo, URL filtrati e redazione proteggono il bridge.
+1. Il renderer invia solo comandi tipizzati e allowlistati per progetto/task. Rendering nativo senza HTML attivo, URL filtrati e redazione proteggono il bridge.
 2. Gli adapter ricevono soltanto credenziali e directory necessarie. Il backend avvia processi con ambiente filtrato e configurazione dedicata; non eredita indiscriminatamente segreti o impostazioni globali.
 3. Le capability dichiarano ciò che è applicabile davvero: permessi, accesso multi-root, stop dei figli, hook di contesto, limiti per richiesta, uso offline. Un prompt “Plan” non costituisce un vincolo tecnico di sola lettura.
 4. Un lock applicativo consente un solo writer per insieme di worktree. Non impedisce scritture di editor esterni. Il fencing scarta vecchi eventi, ma non ferma un CLI che scrive sul filesystem.
 5. Gli effetti esterni hanno un registro separato: intenzione prima dell’avvio, esito confermato o incerto dopo. Nessun replay cieco se il risultato manca.
 6. Il budget viene prenotato atomicamente prima dell’avvio. Se l’harness non permette un tetto per ogni richiesta, il budget è un controllo all’avvio/stop e una stima; non una garanzia di costo massimo della run.
 
-Le capability Tauri non rendono automaticamente sicuri tutti i processi figli. Hook Git, MCP e script di repository sono esecuzioni da valutare al proprio confine. I contenuti di repo e log sono dati non fidati anche quando inseriti in memoria o riassunti. [Memoria e handoff](memory-handoff.md).
+Il bridge privato non rende automaticamente sicuri tutti i processi figli. Hook Git, MCP e script di repository sono esecuzioni da valutare al proprio confine. I contenuti di repo e log sono dati non fidati anche quando inseriti in memoria o riassunti. [Memoria e handoff](memory-handoff.md).
 
 ## Lifecycle e affidabilità
 

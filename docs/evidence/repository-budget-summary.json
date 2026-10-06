@@ -1,0 +1,246 @@
+{
+  "scope": "Repository onboarding, private GitHub application retry and personal budget revisions; partial phase coverage. No release.",
+  "realGitHubWorkflow": {
+    "date": "2026-10-05T11:01:24.513Z",
+    "commit": "b503631562cd6430b165228db727bfc74c9562f3",
+    "dirty": true,
+    "sourceFingerprint": "8dbeadc795e2b9ab39c9326da968ff9f65a3a4641e820619ad5be02fc27b97f7",
+    "machine": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "kernel": "25.6.0",
+      "os": "26.6.2",
+      "hardware": "Mac16,5"
+    },
+    "node": "22.23.1",
+    "nativeVersions": {
+      "codex": "codex-cli 0.159.2",
+      "claude": "2.1.283 (Claude Code)",
+      "cursor-agent": "2026.10.01-e373342",
+      "git": "git version 2.39.1",
+      "gh": "gh version 2.87.3 (2026-02-23)",
+      "ollama": "ollama version is 0.34.4"
+    },
+    "dependencies": {
+      "@qwen-code/sdk": "0.1.17",
+      "better-sqlite3": "13.0.3",
+      "zod": "4.6.5"
+    },
+    "id": "62f524f2-667d-4c39-8062-581ab51ebe96",
+    "status": "passed",
+    "fromFolder": true,
+    "scope": "Application preview/create/reconcile/retry using real gh and real private GitHub; one injected transport failure. Optional real non-Git initialization. Not native UI acceptance.",
+    "steps": [
+      "Non-Git folder scanned; ignored/sensitive names excluded; preview left original without Git; explicit confirmation installed only the selected first commit",
+      "Application preview: secure Keychain account, private visibility, exact selected commit; uncommitted files excluded",
+      "Private repository created once; duplicate confirmation coalesced; injected push failure retained remote ID and staging",
+      "Restart and retry through application service completed; independent GitHub API confirms same repository ID and exact commit; index and unstaged bytes unchanged",
+      "Synthetic repository archived privately and kept recoverable"
+    ],
+    "repository": "francemazzi/lagoto-application-62f524f2",
+    "operationId": "426cff19-199c-4ff2-b976-f508454b30e0",
+    "remoteId": 1405602994,
+    "pushedCommit": "0dc5cde502487d65d410336f44ba690a8d1126fe"
+  },
+  "regression": {
+    "date": "2026-10-05T11:00:32.067Z",
+    "commit": "b503631562cd6430b165228db727bfc74c9562f3",
+    "dirty": true,
+    "sourceFingerprint": "8b3c6e64a0453c83be0561080120d2aeda7638b19593908d18fc69c036d3949d",
+    "machine": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "kernel": "25.6.0",
+      "os": "26.6.2",
+      "hardware": "Mac16,5"
+    },
+    "node": "22.23.1",
+    "tests": {
+      "total": 62,
+      "passed": 62,
+      "failed": 0,
+      "skipped": 0
+    },
+    "nativeCounts": {
+      "total": 6,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0
+    },
+    "commands": [
+      {
+        "command": "pnpm typecheck",
+        "status": 0,
+        "log": "typecheck.log"
+      },
+      {
+        "command": "pnpm build",
+        "status": 0,
+        "log": "native-bundle-build.log"
+      },
+      {
+        "command": "pnpm exec vitest run --reporter=json --outputFile=build/evidence/gates/2026-10-05T11-00-31.795Z/vitest.json",
+        "status": 0,
+        "log": "deterministic-tests.log"
+      },
+      {
+        "command": "xcodebuild test -project macos/Lagoto.xcodeproj -scheme Lagoto -configuration Debug -derivedDataPath build/Xcode -destination platform=macOS,arch=arm64 -only-testing:LagotoTests -resultBundlePath /Users/francesco/Sviluppo/lagoto/build/evidence/gates/2026-10-05T11-00-31.795Z/native.xcresult CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=- -quiet",
+        "status": 0,
+        "log": "swift-contracts.log"
+      }
+    ]
+  },
+  "limitations": [
+    "Gate P00-P12 still fail incomplete mandatory scenario coverage.",
+    "Native UI of new repository/budget panels unverified while release Mac is locked.",
+    "Previous native automation permission question remains pending.",
+    "Historical regression fingerprint precedes a smoke-report metadata naming fix and the added CI XCUITest step; that historical proof does not attest subsequent application changes.",
+    "Rerun corrected the smoke report field: commit identifies Lagoto source, pushedCommit identifies the synthetic Git commit. Older raw reports retain the overwritten field and are not used here as source commit evidence.",
+    "Real GitHub smoke is application-service evidence with one injected transport error, not native UI acceptance.",
+    "Provider quota, complete BAT matrix, full recovery fault matrix and published-package acceptance remain open.",
+    "Latest regression includes 65 TypeScript and 6 Swift tests. Native smoke on macOS 15 is recorded separately in offline-native-summary.json."
+  ],
+  "deliveryGitHub": {
+    "date": "2026-10-05T11:38:01.127Z",
+    "commit": "fab56dca1c704ff10e2065ec84e3ba1e3a8aa360",
+    "dirty": true,
+    "sourceFingerprint": "93246a998169812d42a91e8935cea631900d5d65b289afef22ed3353eba9e3a8",
+    "machine": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "kernel": "25.6.0",
+      "os": "26.6.2",
+      "hardware": "Mac16,5"
+    },
+    "node": "22.23.1",
+    "nativeVersions": {
+      "codex": "codex-cli 0.159.2",
+      "claude": "2.1.283 (Claude Code)",
+      "cursor-agent": "2026.10.01-e373342",
+      "git": "git version 2.39.1",
+      "gh": "gh version 2.87.3 (2026-02-23)",
+      "ollama": "ollama version is 0.34.4"
+    },
+    "dependencies": {
+      "@qwen-code/sdk": "0.1.17",
+      "better-sqlite3": "13.0.3",
+      "zod": "4.6.5"
+    },
+    "id": "dc966e26-6e38-4717-a098-f712ce445c46",
+    "status": "passed",
+    "scope": "Real application delivery on three private synthetic GitHub repositories, one injected push transport error and coordinator restart. No native UI or release acceptance.",
+    "steps": [
+      "Three private synthetic repositories created via application preview/confirmation; official gh credential helper explicitly configured only in fixture Git config",
+      "First repository delivered; second commit preserved with failed push; third remains pending; partial result visible to caller",
+      "Restart and retry delivered all three private repositories; GitHub API confirms same IDs and exact commits; one delivery commit per repository; unrelated staged/unstaged content and original clones preserved"
+    ],
+    "repositories": [
+      {
+        "slug": "francemazzi/lagoto-delivery-dc966e26-backend",
+        "id": 1405650263,
+        "branch": "main",
+        "deliveredBranch": "codex/lagoto-55742db5",
+        "deliveredCommit": "c8efb05abe99f377f9a77134bc2d787b23802345",
+        "archived": true
+      },
+      {
+        "slug": "francemazzi/lagoto-delivery-dc966e26-frontend",
+        "id": 1405650617,
+        "branch": "main",
+        "deliveredBranch": "codex/lagoto-55742db5",
+        "deliveredCommit": "dba82964eb557ff8b6795179a0e487c7b7136243",
+        "archived": true
+      },
+      {
+        "slug": "francemazzi/lagoto-delivery-dc966e26-desktop",
+        "id": 1405650824,
+        "branch": "main",
+        "deliveredBranch": "codex/lagoto-55742db5",
+        "deliveredCommit": "046d4a02ca2bdc5c1d1a93e86bcfadb34345c68d",
+        "archived": true
+      }
+    ],
+    "commitCounts": [
+      1,
+      1,
+      1
+    ]
+  },
+  "latestRegression": {
+    "date": "2026-10-05T11:39:52.702Z",
+    "commit": "fab56dca1c704ff10e2065ec84e3ba1e3a8aa360",
+    "dirty": true,
+    "sourceFingerprint": "93246a998169812d42a91e8935cea631900d5d65b289afef22ed3353eba9e3a8",
+    "machine": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "kernel": "25.6.0",
+      "os": "26.6.2",
+      "hardware": "Mac16,5"
+    },
+    "node": "22.23.1",
+    "nativeVersions": {
+      "codex": "codex-cli 0.159.2",
+      "claude": "2.1.283 (Claude Code)",
+      "cursor-agent": "2026.10.01-e373342",
+      "git": "git version 2.39.1",
+      "gh": "gh version 2.87.3 (2026-02-23)",
+      "ollama": "ollama version is 0.34.4"
+    },
+    "dependencies": {
+      "@qwen-code/sdk": "0.1.17",
+      "better-sqlite3": "13.0.3",
+      "zod": "4.6.5"
+    },
+    "commands": [
+      {
+        "command": "pnpm typecheck",
+        "status": 0,
+        "log": "typecheck.log"
+      },
+      {
+        "command": "pnpm build",
+        "status": 0,
+        "log": "native-bundle-build.log"
+      },
+      {
+        "command": "pnpm exec vitest run --reporter=json --outputFile=build/evidence/gates/2026-10-05T11-39-52.454Z/vitest.json",
+        "status": 0,
+        "log": "deterministic-tests.log"
+      },
+      {
+        "command": "xcodebuild test -project macos/Lagoto.xcodeproj -scheme Lagoto -configuration Debug -derivedDataPath build/Xcode -destination platform=macOS,arch=arm64 -only-testing:LagotoTests -resultBundlePath /Users/francesco/Sviluppo/lagoto/build/evidence/gates/2026-10-05T11-39-52.454Z/native.xcresult CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=- -quiet",
+        "status": 0,
+        "log": "swift-contracts.log"
+      }
+    ],
+    "tests": {
+      "total": 65,
+      "passed": 65,
+      "failed": 0,
+      "skipped": 0
+    },
+    "nativeCounts": {
+      "total": 6,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0
+    },
+    "phaseStatuses": {
+      "P00": "failed",
+      "P01": "failed",
+      "P02": "failed",
+      "P03": "failed",
+      "P04": "failed",
+      "P05": "failed",
+      "P06": "failed",
+      "P07": "failed",
+      "P08": "failed",
+      "P09": "failed",
+      "P10": "failed",
+      "P11": "failed",
+      "P12": "failed"
+    },
+    "scope": "All command checks passed. Phases remain failed due incomplete required coverage; not release acceptance."
+  }
+}

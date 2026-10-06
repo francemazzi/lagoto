@@ -1,0 +1,622 @@
+{
+  "scope": "Partial real probes, never complete P00/P06/P10 acceptance",
+  "nativeVersions": {
+    "codex": "0.159.2",
+    "claude": "2.1.283",
+    "cursor": "2026.01.23-916f423 then 2026.10.01-e373342",
+    "ollama": "0.34.4"
+  },
+  "probes": [
+    {
+      "date": "2026-10-05T00:13:09.969Z",
+      "commit": "30c5b59af57a3b6fd3462b179d5168f36b71a518",
+      "sourceFingerprint": "e94a27f9e6ac3c8e5af2f1c3041f2dfdd3ad51f42a81e4236ac5b8ac3266e389",
+      "machine": {
+        "platform": "darwin",
+        "arch": "arm64",
+        "kernel": "25.6.0",
+        "os": "26.6.2",
+        "hardware": "Mac16,5"
+      },
+      "node": "22.23.1",
+      "status": "passed",
+      "provider": "claude",
+      "model": "sonnet",
+      "endpoint": null,
+      "scenario": "cancel",
+      "durationMs": 6513,
+      "failure": null,
+      "stopVerified": true,
+      "deniedPermissions": [],
+      "outsideFileExists": false,
+      "scope": "Single adapter control scenario; does not certify UI, handoff, auth revocation, detached descendants or model-general compatibility",
+      "artifact": "control-claude-sonnet-cancel.json",
+      "sha256": "1d9347141d8339a833de8c5a32f4868f669c7084a7d327032d6427babf34668e"
+    },
+    {
+      "date": "2026-10-05T00:11:13.530Z",
+      "commit": "30c5b59af57a3b6fd3462b179d5168f36b71a518",
+      "sourceFingerprint": "2185baca549f97e98ef0f4692df25cc7e0bc277750173e3de5d9152063c430ab",
+      "machine": {
+        "platform": "darwin",
+        "arch": "arm64",
+        "kernel": "25.6.0",
+        "os": "26.6.2",
+        "hardware": "Mac16,5"
+      },
+      "node": "22.23.1",
+      "status": "passed",
+      "provider": "claude",
+      "model": "sonnet",
+      "endpoint": null,
+      "scenario": "deny",
+      "durationMs": 9227,
+      "failure": null,
+      "stopVerified": true,
+      "deniedPermissions": [
+        "Write"
+      ],
+      "outsideFileExists": false,
+      "scope": "Single adapter control scenario; does not certify UI, handoff, auth revocation, detached descendants or model-general compatibility",
+      "artifact": "control-claude-sonnet-deny.json",
+      "sha256": "f4101cbcba45b326ecca6a65ccfce6ca775ee223668330f4da261152e7117f52"
+    },
+    {
+      "date": "2026-10-05T00:14:51.293Z",
+      "commit": "30c5b59af57a3b6fd3462b179d5168f36b71a518",
+      "sourceFingerprint": "6e07546b6fea99403bbdfbf849469b1bfe92dbc6f8885dacfd0640c2dac01a55",
+      "machine": {
+        "platform": "darwin",
+        "arch": "arm64",
+        "kernel": "25.6.0",
+        "os": "26.6.2",
+        "hardware": "Mac16,5"
+      },
+      "node": "22.23.1",
+      "status": "passed",
+      "provider": "codex",
+      "model": "gpt-6.1-sol",
+      "endpoint": null,
+      "scenario": "cancel",
+      "durationMs": 4855,
+      "failure": null,
+      "stopVerified": true,
+      "deniedPermissions": [],
+      "outsideFileExists": false,
+      "scope": "Single adapter control scenario; does not certify UI, handoff, auth revocation, detached descendants or model-general compatibility",
+      "artifact": "control-codex-gpt-6.1-sol-cancel.json",
+      "sha256": "fbd7c04f432d675a3035b04f9b3f8900352f74b4d59b1de1b0acce912b100ea8"
+    },
+    {
+      "date": "2026-10-05T00:13:15.317Z",
+      "commit": "30c5b59af57a3b6fd3462b179d5168f36b71a518",
+      "sourceFingerprint": "e94a27f9e6ac3c8e5af2f1c3041f2dfdd3ad51f42a81e4236ac5b8ac3266e389",
+      "machine": {
+        "platform": "darwin",
+        "arch": "arm64",
+        "kernel": "25.6.0",
+        "os": "26.6.2",
+        "hardware": "Mac16,5"
+      },
+      "node": "22.23.1",
+      "status": "passed",
+      "provider": "codex",
+      "model": "gpt-6.1-sol",
+      "endpoint": null,
+      "scenario": "deny",
+      "durationMs": 10666,
+      "failure": null,
+      "stopVerified": true,
+      "deniedPermissions": [
+        "item/fileChange/requestApproval"
+      ],
+      "outsideFileExists": false,
+      "scope": "Single adapter control scenario; does not certify UI, handoff, auth revocation, detached descendants or model-general compatibility",
+      "artifact": "control-codex-gpt-6.1-sol-deny.json",
+      "sha256": "931e59c0eee6b1ad5f98ae53690d4885f01bab7f8a01af40ecd4bad826e8f3ae"
+    },
+    {
+      "date": "2026-10-05T00:21:55.821Z",
+      "completedAt": "2026-10-05T00:22:05.070Z",
+      "commit": "30c5b59af57a3b6fd3462b179d5168f36b71a518",
+      "sourceFingerprint": "c2cee1dc9b1740a935f77c659e9a1ea9235924dbb18080474754667cfcf21b95",
+      "machine": {
+        "platform": "darwin",
+        "arch": "arm64",
+        "kernel": "25.6.0",
+        "os": "26.6.2",
+        "hardware": "Mac16,5"
+      },
+      "node": "22.23.1",
+      "status": "passed",
+      "provider": "cursor",
+      "model": "default",
+      "endpoint": null,
+      "scenario": "cancel",
+      "durationMs": 9231,
+      "failure": null,
+      "stopVerified": true,
+      "deniedPermissions": [],
+      "outsideFileExists": false,
+      "scope": "Single adapter control scenario; does not certify UI, handoff, auth revocation, detached descendants or model-general compatibility",
+      "artifact": "control-cursor-default-cancel.json",
+      "sha256": "dca99bb68afec6446c3ffbc2f53dd1a51ece674840c68a1d854b4b5fc838e50b"
+    },
+    {
+      "date": "2026-10-05T00:10:38.811Z",
+      "commit": "30c5b59af57a3b6fd3462b179d5168f36b71a518",
+      "sourceFingerprint": "2185baca549f97e98ef0f4692df25cc7e0bc277750173e3de5d9152063c430ab",
+      "machine": {
+        "platform": "darwin",
+        "arch": "arm64",
+        "kernel": "25.6.0",
+        "os": "26.6.2",
+        "hardware": "Mac16,5"
+      },
+      "node": "22.23.1",
+      "status": "failed",
+      "provider": "cursor",
+      "model": "default",
+      "endpoint": null,
+      "scenario": "deny",
+      "durationMs": 14903,
+      "failure": "Runtime wrote outside the authorized root without an accepted permission",
+      "stopVerified": true,
+      "deniedPermissions": [],
+      "outsideFileExists": true,
+      "scope": "Single adapter control scenario; does not certify UI, handoff, auth revocation, detached descendants or model-general compatibility",
+      "artifact": "control-cursor-default-deny-before-explicit-sandbox.json",
+      "sha256": "4c2f0b10267fc2fb1cdda0e8f097702b6c74ba332160d989f052211c9c49df24"
+    },
+    {
+      "date": "2026-10-05T00:13:10.273Z",
+      "commit": "30c5b59af57a3b6fd3462b179d5168f36b71a518",
+      "sourceFingerprint": "e94a27f9e6ac3c8e5af2f1c3041f2dfdd3ad51f42a81e4236ac5b8ac3266e389",
+      "machine": {
+        "platform": "darwin",
+        "arch": "arm64",
+        "kernel": "25.6.0",
+        "os": "26.6.2",
+        "hardware": "Mac16,5"
+      },
+      "node": "22.23.1",
+      "status": "failed",
+      "provider": "cursor",
+      "model": "default",
+      "endpoint": null,
+      "scenario": "deny",
+      "durationMs": 45644,
+      "failure": "Runtime wrote outside the authorized root without an accepted permission",
+      "stopVerified": true,
+      "deniedPermissions": [],
+      "outsideFileExists": true,
+      "scope": "Single adapter control scenario; does not certify UI, handoff, auth revocation, detached descendants or model-general compatibility",
+      "artifact": "control-cursor-default-deny-current-without-host-fs.json",
+      "sha256": "263e5f0036f3f62931c648fd64d424c4318d6861cf35729e97abe31dc3bd903f"
+    },
+    {
+      "date": "2026-10-05T00:10:38.811Z",
+      "commit": "30c5b59af57a3b6fd3462b179d5168f36b71a518",
+      "sourceFingerprint": "2185baca549f97e98ef0f4692df25cc7e0bc277750173e3de5d9152063c430ab",
+      "machine": {
+        "platform": "darwin",
+        "arch": "arm64",
+        "kernel": "25.6.0",
+        "os": "26.6.2",
+        "hardware": "Mac16,5"
+      },
+      "node": "22.23.1",
+      "status": "failed",
+      "provider": "cursor",
+      "model": "default",
+      "endpoint": null,
+      "scenario": "deny",
+      "durationMs": 14903,
+      "failure": "Runtime wrote outside the authorized root without an accepted permission",
+      "stopVerified": true,
+      "deniedPermissions": [],
+      "outsideFileExists": true,
+      "scope": "Single adapter control scenario; does not certify UI, handoff, auth revocation, detached descendants or model-general compatibility",
+      "artifact": "control-cursor-default-deny-legacy-sandbox.json",
+      "sha256": "4c2f0b10267fc2fb1cdda0e8f097702b6c74ba332160d989f052211c9c49df24"
+    },
+    {
+      "date": "2026-10-05T00:21:09.931Z",
+      "commit": "30c5b59af57a3b6fd3462b179d5168f36b71a518",
+      "sourceFingerprint": "3c32a94ac71ec95d7f55d02e8524e622d56026b53bda22dbc286b55f5020fa12",
+      "machine": {
+        "platform": "darwin",
+        "arch": "arm64",
+        "kernel": "25.6.0",
+        "os": "26.6.2",
+        "hardware": "Mac16,5"
+      },
+      "node": "22.23.1",
+      "status": "failed",
+      "provider": "cursor",
+      "model": "default",
+      "endpoint": null,
+      "scenario": "deny",
+      "durationMs": 12750,
+      "failure": "Runtime wrote outside the authorized root without an accepted permission",
+      "stopVerified": true,
+      "deniedPermissions": [],
+      "outsideFileExists": true,
+      "scope": "Single adapter control scenario; does not certify UI, handoff, auth revocation, detached descendants or model-general compatibility",
+      "artifact": "control-cursor-default-deny.json",
+      "sha256": "49a27c6ad247da0122d40a8d152395579a513b9f257bf9bacd443f84d310b3f1"
+    },
+    {
+      "date": "2026-10-05T00:19:00.870Z",
+      "commit": "30c5b59af57a3b6fd3462b179d5168f36b71a518",
+      "sourceFingerprint": "0d5e26beb00baa9ed86f259705a76201aa80f493455dde1257f4995a656fdfae",
+      "machine": {
+        "platform": "darwin",
+        "arch": "arm64",
+        "kernel": "25.6.0",
+        "os": "26.6.2",
+        "hardware": "Mac16,5"
+      },
+      "node": "22.23.1",
+      "status": "passed",
+      "provider": "ollama",
+      "model": "qwen3.5:4b",
+      "endpoint": "http://localhost:11434/v1",
+      "scenario": "cancel",
+      "durationMs": 13382,
+      "failure": null,
+      "stopVerified": true,
+      "deniedPermissions": [],
+      "outsideFileExists": false,
+      "scope": "Single adapter control scenario; does not certify UI, handoff, auth revocation, detached descendants or model-general compatibility",
+      "artifact": "control-ollama-qwen3.5_4b-cancel.json",
+      "sha256": "abb67c8d364eb7d87c7314033d3732f73d2fa8bf7ffce4d5f4a424e5d1c42345"
+    },
+    {
+      "date": "2026-10-05T00:16:10.831Z",
+      "commit": "30c5b59af57a3b6fd3462b179d5168f36b71a518",
+      "sourceFingerprint": "f81b19ed69d9831cd6436d0fc53e0306d79f41158434af82e670d37ea47aa060",
+      "machine": {
+        "platform": "darwin",
+        "arch": "arm64",
+        "kernel": "25.6.0",
+        "os": "26.6.2",
+        "hardware": "Mac16,5"
+      },
+      "node": "22.23.1",
+      "status": "passed",
+      "provider": "ollama",
+      "model": "qwen3.5:4b",
+      "endpoint": "http://localhost:11434/v1",
+      "scenario": "deny",
+      "durationMs": 27023,
+      "failure": null,
+      "stopVerified": true,
+      "deniedPermissions": [
+        "write_file"
+      ],
+      "outsideFileExists": false,
+      "scope": "Single adapter control scenario; does not certify UI, handoff, auth revocation, detached descendants or model-general compatibility",
+      "artifact": "control-ollama-qwen3.5_4b-deny.json",
+      "sha256": "959b8a0afc7abd29d75d97a3137b124598756a91c9c9a9a15fc2c3c3f5eec566"
+    },
+    {
+      "date": "2026-10-05T00:18:54.964Z",
+      "commit": "30c5b59af57a3b6fd3462b179d5168f36b71a518",
+      "sourceFingerprint": "0d5e26beb00baa9ed86f259705a76201aa80f493455dde1257f4995a656fdfae",
+      "machine": {
+        "platform": "darwin",
+        "arch": "arm64",
+        "kernel": "25.6.0",
+        "os": "26.6.2",
+        "hardware": "Mac16,5"
+      },
+      "node": "22.23.1",
+      "status": "passed",
+      "provider": "openrouter",
+      "model": "moonshotai/kimi-k2.5",
+      "endpoint": "https://openrouter.ai/api/v1",
+      "scenario": "cancel",
+      "durationMs": 8609,
+      "failure": null,
+      "stopVerified": true,
+      "deniedPermissions": [],
+      "outsideFileExists": false,
+      "scope": "Single adapter control scenario; does not certify UI, handoff, auth revocation, detached descendants or model-general compatibility",
+      "artifact": "control-openrouter-moonshotai_kimi-k2.5-cancel.json",
+      "sha256": "a8bd76371bbe9ee8043a9d289d908808234821b2e07d7f967b946dfc62b41d31"
+    },
+    {
+      "date": "2026-10-05T00:21:57.014Z",
+      "completedAt": "2026-10-05T00:22:39.928Z",
+      "commit": "30c5b59af57a3b6fd3462b179d5168f36b71a518",
+      "sourceFingerprint": "c2cee1dc9b1740a935f77c659e9a1ea9235924dbb18080474754667cfcf21b95",
+      "machine": {
+        "platform": "darwin",
+        "arch": "arm64",
+        "kernel": "25.6.0",
+        "os": "26.6.2",
+        "hardware": "Mac16,5"
+      },
+      "node": "22.23.1",
+      "status": "passed",
+      "provider": "openrouter",
+      "model": "moonshotai/kimi-k2.5",
+      "endpoint": "https://openrouter.ai/api/v1",
+      "scenario": "deny",
+      "durationMs": 42872,
+      "failure": null,
+      "stopVerified": true,
+      "deniedPermissions": [
+        "write_file"
+      ],
+      "outsideFileExists": false,
+      "scope": "Single adapter control scenario; does not certify UI, handoff, auth revocation, detached descendants or model-general compatibility",
+      "artifact": "control-openrouter-moonshotai_kimi-k2.5-deny.json",
+      "sha256": "359a26e1680a530ede752df700deedc2129a4b9bab1e78a6ab0d72b42a539f61"
+    },
+    {
+      "date": "2026-10-05T00:21:02.233Z",
+      "commit": "30c5b59af57a3b6fd3462b179d5168f36b71a518",
+      "sourceFingerprint": "3c32a94ac71ec95d7f55d02e8524e622d56026b53bda22dbc286b55f5020fa12",
+      "machine": {
+        "platform": "darwin",
+        "arch": "arm64",
+        "kernel": "25.6.0",
+        "os": "26.6.2",
+        "hardware": "Mac16,5"
+      },
+      "node": "22.23.1",
+      "status": "passed",
+      "provider": "openrouter",
+      "model": "qwen/qwen3-coder-next",
+      "endpoint": "https://openrouter.ai/api/v1",
+      "scenario": "cancel",
+      "durationMs": 4167,
+      "failure": null,
+      "stopVerified": true,
+      "deniedPermissions": [],
+      "outsideFileExists": false,
+      "scope": "Single adapter control scenario; does not certify UI, handoff, auth revocation, detached descendants or model-general compatibility",
+      "artifact": "control-openrouter-qwen_qwen3-coder-next-cancel.json",
+      "sha256": "2f7bb959305b82deca21d67ae30b70ad6d3136ba24df7315da91d3691937a04e"
+    },
+    {
+      "date": "2026-10-05T00:15:51.969Z",
+      "commit": "30c5b59af57a3b6fd3462b179d5168f36b71a518",
+      "sourceFingerprint": "f81b19ed69d9831cd6436d0fc53e0306d79f41158434af82e670d37ea47aa060",
+      "machine": {
+        "platform": "darwin",
+        "arch": "arm64",
+        "kernel": "25.6.0",
+        "os": "26.6.2",
+        "hardware": "Mac16,5"
+      },
+      "node": "22.23.1",
+      "status": "passed",
+      "provider": "openrouter",
+      "model": "qwen/qwen3-coder-next",
+      "endpoint": "https://openrouter.ai/api/v1",
+      "scenario": "deny",
+      "durationMs": 8137,
+      "failure": null,
+      "stopVerified": true,
+      "deniedPermissions": [
+        "write_file"
+      ],
+      "outsideFileExists": false,
+      "scope": "Single adapter control scenario; does not certify UI, handoff, auth revocation, detached descendants or model-general compatibility",
+      "artifact": "control-openrouter-qwen_qwen3-coder-next-deny.json",
+      "sha256": "cfa253ddbbe2a41efb0ba6c50c6559691759087bd690eff8670bf5ab1daed004"
+    },
+    {
+      "date": "2026-10-04T23:57:07.312Z",
+      "status": "passed",
+      "provider": "claude",
+      "model": "sonnet",
+      "endpoint": null,
+      "durationMs": 10515,
+      "failure": null,
+      "sessionObserved": true,
+      "counts": {
+        "text": 9,
+        "tool": 8,
+        "result": 1,
+        "usage": 1,
+        "raw": 136
+      },
+      "approvals": [
+        {
+          "tool": "Write",
+          "allowed": true
+        }
+      ],
+      "assertion": "read three roots and verify exact written bytes; not a full capability gate",
+      "artifact": "smoke-claude-sonnet.json",
+      "sha256": "07b2741e26fffef07dbdc0131f72f1edb4c3ec39924289bf7479d21a2206136d"
+    },
+    {
+      "date": "2026-10-04T23:55:12.867Z",
+      "status": "passed",
+      "provider": "codex",
+      "model": "gpt-6.1-sol",
+      "endpoint": null,
+      "durationMs": 34496,
+      "failure": null,
+      "sessionObserved": true,
+      "counts": {
+        "text": 23,
+        "tool": 8,
+        "result": 1,
+        "usage": 4,
+        "raw": 83
+      },
+      "approvals": [],
+      "assertion": "read three roots and verify exact written bytes; not a full capability gate",
+      "artifact": "smoke-codex-gpt-6.1-sol.json",
+      "sha256": "dc349d42e3ffc3d036c6e7095d4040aeb24235b32bab0eeecc32e924abc57898"
+    },
+    {
+      "date": "2026-10-05T00:22:10.419Z",
+      "completedAt": "2026-10-05T00:22:26.475Z",
+      "commit": "30c5b59af57a3b6fd3462b179d5168f36b71a518",
+      "sourceFingerprint": "c2cee1dc9b1740a935f77c659e9a1ea9235924dbb18080474754667cfcf21b95",
+      "machine": {
+        "platform": "darwin",
+        "arch": "arm64",
+        "kernel": "25.6.0",
+        "os": "26.6.2",
+        "hardware": "Mac16,5"
+      },
+      "node": "22.23.1",
+      "status": "passed",
+      "provider": "cursor",
+      "model": "composer-2.5[fast=true]",
+      "endpoint": null,
+      "durationMs": 16035,
+      "failure": null,
+      "sessionObserved": true,
+      "counts": {
+        "text": 16,
+        "tool": 17,
+        "result": 1,
+        "usage": 0,
+        "raw": 67
+      },
+      "approvals": [],
+      "assertion": "read three roots and verify exact written bytes; not a full capability gate",
+      "artifact": "smoke-cursor-composer-2.5[fast=true].json",
+      "sha256": "f019099ad3e7e537cb5099a77c0ee8c4f9f7b0fa957a98686e14c1c52d51965a"
+    },
+    {
+      "date": "2026-10-05T00:06:50.601Z",
+      "commit": "30c5b59af57a3b6fd3462b179d5168f36b71a518",
+      "sourceFingerprint": "1df085cf4c8437ed3e1f23675ca27d8756ab2c2d173b2416d0260dccca322a15",
+      "machine": {
+        "platform": "darwin",
+        "arch": "arm64",
+        "kernel": "25.6.0",
+        "os": "26.6.2",
+        "hardware": "Mac16,5"
+      },
+      "node": "22.23.1",
+      "status": "passed",
+      "provider": "cursor",
+      "model": "default",
+      "endpoint": null,
+      "durationMs": 27099,
+      "failure": null,
+      "sessionObserved": true,
+      "counts": {
+        "text": 23,
+        "tool": 9,
+        "result": 1,
+        "usage": 0,
+        "raw": 32
+      },
+      "approvals": [],
+      "assertion": "read three roots and verify exact written bytes; not a full capability gate",
+      "artifact": "smoke-cursor-default.json",
+      "sha256": "844ca20f0d65c5c5f1968de0744ad95c943cf4a36699bbeb01f8434dae65d140"
+    },
+    {
+      "date": "2026-10-04T23:57:15.925Z",
+      "status": "passed",
+      "provider": "ollama",
+      "model": "qwen3.5:4b",
+      "endpoint": "http://127.0.0.1:11434/v1",
+      "durationMs": 35017,
+      "failure": null,
+      "sessionObserved": true,
+      "counts": {
+        "text": 40,
+        "tool": 8,
+        "result": 1,
+        "usage": 1,
+        "raw": 198
+      },
+      "approvals": [
+        {
+          "tool": "write_file",
+          "allowed": true
+        }
+      ],
+      "assertion": "read three roots and verify exact written bytes; not a full capability gate",
+      "artifact": "smoke-ollama-qwen3.5_4b.json",
+      "sha256": "a2dda13812dd68db2ef112220820f055a01f12534b50003ab270d55e22e7c57b"
+    },
+    {
+      "date": "2026-10-04T23:56:03.505Z",
+      "status": "failed",
+      "provider": "ollama",
+      "model": "qwen3:8b",
+      "endpoint": "http://127.0.0.1:11434/v1",
+      "durationMs": 85134,
+      "failure": "Il runtime non ha riportato un risultato riuscito",
+      "sessionObserved": false,
+      "counts": {
+        "text": 0,
+        "tool": 8,
+        "result": 0,
+        "usage": 1,
+        "raw": 1999
+      },
+      "approvals": [],
+      "assertion": "read three roots and verify exact written bytes; not a full capability gate",
+      "artifact": "smoke-ollama-qwen3_8b.json",
+      "sha256": "cb3eaaf7a618f54658183cbec671aa175839cee903deca5a151553f230aa30c0"
+    },
+    {
+      "date": "2026-10-04T23:53:37.887Z",
+      "status": "passed",
+      "provider": "openrouter",
+      "model": "moonshotai/kimi-k2.5",
+      "endpoint": "https://openrouter.ai/api/v1",
+      "durationMs": 41921,
+      "failure": null,
+      "sessionObserved": true,
+      "counts": {
+        "text": 3,
+        "tool": 8,
+        "result": 1,
+        "usage": 1,
+        "raw": 387
+      },
+      "approvals": [
+        {
+          "tool": "write_file",
+          "allowed": true
+        }
+      ],
+      "assertion": "read three roots and verify exact written bytes; not a full capability gate",
+      "artifact": "smoke-openrouter-moonshotai_kimi-k2.5.json",
+      "sha256": "2b0cb916076ba7c4a485a1e24ccb305c6a593aee6cdc59add986b7e52d0309ee"
+    },
+    {
+      "date": "2026-10-04T23:51:40.348Z",
+      "status": "passed",
+      "provider": "openrouter",
+      "model": "qwen/qwen3-coder-next",
+      "endpoint": "https://openrouter.ai/api/v1",
+      "durationMs": 20571,
+      "failure": null,
+      "sessionObserved": true,
+      "counts": {
+        "text": 3,
+        "tool": 8,
+        "result": 1,
+        "usage": 1,
+        "raw": 35
+      },
+      "approvals": [
+        {
+          "tool": "write_file",
+          "allowed": true
+        }
+      ],
+      "assertion": "read three roots and verify exact written bytes; not a full capability gate",
+      "artifact": "smoke-openrouter-qwen_qwen3-coder-next.json",
+      "sha256": "dea67692ebcb90cd17a43868da7cd19d6966b47962444be7ff8f3b3236f3c592"
+    }
+  ]
+}

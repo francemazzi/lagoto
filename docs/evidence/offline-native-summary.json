@@ -1,0 +1,250 @@
+{
+  "scope": "Real offline inference and partial native macOS 15 smoke; not phase or release acceptance.",
+  "offlineBeforeProjectionCorrection": {
+    "date": "2026-10-05T11:21:02.368Z",
+    "commit": "0175d7e02f7e9938e3cec6e7b895b4bac701ca9f",
+    "dirty": true,
+    "sourceFingerprint": "5ce280464be76109c31a0ea4b21a84f9147c52262d5a1e195b0993cb2df7adb9",
+    "machine": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "kernel": "25.6.0",
+      "os": "26.6.2",
+      "hardware": "Mac16,5"
+    },
+    "node": "22.23.1",
+    "nativeVersions": {
+      "codex": "codex-cli 0.159.2",
+      "claude": "2.1.283 (Claude Code)",
+      "cursor-agent": "2026.10.01-e373342",
+      "git": "git version 2.39.1",
+      "gh": "gh version 2.87.3 (2026-02-23)",
+      "ollama": "ollama version is 0.34.4"
+    },
+    "dependencies": {
+      "@qwen-code/sdk": "0.1.17",
+      "better-sqlite3": "13.0.3",
+      "zod": "4.6.5"
+    },
+    "status": "passed",
+    "policy": "(version 1)(allow default)(deny network*)(allow network-inbound (local ip \"localhost:*\"))(allow network-outbound (remote ip \"localhost:*\"))",
+    "model": "qwen3.5:4b",
+    "steps": [
+      "External numeric-IP connection denied by OS with EPERM",
+      "Separate Ollama server and model runners inherit the same OS network denial; cloud features disabled; local model present",
+      "SDK adapter read all three roots, wrote exact expected bytes and emitted streaming/tool/final events while external network remained denied",
+      "SDK worker and isolated Ollama process groups stopped"
+    ],
+    "scope": "Separate official Ollama server, SDK worker and their descendants denied non-loopback networking by macOS sandbox. Supervisor outside sandbox observes/stops process groups. No system network settings changed.",
+    "counts": {
+      "text": 3,
+      "tool": 8,
+      "result": 1,
+      "usage": 1,
+      "raw": 162
+    },
+    "sourceArtifact": "ollama-offline-2026-10-05T11-21-02.368Z.json",
+    "subsequentSourceCommit": "85c12c9a1fca6c19898a271b36c65cb9296177e0",
+    "provenanceNote": "Smoke preceded commit; sourceFingerprint matched that subsequent commit. This proof predates the SDK snapshot-correlation correction."
+  },
+  "nativeProjectPersistence": {
+    "commit": "ed7cdb4569521a32c33f550e3da9dc561b95b328",
+    "url": "https://github.com/francemazzi/lagoto/actions/runs/37303396043",
+    "status": "passed",
+    "os": "macOS 15.7.9",
+    "arch": "arm64",
+    "machine": "Apple Virtual Machine 1",
+    "counts": {
+      "typescript": 63,
+      "swift": 6,
+      "xcuitest": 1
+    },
+    "scope": "Create project via keyboard, terminate/relaunch the native app with bundled Node, select persisted project from native sidebar and verify detail view.",
+    "limitations": [
+      "Only one UI workflow; theme/size/accessibility matrix and full provider/package acceptance still pending.",
+      "CI commit predates Qwen snapshot-correlation correction."
+    ]
+  },
+  "offlineAfterProjectionCorrection": {
+    "date": "2026-10-05T11:34:15.404Z",
+    "commit": "ed7cdb4569521a32c33f550e3da9dc561b95b328",
+    "dirty": true,
+    "sourceFingerprint": "d65ecf39cbdc855cd12965db8ee676f175c639db66938fcb87afdf995eeb3ae0",
+    "machine": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "kernel": "25.6.0",
+      "os": "26.6.2",
+      "hardware": "Mac16,5"
+    },
+    "node": "22.23.1",
+    "nativeVersions": {
+      "codex": "codex-cli 0.159.2",
+      "claude": "2.1.283 (Claude Code)",
+      "cursor-agent": "2026.10.01-e373342",
+      "git": "git version 2.39.1",
+      "gh": "gh version 2.87.3 (2026-02-23)",
+      "ollama": "ollama version is 0.34.4"
+    },
+    "dependencies": {
+      "@qwen-code/sdk": "0.1.17",
+      "better-sqlite3": "13.0.3",
+      "zod": "4.6.5"
+    },
+    "status": "passed",
+    "policy": "(version 1)(allow default)(deny network*)(allow network-inbound (local ip \"localhost:*\"))(allow network-outbound (remote ip \"localhost:*\"))",
+    "model": "qwen3.5:4b",
+    "steps": [
+      "External numeric-IP connection denied by OS with EPERM",
+      "Separate Ollama server and model runners inherit the same OS network denial; cloud features disabled; local model present",
+      "SDK adapter read all three roots, wrote exact expected bytes and emitted streaming/tool/final events while external network remained denied",
+      "Actual SDK events projected through durable SQLite journal: final answer appears once in conversation",
+      "SDK worker and isolated Ollama process groups stopped"
+    ],
+    "scope": "Separate official Ollama server, SDK worker and their descendants denied non-loopback networking by macOS sandbox. Supervisor outside sandbox observes/stops process groups. No system network settings changed.",
+    "projection": {
+      "finalOccurrences": 1,
+      "blocks": 9,
+      "tools": 4
+    },
+    "counts": {
+      "text": 16,
+      "tool": 8,
+      "result": 1,
+      "usage": 1,
+      "raw": 134
+    },
+    "sourceArtifact": "ollama-offline-2026-10-05T11-34-15.404Z.json"
+  },
+  "nativeAfterProjectionCorrection": {
+    "commit": "fab56dca1c704ff10e2065ec84e3ba1e3a8aa360",
+    "url": "https://github.com/francemazzi/lagoto/actions/runs/37304060275",
+    "status": "passed",
+    "os": "macOS 15.7.9",
+    "arch": "arm64",
+    "counts": {
+      "typescript": 65,
+      "swift": 6,
+      "xcuitest": 1
+    },
+    "scope": "Updated application source including Qwen block correlation; create/relaunch/select project from native outline."
+  },
+  "cloudAfterProjectionCorrection": [
+    {
+      "source": {
+        "date": "2026-10-05T11:42:40.722Z",
+        "commit": "fab56dca1c704ff10e2065ec84e3ba1e3a8aa360",
+        "dirty": true,
+        "sourceFingerprint": "93246a998169812d42a91e8935cea631900d5d65b289afef22ed3353eba9e3a8",
+        "machine": {
+          "platform": "darwin",
+          "arch": "arm64",
+          "kernel": "25.6.0",
+          "os": "26.6.2",
+          "hardware": "Mac16,5"
+        },
+        "node": "22.23.1",
+        "nativeVersions": {
+          "codex": "codex-cli 0.159.2",
+          "claude": "2.1.283 (Claude Code)",
+          "cursor-agent": "2026.10.01-e373342",
+          "git": "git version 2.39.1",
+          "gh": "gh version 2.87.3 (2026-02-23)",
+          "ollama": "ollama version is 0.34.4"
+        },
+        "dependencies": {
+          "@qwen-code/sdk": "0.1.17",
+          "better-sqlite3": "13.0.3",
+          "zod": "4.6.5"
+        },
+        "completedAt": "2026-10-05T11:42:56.119Z",
+        "status": "passed",
+        "provider": "openrouter",
+        "model": "qwen/qwen3-coder-next",
+        "endpoint": "https://openrouter.ai/api/v1",
+        "durationMs": 15351,
+        "sessionObserved": true,
+        "approvals": [
+          {
+            "tool": "write_file",
+            "allowed": true
+          }
+        ],
+        "failure": null,
+        "counts": {
+          "text": 3,
+          "tool": 8,
+          "result": 1,
+          "usage": 1,
+          "raw": 33
+        },
+        "assertion": "read three roots and verify exact written bytes; not a full capability gate"
+      },
+      "projection": {
+        "status": "passed",
+        "finalOccurrences": 1,
+        "tools": 4,
+        "blocks": 5
+      },
+      "scope": "Live cloud fixture followed by actual durable transcript projection; no native UI acceptance. Provider smoke compares fixture markers after trim, not a final-newline byte assertion."
+    },
+    {
+      "source": {
+        "date": "2026-10-05T11:42:40.724Z",
+        "commit": "fab56dca1c704ff10e2065ec84e3ba1e3a8aa360",
+        "dirty": true,
+        "sourceFingerprint": "93246a998169812d42a91e8935cea631900d5d65b289afef22ed3353eba9e3a8",
+        "machine": {
+          "platform": "darwin",
+          "arch": "arm64",
+          "kernel": "25.6.0",
+          "os": "26.6.2",
+          "hardware": "Mac16,5"
+        },
+        "node": "22.23.1",
+        "nativeVersions": {
+          "codex": "codex-cli 0.159.2",
+          "claude": "2.1.283 (Claude Code)",
+          "cursor-agent": "2026.10.01-e373342",
+          "git": "git version 2.39.1",
+          "gh": "gh version 2.87.3 (2026-02-23)",
+          "ollama": "ollama version is 0.34.4"
+        },
+        "dependencies": {
+          "@qwen-code/sdk": "0.1.17",
+          "better-sqlite3": "13.0.3",
+          "zod": "4.6.5"
+        },
+        "completedAt": "2026-10-05T11:43:43.492Z",
+        "status": "passed",
+        "provider": "openrouter",
+        "model": "moonshotai/kimi-k2.5",
+        "endpoint": "https://openrouter.ai/api/v1",
+        "durationMs": 62725,
+        "sessionObserved": true,
+        "approvals": [
+          {
+            "tool": "write_file",
+            "allowed": true
+          }
+        ],
+        "failure": null,
+        "counts": {
+          "text": 3,
+          "tool": 8,
+          "result": 1,
+          "usage": 1,
+          "raw": 228
+        },
+        "assertion": "read three roots and verify exact written bytes; not a full capability gate"
+      },
+      "projection": {
+        "status": "passed",
+        "finalOccurrences": 1,
+        "tools": 4,
+        "blocks": 8
+      },
+      "scope": "Live cloud fixture followed by actual durable transcript projection; no native UI acceptance. Provider smoke compares fixture markers after trim, not a final-newline byte assertion."
+    }
+  ]
+}

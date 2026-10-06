@@ -10,7 +10,7 @@ Lagoto è un progetto open source per un’app desktop local-first che riunisce 
 
 ## La visione
 
-**Collega le integrazioni.** Un’area dedicata a login nativi, provider API, piano, rinnovo e modelli abilitati. Sono pianificati Codex e Claude Code tramite i percorsi ufficiali, Qwen cloud e Kimi API tramite Qwen Code, e modelli locali tramite Ollama. Cursor è un’estensione successiva. Ogni combinazione richiede una verifica di compatibilità.
+**Collega le integrazioni.** Un’area dedicata a login nativi, provider API, piano, rinnovo e modelli abilitati. Sono pianificati Codex e Claude Code tramite i percorsi ufficiali, Qwen cloud e Kimi API tramite Qwen Code, e modelli locali tramite Ollama. Cursor ACP è incluso nei requisiti della prima beta. Ogni combinazione richiede una verifica di compatibilità.
 
 **Scegli un modello disponibile.** La “batteria” prevista indica quanto budget personale resta oggi, dal 100% allo 0%, distribuendo il residuo fino al rinnovo. Quote condivise restano condivise anche cambiando modello. Dati del provider e stime sono distinti; senza dati sufficienti comparirà “In calibrazione”. Il budget aiuta a pianificare il mese, senza garantire la capacità degli abbonamenti.
 
@@ -24,6 +24,20 @@ Lagoto non vuole essere un altro IDE né un nuovo agente: vuole conservare lo st
 
 ## Stato
 
-In fase di progettazione, inizialmente per uso personale su macOS. Questo repository contiene documentazione: le funzionalità descritte non sono ancora implementate o collaudate. Non serve un account Lagoto; account e piani dei provider saranno configurati nell’onboarding futuro.
+App di sviluppo per macOS 15+ su Apple Silicon, con SwiftUI e Node incluso. Conversazione, profili, worktree, cambio modello, checkpoint Git, verifiche, revisione e backup sono implementati. Sono stati provati dieci turni e nove passaggi reali fra i sei percorsi di integrazione; un DMG di sviluppo ha superato notarizzazione e avvio Finder. **La beta v0.1.0 non è ancora rilasciabile:** i gate P00–P12 restano aperti. [Stato preciso, limiti ed evidenze](docs/evidence/progress-2026-10-05.md). Non serve un account Lagoto.
 
 [Roadmap di sviluppo](ROADMAP.md) · [Documentazione e ricerca](docs/README.md) · [Calcolo della batteria](docs/daily-battery.md) · [Licenza](LICENSE)
+
+## Sviluppo locale
+
+Richiede Xcode, XcodeGen, Node 22.23.1 e pnpm 10.33.3 sulla macchina di sviluppo. Il bundle risultante include Node; gli utenti finali non dovranno installarlo.
+
+```sh
+pnpm install --frozen-lockfile
+pnpm build
+pnpm test
+pnpm gate P00
+pnpm gate all
+```
+
+I gate restituiscono un errore finché mancano le prove obbligatorie. `build/Xcode/Build/Products/Debug/Lagoto.app` è la build di sviluppo locale, non la beta. Apri Integrazioni, crea e verifica un profilo; aggiungi o clona repository in un progetto e avvia un nuovo lavoro. Una cartella non Git può essere preparata dai suoi Dettagli scegliendo i file del primo commit; “Crea e collega” propone poi la pubblicazione privata del branch committato. Il cambio di modello conserva task e worktree con un’anteprima del contesto. Verifiche, checkpoint e consegna sono nel pannello Dettagli del lavoro. Nessuna chiave è richiesta per i test deterministici.

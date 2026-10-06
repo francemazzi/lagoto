@@ -1,6 +1,10 @@
 # Cartelle, Git e GitHub
 
-**Stato:** flusso da implementare, nessuna azione remota eseguita · **Aggiornamento:** 28 settembre 2026.
+**Stato:** implementazione e prove applicative parziali · **Aggiornamento:** 5 ottobre 2026. Il testo seguente conserva il contratto completo previsto; non tutti i casi sono accettati. [Avanzamento e limiti attuali](evidence/progress-2026-10-05.md).
+
+Sono disponibili clone annullabile, collegamento della cartella, scelta del remote, ricollegamento dopo spostamento sullo stesso volume, inizializzazione Git locale selettiva e creazione privata del repository con ripresa del push. Il flusso iniziale attuale pubblica il branch già committato, preservando il WIP; per una cartella non Git si prepara prima il commit locale con anteprima e autore esplicito. La UI dei nuovi pannelli resta da collaudare sul Mac sbloccato.
+
+Il servizio applicativo è stato provato su GitHub reale sia da repository esistente sia da cartella non Git, con errore di trasporto iniettato, riavvio e retry. Gli ID remoti restano gli stessi, indice e file locali restano invariati. I repository sintetici sono conservati privati e archiviati; non costituiscono il rilascio di Lagoto.
 
 ## Decisione iniziale
 
@@ -69,4 +73,4 @@ Non eliminare automaticamente un repository remoto per “ripulire” un errore.
 
 Commit e push successivi sono azioni esplicite per repository, con diff e verifica della destinazione. La creazione iniziale non attiva sincronizzazione continua. Nei task multi-repository la consegna può riuscire soltanto su alcuni repo: indicare l’esito di ciascuno e consentire ripresa idempotente, senza fingere una transazione Git atomica.
 
-Accettazione: P00.7 fattibilità, P03 rilevamento/proposta/primo collegamento, P11 consegna. Scenari `GH-*` in [Validazione](validation.md). Nessuno di questi passi è stato eseguito per questa consegna documentale.
+Accettazione: P00.7 fattibilità, P03 rilevamento/proposta/primo collegamento, P11 consegna. Scenari `GH-*` in [Validazione](validation.md). La copertura parziale sopra descritta non chiude questi gate.

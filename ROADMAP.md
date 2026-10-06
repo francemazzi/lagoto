@@ -2,9 +2,9 @@
 
 > Collegare integrazioni → scegliere un modello disponibile → lavorare → cambiare modello conservando lo stato → consegnare su GitHub.
 
-**Versione:** 0.2 — 28 settembre 2026.
-**Destinazione:** desktop macOS, local-first, uso personale.
-**Stato:** progettazione. Tutte le checkbox applicative sono aperte; nessuna integrazione o prova live è dichiarata riuscita.
+**Versione:** 0.3 — 5 ottobre 2026.
+**Destinazione:** SwiftUI, macOS 15+, Apple Silicon; local-first. Beta prevista: v0.1.0, DMG firmato/notarizzato e prerelease GitHub.
+**Stato:** implementazione avviata. Spike nativo e prove parziali disponibili; nessuna fase chiusa. [Stato ed evidenze](docs/evidence/implementation-2026-10-05.md).
 **Documentazione:** [indice](docs/README.md) · [ADR harness](docs/adr/0001-runtime-and-adapters.md) · [ricerca](docs/research.md).
 
 ## 1. Risultato atteso
@@ -16,14 +16,14 @@ La batteria pianificata è il budget di oggi: il residuo del ciclo viene distrib
 ## 2. Decisioni di prodotto e architettura
 
 - Tre aree: **Progetti**, **Integrazioni**, **Modelli disponibili**. Nessun livello workspace; ogni progetto contiene uno o più repository e task persistenti. [UX](docs/product-ux.md).
-- Codex e Claude Code tramite percorsi ufficiali; Qwen cloud, Kimi API e Ollama tramite Qwen Code SDK dietro un adapter sostituibile. Cursor è successivo. Nessuna compatibilità universale presunta. [Integrazioni](docs/integrations.md).
+- Codex e Claude Code tramite percorsi ufficiali; Qwen cloud, Kimi API e Ollama tramite Qwen Code SDK dietro un adapter sostituibile. Cursor ACP è obbligatorio per la prima beta. Nessuna compatibilità universale presunta. [Integrazioni](docs/integrations.md).
 - Lagoto possiede task, permessi, budget, checkpoint e passaggi. Il loop di inferenza resta all’harness; niente secondo planner autonomo o swarm scrivente nell’MVP. [Architettura](docs/architecture.md).
 - Un solo writer per insieme di worktree, cessazione verificata prima del passaggio. Archivio e Context Pack sono distinti; il recupero minimo funziona senza LLM. [Memoria e handoff](docs/memory-handoff.md).
 - Quote condivise per account/prodotto, registro idempotente e nessuna somma di unità incompatibili. Tutti i giorni, fuso iniziale Europe/Rome. Allo 0%: stop sicuro, checkpoint e scelta di altro modello o deroga; nessun cambio automatico.
 - GitHub esistente riconosciuto quando univoco. In assenza, proposta privata pronta e clic “Crea e collega” per inizializzazione/commit selettivo/creazione/primo push. Consegne successive esplicite. [GitHub](docs/github.md).
 - Credenziali gestite da Lagoto nel Keychain; login nativi nei tool ufficiali. Nessun segreto in SQLite, log o pacchetti di contesto. Nessun acquisto, fallback a pagamento, force push o cambio account implicito.
 
-Stack iniziale: Tauri 2, React/TypeScript/Vite, backend Node incluso come sidecar, SQLite e artefatti per hash; Prisma e test nativi da validare in P00. Nessun backend cloud o account Lagoto. [ADR 0001](docs/adr/0001-runtime-and-adapters.md) registra alternative e condizioni che bloccano la scelta.
+Stack approvato: Swift/SwiftUI con AppKit dove serve; coordinatore TypeScript su Node incluso; SQLite con better-sqlite3, writer unico e artefatti per hash. IPC JSON-RPC versionato su stdin/stdout privato; contratti Swift Codable e TypeScript sulle stesse fixture. Nessun server HTTP o account Lagoto. [ADR 0002](docs/adr/0002-native-macos.md) aggiorna lo stack e conserva la scelta degli adapter di ADR 0001.
 
 ## 3. Ordine, dipendenze e criteri di chiusura
 
@@ -41,13 +41,13 @@ Gli identificativi P00–P12 sono conservati. I requisiti Pxx.n rimandano a un t
 | P07 | P05; collaudo con P06 | Checkpoint, memoria e Context Pack |
 | P08 | P06–P07 | Passaggi cloud ↔ locale e recupero |
 | P09 | P05, P06, P08 | Batteria giornaliera, quote e avanzamento |
-| P10 | P09 | Estensione Cursor e figli osservabili; non blocca la prima versione |
-| P11 | P09, P03; P10 solo per percorsi Cursor | Revisione, consegne GitHub, export e backup |
-| P12 | P11; gate P10 per includere Cursor | Affidabilità e rilascio personale |
+| P10 | P09 | Cursor ACP e figli osservabili; obbligatorio nella prima beta |
+| P11 | P09, P03, P10 | Revisione, consegne GitHub, export e backup |
+| P12 | P11 e P10 | Affidabilità e rilascio personale |
 
 La UI può procedere con fixture dopo P01; le prove pure di memoria possono procedere dopo P05. Un gate di integrazione fallito non diventa una capability simulata. Le parti indipendenti possono avanzare, ma il percorso bloccato non può essere dichiarato supportato.
 
-**Prima versione personale completa:** P00–P09, P11 e P12, con Codex, Claude Code, Qwen cloud, Kimi API e almeno un profilo Ollama verificati. Il collegamento iniziale GitHub arriva in P03, le consegne successive in P11. **Estensione Cursor:** P10 e regressioni P12 aggiuntive. Un rilascio parziale deve dichiarare esplicitamente il perimetro ridotto, senza chiamarlo completamento di tutti gli obiettivi.
+**Prima beta completa:** tutti i gate P00–P12, con Codex, Claude Code, Qwen cloud, Kimi API, Ollama e Cursor verificati. Il collegamento iniziale GitHub arriva in P03, le consegne successive in P11. Un rilascio parziale deve dichiarare esplicitamente il perimetro ridotto, senza chiamarlo completamento di tutti gli obiettivi.
 
 ## P00 — Fattibilità e decisioni bloccanti
 
@@ -56,8 +56,8 @@ La UI può procedere con fixture dopo P01; le prove pure di memoria possono proc
 - [ ] **P00.1 — Inventario.** Rilevare versioni Git, gh, runtime e harness senza installazioni implicite. **P00-I01:** binario assente, valido e non riconosciuto producono stati diversi; compilare la [matrice](docs/compatibility.md).
 - [ ] **P00.2 — Accesso.** Provare login nativi, API separate, revoca e conservazione sicura. **P00-I02:** auth assente/annullata/scaduta/completata; nessun token negli artefatti e nessun fallback da subscription ad API.
 - [ ] **P00.3 — Protocollo e permessi.** Provare messaggio, streaming, tool, rifiuto permesso, accesso multi-root, stop e resume ove documentato. **P00-I03:** capability registrate per combinazione esatta; metodo assente non simulato come riuscito; probe senza credenziali non equivale a smoke riuscito.
-- [ ] **P00.4 — Packaging.** Spike Tauri che avvia sidecar, SQLite e Git da Finder. **P00-I04:** nessuna dipendenza da Node di sistema o terminale aperto; Prisma/runtime provati nel pacchetto. Un’alternativa richiede revisione motivata dell’ADR.
-- [ ] **P00.5 — Test nativi.** Provare il percorso WebdriverIO/Tauri scelto su macOS e documentare smoke manuali residui. **P00-I05:** apertura app e richiesta/risposta IPC nel binario nativo; nessun endpoint di automazione nel pacchetto di distribuzione.
+- [ ] **P00.4 — Packaging.** Spike SwiftUI che avvia Node incluso, SQLite e Git da Finder. **P00-I04:** nessuna dipendenza da Node di sistema o terminale aperto; better-sqlite3 e runtime provati con firma Developer ID e Hardened Runtime; accesso alla notarizzazione verificato.
+- [ ] **P00.5 — Test nativi.** Provare XCUITest su macOS e documentare smoke manuali residui. **P00-I05:** apertura app e richiesta/risposta IPC nel binario nativo; nessun endpoint di automazione nel pacchetto di distribuzione.
 - [ ] **P00.6 — Qwen Code SDK e locale.** Fissare una versione dello SDK sperimentale e provare separatamente Qwen cloud, Kimi API e un modello Ollama. **P00-I06:** eventi, tool, permessi, interrupt/close, usage, configurazione isolata e recupero; server locale spento, modello assente, coda e rete disattivata correttamente distinti. Nessun modello cloud etichettato locale.
 - [ ] **P00.7 — GitHub.** Provare Git/gh, credential store, rilevamento remoto e creazione privata su fixture autorizzata. **P00-I07:** account senza permessi, auth annullata e creazione con push fallito sono recuperabili; nessun token estratto, remote sovrascritto o repo duplicato.
 - [ ] **P00.8 — Telemetria e piani.** Identificare fonti documentate, scope, unità, quota/piano, finestre, freschezza e visibilità esterna. **P00-I08:** misure reali, manuali, stimate, mancanti e vecchie distinte; contratto di usage definito prima del registro P05; nessuna conversione prezzo subscription→token.
@@ -68,12 +68,12 @@ La UI può procedere con fixture dopo P01; le prove pure di memoria possono proc
 
 **Dipende da:** P00 per le decisioni comuni.
 
-- [ ] **P01.1 — Struttura.** Frontend/backend/shared separati, TypeScript strict, Rust, lockfile e licenza preservata. **P01-I01:** installazione pulita, typecheck, lint, build e avvio.
+- [ ] **P01.1 — Struttura.** UI Swift/runtime TypeScript/fixture condivise separati, TypeScript strict, Swift Codable, lockfile e licenza preservata. **P01-I01:** installazione pulita, typecheck, lint, build e avvio.
 - [ ] **P01.2 — IPC.** Request ID, timeout, Zod, eventi e allowlist per scope. **P01-I02:** payload invalido, metodo ignoto e task non autorizzato rifiutati senza effetti.
 - [ ] **P01.3 — Lifecycle.** Singola istanza backend/DB, health check, restart e shutdown. **P01-I03:** crash e doppio avvio non duplicano run né writer del database.
 - [ ] **P01.4 — Storage.** Schema per task, profili, pool, policy, journal e artefatti; migrazioni e permessi locali. **P01-I04:** migrazione di fixture, errore disco pieno e recupero senza falso salvataggio.
 - [ ] **P01.5 — Runner dei gate.** Fake adapter, fixture Git e CI senza segreti. **P01-I05:** test obbligatorio assente, skip inatteso o errore intenzionale fanno fallire il gate; mock e live distinti.
-- [ ] **P01.6 — Renderer.** CSP, URL filtrati, niente HTML attivo, log redatti. **P01-I06:** contenuto ostile non ottiene shell, filesystem o segreti attraverso il bridge.
+- [ ] **P01.6 — Renderer.** Rendering nativo senza HTML attivo, URL filtrati e log redatti. **P01-I06:** contenuto ostile non ottiene shell, filesystem o segreti attraverso il bridge.
 
 **Gate:** shell reale con backend e adapter finto, contratti validati e report ripetibili.
 
@@ -191,7 +191,7 @@ La UI può procedere con fixture dopo P01; le prove pure di memoria possono proc
 
 ## P10 — Cursor e figli osservabili
 
-**Dipende da:** P09. Estensione successiva, non prerequisito della prima consegna.
+**Dipende da:** P09. Requisito obbligatorio della prima beta.
 
 - [ ] **P10.1 — Cursor ACP.** Handshake, sessioni, aggiornamenti e permessi della versione verificata. **P10-I01:** contratto e smoke live; capability assenti non diventano controlli funzionanti solo graficamente.
 - [ ] **P10.2 — Handoff Cursor.** Stessa macchina a stati e Context Pack. **P10-I02:** smoke nelle direzioni dichiarate con Codex/Claude; nessuna scorciatoia sui writer.
@@ -204,7 +204,7 @@ La UI può procedere con fixture dopo P01; le prove pure di memoria possono proc
 
 ## P11 — Revisione, consegna e backup
 
-**Dipende da:** P09 e collegamento P03; P10 solo per includere Cursor.
+**Dipende da:** P09, P10 e collegamento P03.
 
 - [ ] **P11.1 — Diff.** Vista multi-repository, staged/unstaged, binari e test associati. **P11-I01:** confronto con Git della fixture senza omissioni silenziose.
 - [ ] **P11.2 — Revisione.** Pronto per revisione distinto da completo. **P11-I02:** test obsoleti/criteri mancanti impediscono chiusura automatica; deroghe umane visibili.
@@ -215,9 +215,9 @@ La UI può procedere con fixture dopo P01; le prove pure di memoria possono proc
 
 **Gate:** lavoro revisionabile, consegnabile e recuperabile senza dipendere dalla sessione di un provider.
 
-## P12 — Affidabilità e rilascio personale
+## P12 — Affidabilità e prima beta macOS
 
-**Dipende da:** P11; regressioni aggiuntive P10 per distribuire Cursor.
+**Dipende da:** P11 e regressioni P00–P10, incluso Cursor.
 
 - [ ] **P12.1 — Pacchetto.** Runtime, migrazioni e asset inclusi; dipendenze esterne rilevate e guidate. **P12-I01:** avvio Finder in ambiente pulito e percorsi con spazi; aggiornamento preserva dati. Firma/notarizzazione prima di distribuzione esterna.
 - [ ] **P12.2 — Crash/sleep/rete.** Riconciliazione prima di nuove run. **P12-I02:** nessuno stato “in esecuzione” privo di evidenza o replay pericoloso; budget corretto dopo cambio giorno/ciclo.
@@ -226,7 +226,7 @@ La UI può procedere con fixture dopo P01; le prove pure di memoria possono proc
 - [ ] **P12.5 — Regressioni.** Gate deterministici e smoke sulle versioni dichiarate. **P12-I05:** schema provider incompatibile rilevato; fonte o versione cambiata non equivale a supporto automatico.
 - [ ] **P12.6 — Uso personale.** Cinque sessioni, almeno cinque handoff, uno durante test e uno dopo restart; percorso cloud→locale→cloud. **P12-I06:** nessuna perdita dei contenuti inclusi, doppio writer o quota inventata; briefing manuali necessari registrati e cause corrette prima di chiudere il gate.
 
-**Gate:** limitazioni pubblicate, prove di affidabilità e costi distinguibili dagli errori del modello; nessuna funzionalità sostenuta solo da mock dichiarata collaudata dal vivo.
+**Gate:** limitazioni pubblicate, prove di affidabilità e costi distinguibili dagli errori del modello; nessuna funzionalità sostenuta solo da mock dichiarata collaudata dal vivo. Collaudo su macOS 15 Apple Silicon e sul Mac di sviluppo. Bundle `org.frasma.lagoto`, runtime e licenze inclusi; firma Developer ID, Hardened Runtime, notarizzazione/ticket e Gatekeeper verificati. Solo dopo tutti i gate: `Lagoto-0.1.0-macos-arm64.dmg`, SHA-256, note, tag `v0.1.0`, prerelease GitHub e smoke dal DMG riscaricato. Aggiornamento manuale; niente Intel, iOS/iPadOS o cloud sync.
 
 ## 4. Definition of Done e tracciabilità
 
