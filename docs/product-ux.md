@@ -36,7 +36,7 @@ Esempi puramente illustrativi di righe:
 | Modello locale D | Locale · disponibile | Server pronto |
 | Modello cloud E | 80% oggi | Limite provider raggiunto · reset alle 17:00 |
 
-La riga E chiarisce che budget personale e disponibilità effettiva sono dimensioni diverse. L’inspector distingue reset della quota, rinnovo del piano e nuova assegnazione giornaliera. Nessuna barra unica somma provider o valute differenti. Il termine “stimato” resta visibile anche nella vista compatta quando si applica.
+La riga E chiarisce che budget personale e disponibilità effettiva sono dimensioni diverse. L’inspector distingue reset della quota, rinnovo del piano e nuova assegnazione giornaliera. Nessuna barra unica somma provider o valute differenti; la media in alto nell’app (P09.10) è una media di percentuali, etichettata come tale, con l’elenco per modello e il profilo più basso evidenziato. Il termine “stimato” resta visibile anche nella vista compatta quando si applica.
 
 Avvisi al 20% e al 10%, una sola volta per soglia e assegnazione. Allo 0% Lagoto impedirà nuovi turni, richiederà stop al primo punto sicuro e salverà il contesto. Le azioni saranno `Continua con…`, `Deroga per oggi` e `Resta in pausa`. Nessuna scelta predefinita avvierà una chiamata a pagamento o cambierà modello/account. Una deroga ha importo e scadenza espliciti e non supera i limiti reali del provider.
 

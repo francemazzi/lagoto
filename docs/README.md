@@ -1,6 +1,6 @@
 # Documentazione di Lagoto
 
-**Versione:** 0.3 · **Data:** 5 ottobre 2026 · **Stato:** specifica approvata e implementazione parziale. [Report](evidence/implementation-2026-10-05.md).
+**Versione:** 0.4 · **Data:** 6 ottobre 2026 · **Stato:** specifica approvata e implementazione parziale. [Report](evidence/implementation-2026-10-05.md).
 
 Il percorso previsto è: **collegare integrazioni → scegliere un modello disponibile → lavorare → cambiare modello conservando lo stato → consegnare su GitHub**. Le funzionalità descritte costituiscono i requisiti; il report distingue le parti realizzate dalle prove ancora mancanti. Gli esempi sono sintetici; nessun importo o piano rappresenta i consumi personali dell’utente.
 
@@ -8,9 +8,10 @@ Il percorso previsto è: **collegare integrazioni → scegliere un modello dispo
 
 | Documento | Contenuto |
 | --- | --- |
-| [Roadmap P00–P12](../ROADMAP.md) | Ordine di sviluppo, dipendenze, requisiti e gate |
+| [Roadmap P00–P16](../ROADMAP.md) | Ordine di sviluppo, dipendenze, requisiti e gate; v0.1.0 e milestone Cowork v0.2.0 |
 | [Prodotto e UX](product-ux.md) | Tre aree, onboarding, flussi e stati visibili |
 | [Architettura](architecture.md) | Responsabilità, contratti, persistenza e confini |
+| [ADR 0003](adr/0003-cowork.md) | Architettura Cowork: squadra, registro ACP, messaggi fra conversazioni; conferma SwiftUI e stdio |
 | [ADR 0002](adr/0002-native-macos.md) | SwiftUI, Node incluso, better-sqlite3 e Cursor obbligatorio |
 | [ADR 0001](adr/0001-runtime-and-adapters.md) | Scelta dell’harness, alternative e condizioni di validazione |
 | [Integrazioni](integrations.md) | Login, API, cloud, locale, capacità e telemetria |
@@ -25,7 +26,7 @@ Il percorso previsto è: **collegare integrazioni → scegliere un modello dispo
 
 ## Decisioni confermate
 
-- Lagoto governerà task, permessi, budget e continuità; harness esistenti eseguiranno il lavoro. Nessun secondo ciclo autonomo di pianificazione.
+- Lagoto governerà task, permessi, budget e continuità; harness esistenti eseguiranno il lavoro. Nessun planner interno di Lagoto. Le squadre di ADR 0003 coordinano harness con strumenti di squadra e conferma umana, nella milestone v0.2.0.
 - Codex e Claude Code useranno adapter ufficiali; Qwen Code SDK, dietro un adapter sostituibile, servirà Qwen cloud, Kimi API e Ollama. La fattibilità resta un gate P00.
 - “Batteria” significa budget di oggi. La quota reale del provider è distinta. I piani opachi useranno un budget personale marcato come stimato.
 - Distribuzione su tutti i giorni di calendario, fuso iniziale `Europe/Rome`, rinnovo proprio di ciascun piano. Allo 0%: pausa sicura e scelta dell’utente.

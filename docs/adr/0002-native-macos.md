@@ -2,6 +2,8 @@
 
 Data: 5 ottobre 2026. Decisione approvata dall’utente; gate di fattibilità ancora aperto.
 
+Aggiornamento del 6 ottobre 2026: [ADR 0003](0003-cowork.md) conferma SwiftUI, IPC su stdio, Keychain in Swift e macOS arm64; esclude Electron e server HTTP; aggiunge squadra, registro ACP e messaggi fra conversazioni nella milestone v0.2.0.
+
 Il desktop usa SwiftUI e AppKit, con identificativo `org.frasma.lagoto`, destinazione macOS 15+ su Apple Silicon. Questa decisione sostituisce Tauri/React/Rust e l’ipotesi Prisma di ADR 0001; conserva task persistenti, adapter distinti, un writer per worktree e nessun secondo planner.
 
 Il coordinatore TypeScript usa Node 22.23.1 incluso nel bundle, better-sqlite3 13.0.3 e Qwen SDK 0.1.17. Il client nativo avvia il coordinatore mediante stdin/stdout privati, JSON-RPC v1, identificativi, validazione e timeout. Nessun server HTTP di Lagoto. Git, gh, CLI native e Ollama sono esterni e rilevati senza installazioni o aggiornamenti silenziosi.
