@@ -26,7 +26,7 @@ importers:
         specifier: 22.20.5
         version: 22.20.5
       oxlint:
-        specifier: ^1.87.0
+        specifier: 1.87.0
         version: 1.87.0
       tsx:
         specifier: 4.23.15

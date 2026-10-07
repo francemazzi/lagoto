@@ -40,6 +40,7 @@ function run(command: string, cliArgs: string[], label: string, timeout = 180000
   return result.status === 0;
 }
 
+run('pnpm', ['install', '--frozen-lockfile', '--prefer-offline'], 'install-frozen-lockfile', 300000);
 run('pnpm', ['typecheck'], 'typecheck');
 run('pnpm', ['lint'], 'lint');
 if (!skipBuild) run('pnpm', ['build'], 'native-bundle-build', 900000);
