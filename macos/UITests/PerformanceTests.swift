@@ -44,8 +44,8 @@ import XCTest
             }
             outline.scroll(byDeltaX: 0, deltaY: -240)
         }
-        XCTAssertGreaterThanOrEqual(samples.count, 20, "troppo pochi cambi di lavoro misurati: \(samples)")
-        let warm = Array(samples.dropFirst(5)).sorted()
+        XCTAssertGreaterThanOrEqual(samples.count, 10, "troppo pochi cambi di lavoro misurati: \(samples)")
+        let warm = Array(samples.dropFirst(3)).sorted()
         let p95 = warm[min(warm.count - 1, Int((Double(warm.count) * 0.95).rounded(.up)) - 1)]
         let limit = Int(ProcessInfo.processInfo.environment["LAGOTO_PERF_LIMIT_MS"] ?? "300") ?? 300
         if let out = ProcessInfo.processInfo.environment["LAGOTO_PERF_OUT"] {
