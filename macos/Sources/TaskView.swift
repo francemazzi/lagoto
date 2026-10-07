@@ -14,6 +14,8 @@ struct TaskView: View {
     @State private var loadedHistory = false
     @State private var busy = false
     @State private var inspector = false
+    @AppStorage("workspace.tab") private var workspaceTab = "files"
+    @AppStorage("workspace.width") private var workspaceWidth = 380.0
     @State private var delivery = false
     @State private var diff: JSONValue = .null
     @State private var checkpoints: JSONValue = .null
@@ -43,7 +45,7 @@ struct TaskView: View {
                 }
                 Spacer()
                 if budget["configured"].bool == true { Text(budgetLabel).font(.caption).foregroundStyle(.secondary).help("Budget personale, quota provider non disponibile") }
-                Button("Dettagli del lavoro", systemImage: "sidebar.right") { inspector.toggle(); if inspector { Task { await refreshInspector() } } }.labelStyle(.iconOnly).help("Repository, diff e checkpoint").accessibilityIdentifier("task-inspector")
+                Button("Pannello del lavoro", systemImage: "sidebar.right") { inspector.toggle(); if inspector { Task { await refreshInspector() } } }.labelStyle(.iconOnly).help("File, anteprima, modifiche e dettagli (⌥⌘I)").keyboardShortcut("i", modifiers: [.command, .option]).accessibilityIdentifier("task-inspector")
             }.padding(20)
             Divider()
             if let error { HStack { Text(error).font(.callout).textSelection(.enabled); Spacer(); Button("Chiudi", systemImage: "xmark") { self.error = nil }.labelStyle(.iconOnly) }.padding(12).background(Color.orange.opacity(0.12)) }
@@ -66,7 +68,10 @@ struct TaskView: View {
             Divider()
             composer
         }
-        .inspector(isPresented: $inspector) { inspectorView.inspectorColumnWidth(min: 280, ideal: 340, max: 440) }
+        .inspector(isPresented: $inspector) {
+            WorkspaceColumn(bridge: bridge, taskID: work.id, repositories: snapshot?.repositories ?? [], tab: $workspaceTab, width: $workspaceWidth) { inspectorView }
+                .inspectorColumnWidth(min: 300, ideal: CGFloat(workspaceWidth), max: 700)
+        }
         .sheet(isPresented: $showHandoff) { handoffSheet }
         .sheet(isPresented: $delivery) { DeliverySheet(bridge: bridge, taskID: work.id) }
         .task {

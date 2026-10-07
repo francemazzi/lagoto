@@ -65,3 +65,19 @@ struct RunRecord: Decodable, Identifiable, Sendable {
 struct TaskSnapshot: Decodable, Sendable {
     let blocks: [TranscriptBlock]; let runs: [RunRecord]; let repositories: [JSONValue]; let queued: [JSONValue]; let hasEarlier: Bool; let cursor: Int
 }
+struct WorkspaceEntry: Decodable, Identifiable, Sendable { let name: String; let kind: String; let bytes: Int?; var id: String { name }; var isDirectory: Bool { kind == "dir" } }
+struct WorkspaceListing: Decodable, Sendable { let path: String; let entries: [WorkspaceEntry]; let truncated: Bool }
+struct WorkspaceFileContent: Decodable, Sendable {
+    let path: String; let bytes: Int; let kind: String; let language: String?; let mime: String?; let text: String?; let base64: String?; let truncated: Bool
+}
+struct FileDiffContent: Decodable, Sendable { let path: String; let tracked: Bool; let binary: Bool; let diff: String; let truncated: Bool }
+struct ChangedFile: Decodable, Identifiable, Sendable {
+    let path: String; let area: String; let status: String; let binary: Bool
+    var id: String { "\(area):\(path)" }
+    var areaLabel: String { switch area { case "staged": "In staging"; case "unstaged": "Modificato"; default: "Nuovo" } }
+}
+struct RepositoryChanges: Decodable, Identifiable, Sendable {
+    let repository_id: String; let name: String; let files: [ChangedFile]; let test: String; let diffTruncated: Bool
+    var id: String { repository_id }
+    var testLabel: String { switch test { case "passed": "Test superati"; case "failed": "Test falliti"; case "stale": "Test obsoleti"; case "environment": "Ambiente non pronto"; case "none": "Nessun test"; default: test } }
+}

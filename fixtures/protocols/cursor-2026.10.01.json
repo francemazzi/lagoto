@@ -1,0 +1,842 @@
+{
+ "provider": "cursor",
+ "model": "composer-2.5[fast=true]",
+ "identity": {
+  "runtime": "cursor-agent",
+  "version": "2026.10.01-e373342"
+ },
+ "capturedAt": "2026-10-07T18:52:30.925Z",
+ "scope": "Real protocol frames from a synthetic task in an empty directory; paths, host, account and personal tool lists removed or normalized.",
+ "permissions": [
+  {
+   "tool": "`ls`",
+   "choices": [
+    {
+     "id": "allow-once",
+     "label": "Allow once",
+     "kind": "allow"
+    },
+    {
+     "id": "allow-always",
+     "label": "Allow always",
+     "kind": "allow"
+    },
+    {
+     "id": "reject-once",
+     "label": "Reject",
+     "kind": "reject"
+    }
+   ]
+  }
+ ],
+ "frames": [
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "session_info_update",
+     "title": "Capture Protocol Report"
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_thought_chunk",
+     "content": {
+      "type": "text",
+      "text": "Preparing to execute"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_thought_chunk",
+     "content": {
+      "type": "text",
+      "text": " the three requested"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_thought_chunk",
+     "content": {
+      "type": "text",
+      "text": " tasks: drafting a numbered"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_thought_chunk",
+     "content": {
+      "type": "text",
+      "text": " plan, creating notes.txt"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_thought_chunk",
+     "content": {
+      "type": "text",
+      "text": " with the word CAPTURE,"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_thought_chunk",
+     "content": {
+      "type": "text",
+      "text": " and running the ls "
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_thought_chunk",
+     "content": {
+      "type": "text",
+      "text": "command."
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": "E"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": "seguo"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": " i"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": " tre passaggi"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": " richiesti.\n"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "tool_call",
+     "toolCallId": "tool_d304a155-75c3-46a5-90cc-907703cbc55",
+     "title": "Edit File",
+     "kind": "edit",
+     "status": "pending",
+     "rawInput": {}
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "tool_call_update",
+     "toolCallId": "tool_d304a155-75c3-46a5-90cc-907703cbc55",
+     "title": "Edit `/tmp/lagoto-fixture/work/notes.txt`",
+     "rawInput": {
+      "path": "/tmp/lagoto-fixture/work/notes.txt"
+     },
+     "locations": [
+      {
+       "path": "/tmp/lagoto-fixture/work/notes.txt"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "tool_call_update",
+     "toolCallId": "tool_d304a155-75c3-46a5-90cc-907703cbc55",
+     "status": "in_progress"
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "tool_call",
+     "toolCallId": "tool_2a3e80a1-e5fe-44d0-a761-978f1c52593",
+     "title": "`ls`",
+     "kind": "execute",
+     "status": "pending",
+     "rawInput": {
+      "command": "ls"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "tool_call_update",
+     "toolCallId": "tool_2a3e80a1-e5fe-44d0-a761-978f1c52593",
+     "status": "in_progress"
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "id": 0,
+   "method": "session/request_permission",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "toolCall": {
+     "toolCallId": "tool_2a3e80a1-e5fe-44d0-a761-978f1c52593",
+     "title": "`ls`",
+     "kind": "execute",
+     "status": "pending",
+     "content": [
+      {
+       "type": "content",
+       "content": {
+        "type": "text",
+        "text": "Shell allowlist is empty"
+       }
+      }
+     ]
+    },
+    "options": [
+     {
+      "optionId": "allow-once",
+      "name": "Allow once",
+      "kind": "allow_once"
+     },
+     {
+      "optionId": "allow-always",
+      "name": "Allow always",
+      "kind": "allow_always"
+     },
+     {
+      "optionId": "reject-once",
+      "name": "Reject",
+      "kind": "reject_once"
+     }
+    ]
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "tool_call_update",
+     "toolCallId": "tool_d304a155-75c3-46a5-90cc-907703cbc55",
+     "status": "completed",
+     "content": [
+      {
+       "type": "diff",
+       "path": "/tmp/lagoto-fixture/work/notes.txt",
+       "oldText": "-- /dev/null",
+       "newText": "++ b//tmp/lagoto-fixture/work/notes.txt\nCAPTURE"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "tool_call_update",
+     "toolCallId": "tool_2a3e80a1-e5fe-44d0-a761-978f1c52593",
+     "status": "completed",
+     "rawOutput": {
+      "exitCode": 0,
+      "stdout": "fixture.txt\nnotes.txt\n",
+      "stderr": "zsh:1: command not found: dump_zsh_state\n"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_thought_chunk",
+     "content": {
+      "type": "text",
+      "text": "All three tasks are "
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_thought_chunk",
+     "content": {
+      "type": "text",
+      "text": "complete."
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_thought_chunk",
+     "content": {
+      "type": "text",
+      "text": "\n\nThe directory contains"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_thought_chunk",
+     "content": {
+      "type": "text",
+      "text": " `notes.txt`. The numbered"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_thought_chunk",
+     "content": {
+      "type": "text",
+      "text": " plan and confirmation"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_thought_chunk",
+     "content": {
+      "type": "text",
+      "text": " of the file creation"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_thought_chunk",
+     "content": {
+      "type": "text",
+      "text": " are ready."
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": "**"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": "Piano**\n\n1"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": ". S"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": "crivere il"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": " piano in 3"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": " passi"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": " bre"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": "vi  \n"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": "2. Creare"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": " `notes.txt`"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": " con la"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": " parola `"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": "CAPTURE`  \n"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": "3. Ese"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": "guire `ls"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": "` e ri"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": "portare l\u2019"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": "output  \n\n"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": "**Com"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": "pletato:**"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": " `notes.txt`"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": " creato con `"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": "CAPTURE`.\n\n**"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": "Output di"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": " `ls`:**\n\n"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": "```\nfixture.txt\n"
+     }
+    }
+   }
+  },
+  {
+   "jsonrpc": "2.0",
+   "method": "session/update",
+   "params": {
+    "sessionId": "14e9cbc5-4904-426c-a6e9-3b82d7cc4738",
+    "update": {
+     "sessionUpdate": "agent_message_chunk",
+     "content": {
+      "type": "text",
+      "text": "notes.txt\n```"
+     }
+    }
+   }
+  }
+ ]
+}

@@ -82,7 +82,7 @@ describe('P05-I04 crash between start and response never becomes a replay or a p
 describe('P05-I05 permissions are enforced, not suggested', () => {
   it('P05-I05 an unanswered permission is refused after the timeout, a stop refuses pending ones, and plan needs a verified mode', async () => {
     const f = await fixture();
-    let ask!: (tool: string) => Promise<boolean>; let finish!: () => void;
+    let ask!: (tool: string) => Promise<any>; let finish!: () => void;
     const completion = new Promise<void>(resolve => { finish = resolve; });
     const runs = new RunManager(f.store, () => {}, async options => { ask = tool => options.permission(tool, {}); return { sessionId: 's', completion, stop: async () => {} }; });
     await expect(runs.start(f.task.id, f.profile.id, 'p', crypto.randomUUID(), 'plan')).rejects.toThrow('Modalità non verificata');

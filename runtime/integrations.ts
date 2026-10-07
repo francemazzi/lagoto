@@ -25,3 +25,26 @@ export async function localModels() {
   const result = await response.json() as { models: { name: string; digest: string; size: number }[] };
   return result.models.map(model => ({ id: model.name, name: model.name, digest: model.digest, bytes: model.size }));
 }
+
+export type CatalogModel = { id: string; name: string; efforts: string[]; source: 'listed' | 'declared' };
+/** Parse `cursor-agent models` output: "id - Display name" lines after a heading. Anything else is ignored. */
+export function parseCursorModels(output: string): CatalogModel[] {
+  return output.split('\n').flatMap(line => {
+    const match = /^([A-Za-z0-9][\w.\-[\]=,]*) - (.+?)(?: \((?:current|default)[^)]*\))?\s*$/.exec(line.trim());
+    return match ? [{ id: match[1]!, name: match[2]!, efforts: [], source: 'listed' as const }] : [];
+  });
+}
+export async function cursorModels(): Promise<CatalogModel[]> {
+  const path = executable('cursor-agent');
+  if (!path) throw new Error('Cursor CLI non trovato');
+  const { stdout } = await execute(path, ['models'], { env: cleanEnvironment(), timeout: 30000 });
+  return parseCursorModels(stdout);
+}
+/**
+ * Claude Code has no model list command. These aliases and effort levels are declared from its own --help and are
+ * labelled as declared, so the UI never presents them as a catalog read from the account.
+ */
+export function claudeModels(): CatalogModel[] {
+  const efforts = ['low', 'medium', 'high', 'xhigh', 'max'];
+  return ['fable', 'opus', 'sonnet', 'haiku'].map(id => ({ id, name: id, efforts, source: 'declared' as const }));
+}

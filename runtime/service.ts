@@ -2,9 +2,9 @@ import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { Store } from './storage.js';
 import { Request, AppError, identifier, now, protocolVersion } from './protocol.js';
-import { addRepository, prepareWorktrees, diffs } from './git.js';
+import { addRepository, prepareWorktrees, diffs, git } from './git.js';
 import { RunManager } from './runs.js';
-import { inventory, codexModels, localModels } from './integrations.js';
+import { inventory, codexModels, localModels, claudeModels, cursorModels } from './integrations.js';
 import { createCheckpoint, contextPack, changesSince } from './checkpoint.js';
 import { transcript } from './transcript.js';
 import { ProfileVerifier } from './profiles.js';
@@ -23,6 +23,8 @@ import { APP_VERSION } from './version.js';
 import { exportPreview, exportTask, importTask } from './export.js';
 import { storageUsage, cleanupPlan, cleanupApply } from './retention.js';
 import { requestReview } from './review.js';
+import { searchArchive } from './search.js';
+import { listDirectory, readWorkspaceFile, fileDiff } from './workspace-files.js';
 import { childrenReport, stopChild } from './children.js';
 import { readUsage, withFreshness } from './usage-sources.js';
 
@@ -48,6 +50,11 @@ export class Service {
     this.initializations=new GitInitializations(store);
   }
   static readonly budgetMutations = new Set(['budget/create', 'budget/link', 'budget/renew', 'budget/override']);
+  private worktreeRoot(taskId:string,repositoryId:string){
+    this.store.task(taskId);
+    const row=this.store.db.prepare('SELECT path FROM task_repositories WHERE task_id=? AND repository_id=?').get(taskId,repositoryId) as {path:string}|undefined;
+    if(!row)throw new AppError(403,'Repository esterno al task');return row.path;
+  }
   async handle(request: Request): Promise<unknown> {
     const result = await this.dispatch(request);
     if (Service.budgetMutations.has(request.method)) this.store.publish('budget_changed', {});
@@ -104,7 +111,8 @@ export class Service {
       case 'github/account': return this.github.account();
       case 'github/preview': {const i=z.object({projectId:identifier,repositoryId:identifier,id:identifier,name:z.string().min(1),remoteName:z.string().min(1)}).strict().parse(p);return this.github.preview(i.projectId,i.repositoryId,i.id,i.name,i.remoteName);}
       case 'github/confirm': {const i=z.object({id:identifier,hash:z.string().length(64)}).strict().parse(p);return this.github.confirm(i.id,i.hash);}
-      case 'github/list': {const i=z.object({projectId:identifier,repositoryId:identifier}).strict().parse(p);this.repositories.get(i.projectId,i.repositoryId);return this.github.list(i.projectId,i.repositoryId);}
+      case 'github/list': {const i=z.object({projectId:identifier,repositoryId:identifier,verify:z.boolean().optional()}).strict().parse(p);this.repositories.get(i.projectId,i.repositoryId);return i.verify?this.github.listVerified(i.projectId,i.repositoryId):this.github.list(i.projectId,i.repositoryId);}
+      case 'search/query': {const i=z.object({query:z.string().min(1).max(200),projectId:identifier.optional(),limit:z.number().int().min(1).max(200).optional()}).strict().parse(p);if(i.projectId)this.store.project(i.projectId);return searchArchive(this.store,i.query,{projectId:i.projectId,limit:i.limit});}
       case 'repository/initialize/scan': {const i=z.object({projectId:identifier,repositoryId:identifier,id:identifier}).strict().parse(p);return this.initializations.scan(i.projectId,i.repositoryId,i.id);}
       case 'repository/initialize/preview': {const i=z.object({id:identifier,paths:z.array(z.string().min(1)).min(1),message:z.string().trim().min(1).max(2000),authorName:z.string().trim().min(1).max(200),authorEmail:z.string().trim().min(1).max(254),branch:z.string().min(1).max(150)}).strict().parse(p);return this.initializations.preview(i.id,i.paths,i.message,i.authorName,i.authorEmail,i.branch);}
       case 'repository/initialize/confirm': {const i=z.object({id:identifier,hash:z.string().length(64)}).strict().parse(p);return this.initializations.confirm(i.id,i.hash);}
@@ -148,6 +156,9 @@ export class Service {
       case 'storage/usage': return storageUsage(this.store);
       case 'storage/cleanup/preview': {const i=z.object({keepCheckpoints:z.number().int().min(1).max(100).optional(),keepDays:z.number().int().min(0).max(3650).optional()}).strict().parse(p);return cleanupPlan(this.store,i);}
       case 'storage/cleanup': {const i=z.object({hash:z.string().regex(/^[a-f0-9]{64}$/),keepCheckpoints:z.number().int().min(1).max(100).optional(),keepDays:z.number().int().min(0).max(3650).optional()}).strict().parse(p);return cleanupApply(this.store,i.hash,{keepCheckpoints:i.keepCheckpoints,keepDays:i.keepDays});}
+      case 'task/files': {const i=z.object({taskId:identifier,repositoryId:identifier,path:z.string().max(4096).optional()}).strict().parse(p);return listDirectory(this.worktreeRoot(i.taskId,i.repositoryId),i.path);}
+      case 'task/file': {const i=z.object({taskId:identifier,repositoryId:identifier,path:z.string().min(1).max(4096),maxBytes:z.number().int().min(1).max(2*1024*1024).optional()}).strict().parse(p);return readWorkspaceFile(this.worktreeRoot(i.taskId,i.repositoryId),i.path,i.maxBytes);}
+      case 'task/file/diff': {const i=z.object({taskId:identifier,repositoryId:identifier,path:z.string().min(1).max(4096)}).strict().parse(p);const root=this.worktreeRoot(i.taskId,i.repositoryId);return fileDiff(root,i.path,args=>git(root,args));}
       case 'task/children': {const {taskId}=z.object({taskId:identifier}).strict().parse(p);this.store.task(taskId);return childrenReport(this.store.db,taskId);}
       case 'child/stop': {const i=z.object({runId:identifier,childId:z.string().min(1).max(200)}).strict().parse(p);const row=this.store.db.prepare('SELECT task_id FROM runs WHERE id=?').get(i.runId) as {task_id:string}|undefined;if(!row)throw new AppError(404,'Run non trovata');const outcome=stopChild();this.store.event(row.task_id,i.runId,'child_control',{childId:i.childId,outcome:'unsupported',message:outcome.reason});return outcome;}
       case 'checkpoint/changes': {const {taskId}=z.object({taskId:identifier}).strict().parse(p);return changesSince(this.store,taskId);}
@@ -160,6 +171,12 @@ export class Service {
         this.store.db.prepare('INSERT OR IGNORE INTO queued_messages(id,task_id,text,created_at) VALUES(?,?,?,?)').run(id,taskId,text,now());
         this.store.publish('queue_changed',{taskId});
         return {id,state:'queued'};
+      }
+      case 'task/queue/edit': {
+        const {taskId,id,text}=z.object({taskId:identifier,id:identifier,text:z.string().trim().min(1).max(100000)}).strict().parse(p);this.store.task(taskId);
+        const changed=this.store.db.prepare("UPDATE queued_messages SET text=? WHERE id=? AND task_id=? AND state='queued'").run(text,id,taskId).changes;
+        if(!changed)throw new AppError(409,'Il messaggio non è più in coda: è stato inviato, eliminato o non esiste');
+        this.store.publish('queue_changed',{taskId});return {edited:true};
       }
       case 'task/queue/remove': {
         const {taskId,id}=z.object({taskId:identifier,id:identifier}).strict().parse(p);this.store.task(taskId);
@@ -176,6 +193,31 @@ export class Service {
       case 'integration/auth-status': {const i=z.object({provider:z.enum(['codex','claude','cursor'])}).strict().parse(p);return authStatus(i.provider);}
       case 'model/codex': return codexModels();
       case 'model/ollama': return localModels();
+      case 'model/claude': return claudeModels();
+      case 'model/cursor': return cursorModels();
+      case 'profile/update': {
+        const i=z.object({profileId:identifier,name:z.string().trim().min(1).max(120).optional(),model:z.string().trim().min(1).max(200).optional(),endpoint:z.string().url().max(2000).nullable().optional()}).strict().parse(p);
+        const row=this.store.db.prepare('SELECT * FROM profiles WHERE id=?').get(i.profileId) as {model:string;endpoint:string|null}|undefined;if(!row)throw new AppError(404,'Profilo non trovato');
+        if(this.store.db.prepare("SELECT 1 FROM runs WHERE profile_id=? AND state IN ('starting','running','stopping','waiting_permission','unknown')").get(i.profileId))throw new AppError(409,'Arresta la run prima di modificare il profilo');
+        const endpointChanged=i.endpoint!==undefined&&(i.endpoint??null)!==(row.endpoint??null),modelChanged=i.model!==undefined&&i.model!==row.model;
+        this.store.db.transaction(()=>{
+          this.store.db.prepare('UPDATE profiles SET name=COALESCE(?,name),model=COALESCE(?,model),endpoint=? WHERE id=?').run(i.name??null,i.model??null,i.endpoint===undefined?row.endpoint:i.endpoint,i.profileId);
+          // A different model or destination is a different combination: the old proof and the stored key no longer apply.
+          if(endpointChanged||modelChanged)this.store.db.prepare('UPDATE profiles SET capabilities=? WHERE id=?').run(JSON.stringify({modes:[],efforts:[],verification:'unverified'}),i.profileId);
+        })();
+        this.store.publish('profiles_changed',{profileId:i.profileId});
+        return {updated:true,reverify:endpointChanged||modelChanged,secretReset:endpointChanged};
+      }
+      case 'profile/logout': {
+        const {profileId}=z.object({profileId:identifier}).strict().parse(p);
+        if(!this.store.db.prepare('SELECT 1 FROM profiles WHERE id=?').get(profileId))throw new AppError(404,'Profilo non trovato');
+        const active=this.store.db.prepare("SELECT id FROM runs WHERE profile_id=? AND state IN ('starting','running','waiting_permission')").all(profileId) as {id:string}[];
+        let stopped=0;for(const run of active){await this.runs.stop(run.id);stopped++;}
+        if(this.store.db.prepare("SELECT 1 FROM runs WHERE profile_id=? AND state IN ('stopping','unknown')").get(profileId))throw new AppError(409,'Una run non è stata arrestata con certezza: riconciliala prima di scollegare il profilo');
+        this.store.db.prepare('UPDATE profiles SET capabilities=? WHERE id=?').run(JSON.stringify({modes:[],efforts:[],verification:'unverified'}),profileId);
+        this.store.publish('profiles_changed',{profileId});
+        return {loggedOut:true,stoppedRuns:stopped,secretReset:true};
+      }
       case 'profile/list': return (this.store.db.prepare('SELECT * FROM profiles ORDER BY provider,name').all() as { capabilities: string }[]).map(row => ({ ...row, capabilities: JSON.parse(row.capabilities) }));
       case 'budget/pools': return this.store.db.prepare('SELECT * FROM budget_pools ORDER BY name').all();
       case 'budget/create': {
@@ -227,8 +269,8 @@ export class Service {
       case 'run/stop': { const { runId } = z.object({ runId: identifier }).strict().parse(p); return this.runs.stop(runId); }
       case 'run/reconcile': {const {runId}=z.object({runId:identifier}).strict().parse(p);return this.runs.reconcile(runId);}
       case 'run/permission': {
-        const { runId, permissionId, allow } = z.object({ runId: identifier, permissionId: identifier, allow: z.boolean() }).strict().parse(p);
-        return this.runs.answer(runId, permissionId, allow);
+        const { runId, permissionId, allow, optionId } = z.object({ runId: identifier, permissionId: identifier, allow: z.boolean().optional(), optionId: z.string().min(1).max(200).optional() }).strict().refine(value => (value.allow === undefined) !== (value.optionId === undefined), { message: 'Indica allow oppure optionId' }).parse(p);
+        return this.runs.answer(runId, permissionId, allow, optionId);
       }
       case 'run/list': { const { taskId } = z.object({ taskId: identifier }).strict().parse(p); this.store.task(taskId); return this.store.db.prepare('SELECT * FROM runs WHERE task_id=? ORDER BY created_at').all(taskId); }
       case 'checkpoint/create': { const { taskId } = z.object({ taskId: identifier }).strict().parse(p); return createCheckpoint(this.store, taskId); }

@@ -41,6 +41,7 @@ enum EventTopic: Hashable, Sendable {
         if event["ephemeral"].bool == true {
             switch kind {
             case "budget_changed": signal(.budget)
+            case "profiles_changed": signal(.profiles)
             case "queue_changed": if let id = payload["taskId"].string { signal(.task(id)) }
             case "attention_changed":
                 if let id = payload["taskId"].string {

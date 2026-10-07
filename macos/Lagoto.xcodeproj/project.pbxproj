@@ -28,6 +28,7 @@
 		DC4F7103187920EE48F3C67C /* TaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 226F16B94FBB08E86E008F23 /* TaskView.swift */; };
 		E2CCF972E276829D8BE99D62 /* GitInitializeSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98103C6764041AB1E35A12CB /* GitInitializeSheet.swift */; };
 		E8CB02B8A807AC24587606D4 /* IntegrationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D30F5B6855CD35FD30B832 /* IntegrationsView.swift */; };
+		F62E67792226D897AEFEDBD5 /* WorkspaceColumn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FD514762AEFECF4E9FDE9EF /* WorkspaceColumn.swift */; };
 		FF9EC7CCD1682F5FAC25A92D /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = B21BCB82EDB105DBC1A1D966 /* Keychain.swift */; };
 /* End PBXBuildFile section */
 
@@ -58,6 +59,7 @@
 		3A408820914C6A46171EA308 /* BudgetSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetSheet.swift; sourceTree = "<group>"; };
 		42A9B68CF8570607A5F249C0 /* protocol-v1.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "protocol-v1.json"; sourceTree = "<group>"; };
 		473D45172FE2904B9164003F /* MarkdownTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownTests.swift; sourceTree = "<group>"; };
+		4FD514762AEFECF4E9FDE9EF /* WorkspaceColumn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceColumn.swift; sourceTree = "<group>"; };
 		55343FEA2CA33016D233394A /* KeychainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainTests.swift; sourceTree = "<group>"; };
 		6CF21843DC462A7A9217D868 /* EventStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStoreTests.swift; sourceTree = "<group>"; };
 		73752F65C1DA41343A4E8692 /* LagotoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LagotoApp.swift; sourceTree = "<group>"; };
@@ -104,6 +106,7 @@
 				B9060D9EA7DEC91551DB9A5E /* RuntimeBridge.swift */,
 				D135BBE63087DBB5EA5D481E /* TaskMemoryView.swift */,
 				226F16B94FBB08E86E008F23 /* TaskView.swift */,
+				4FD514762AEFECF4E9FDE9EF /* WorkspaceColumn.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -299,6 +302,7 @@
 				D9D4181A4BAB8F5980DAEE5F /* RuntimeBridge.swift in Sources */,
 				67ED57B6A432771B8704B9FD /* TaskMemoryView.swift in Sources */,
 				DC4F7103187920EE48F3C67C /* TaskView.swift in Sources */,
+				F62E67792226D897AEFEDBD5 /* WorkspaceColumn.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

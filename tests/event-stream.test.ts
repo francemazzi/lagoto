@@ -49,7 +49,7 @@ describe('P02-I08 every state change reaches the UI without polling', () => {
     const folder = mkdtempSync(join(tmpdir(), 'lagoto-wait-'));
     store.db.prepare('INSERT INTO repositories(id,project_id,name,path) VALUES(?,?,?,?)').run('11111111-1111-4111-8111-111111111111', project.id, 'r', folder);
     store.db.prepare('INSERT INTO task_repositories(task_id,repository_id,path,branch,base) VALUES(?,?,?,?,?)').run(task.id, '11111111-1111-4111-8111-111111111111', folder, 'main', 'HEAD');
-    let ask!: (tool: string) => Promise<boolean>; let finish!: () => void;
+    let ask!: (tool: string) => Promise<any>; let finish!: () => void;
     const completion = new Promise<void>(resolve => { finish = resolve; });
     const runs = new RunManager(store, () => {}, async options => { ask = tool => options.permission(tool, {}); return { sessionId: 's', completion, stop: async () => {} }; });
     const run = await runs.start(task.id, profile.id, 'x', crypto.randomUUID(), 'agent') as any;
@@ -66,5 +66,51 @@ describe('P02-I08 every state change reaches the UI without polling', () => {
     expect(await answer).toBe(true);
     expect(state()).toBe('running'); expect((await listed()).waiting).toBe(0);
     finish(); await runs.shutdown();
+  });
+});
+
+describe('P02-I08 the message queue', () => {
+  async function queued() {
+    const { store, call, events, project, task } = await setup();
+    const profile = await call('profile/create', { name: 'F', provider: 'codex', model: 'm' });
+    store.db.prepare('UPDATE profiles SET capabilities=? WHERE id=?').run(JSON.stringify({ modes: ['agent'], efforts: [], verification: 'passed' }), profile.id);
+    const folder = mkdtempSync(join(tmpdir(), 'lagoto-queue-'));
+    store.db.prepare('INSERT INTO repositories(id,project_id,name,path) VALUES(?,?,?,?)').run('11111111-1111-4111-8111-111111111111', project.id, 'r', folder);
+    store.db.prepare('INSERT INTO task_repositories(task_id,repository_id,path,branch,base) VALUES(?,?,?,?,?)').run(task.id, '11111111-1111-4111-8111-111111111111', folder, 'main', 'HEAD');
+    return { store, call, events, task, profile };
+  }
+  it('P02-I08 a queued message can be edited and removed only while it is waiting, and each change is announced', async () => {
+    const { call, events, task } = await queued();
+    const id = crypto.randomUUID();
+    await call('task/queue', { taskId: task.id, id, text: 'prima versione' });
+    expect(await call('task/queue/edit', { taskId: task.id, id, text: 'seconda versione' })).toEqual({ edited: true });
+    expect((await call('task/snapshot', { taskId: task.id })).queued[0].text).toBe('seconda versione');
+    await call('task/queue/remove', { taskId: task.id, id });
+    await expect(call('task/queue/edit', { taskId: task.id, id, text: 'tardi' })).rejects.toThrow('non è più in coda');
+    await expect(call('task/queue/edit', { taskId: task.id, id: crypto.randomUUID(), text: 'x' })).rejects.toThrow();
+    await tick();
+    expect(events.filter(event => event.kind === 'queue_changed').length).toBeGreaterThanOrEqual(3);
+  });
+  it('P02-I08 the next queued message is offered for sending only after a finished turn, never after a stop or a failure', async () => {
+    const s = await queued();
+    const outcome = async (end: 'finished' | 'failed' | 'stopped') => {
+      s.events.length = 0;
+      const id = crypto.randomUUID();
+      await s.call('task/queue', { taskId: s.task.id, id, text: `messaggio ${end}` });
+      let finish!: () => void; let fail!: (error: Error) => void;
+      const completion = new Promise<void>((resolve, reject) => { finish = resolve; fail = reject; });
+      const runs = new RunManager(s.store, () => {}, async () => ({ sessionId: 's', completion, stop: async () => { finish(); } }));
+      const run = await runs.start(s.task.id, s.profile.id, 'x', crypto.randomUUID(), 'agent') as any;
+      for (let i = 0; i < 100 && (s.store.db.prepare('SELECT state FROM runs WHERE id=?').get(run.id) as any).state !== 'running'; i++) await tick();
+      if (end === 'finished') finish(); else if (end === 'failed') fail(new Error('boom')); else await runs.stop(run.id);
+      for (let i = 0; i < 100 && ['running', 'stopping'].includes((s.store.db.prepare('SELECT state FROM runs WHERE id=?').get(run.id) as any).state); i++) await tick();
+      await runs.shutdown(); await tick();
+      s.store.db.prepare("UPDATE queued_messages SET state='cancelled' WHERE id=?").run(id);
+      return { ready: s.events.filter(event => event.kind === 'queue_ready'), id };
+    };
+    const finished = await outcome('finished');
+    expect(finished.ready).toEqual([expect.objectContaining({ ephemeral: true, payload: expect.objectContaining({ taskId: s.task.id, queueId: finished.id }) })]);
+    expect((await outcome('failed')).ready).toEqual([]);
+    expect((await outcome('stopped')).ready).toEqual([]);
   });
 });

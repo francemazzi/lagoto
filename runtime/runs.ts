@@ -1,7 +1,7 @@
 import { randomUUID, createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { Store } from './storage.js';
-import { startAdapter, type Profile, type RunningAdapter, type AdapterEvent } from './adapters.js';
+import { startAdapter, type Profile, type RunningAdapter, type AdapterEvent, type PermissionChoice, type PermissionDecision } from './adapters.js';
 import { type TaskRepository } from './git.js';
 import { AppError, now } from './protocol.js';
 import { contextPack,createCheckpoint } from './checkpoint.js';
@@ -16,7 +16,7 @@ export class RunManager {
   private active = new Map<string, ActiveRun>();
   private finishing = new Map<string, Promise<void>>();
   private starting = new Set<Promise<unknown>>();
-  private permissions = new Map<string, { runId: string; respond: (allow: boolean) => void; timer: NodeJS.Timeout }>();
+  private permissions = new Map<string, { runId: string; choices: PermissionChoice[]; respond: (allow: boolean, optionId?: string) => void; timer: NodeJS.Timeout }>();
   private get budgets(){return new RunBudgets(this.store);}
   constructor(private store: Store, private notify: (event: unknown) => void, private adapterFactory = startAdapter, private authCheck: typeof authStatus = authStatus) {}
   private event(taskId: string, runId: string, kind: string, payload: unknown) {
@@ -42,6 +42,9 @@ export class RunManager {
     if (effort && !capabilities.efforts?.includes(effort)) throw new AppError(400, 'Effort non supportato');
     let identity:unknown;
     if(this.adapterFactory===startAdapter){
+      // A profile changed after its verification is a different thing: no silent fallback to what was proved before.
+      const proof=capabilities.proof as {model?:string;endpoint?:string|null}|undefined;
+      if(proof&&(proof.model!==profile.model||(proof.endpoint??null)!==(profile.endpoint??null)))throw new AppError(409,'Modello o endpoint modificati dopo la verifica: verifica di nuovo il profilo in Integrazioni');
       if(['codex','claude','cursor'].includes(profile.provider)){
         try{assertAuthUsable(await this.authCheck(profile.provider as AuthProvider,profile.executable));}
         catch(error){throw new AppError((error as {code?:number}).code??409,error instanceof Error?error.message:'Accesso non utilizzabile');}
@@ -81,16 +84,16 @@ export class RunManager {
             void this.stop(runId).catch(()=>{});
           }
         },
-        permission: (tool, input) => new Promise<boolean>(resolve => {
+        permission: (tool, input, choices) => new Promise<PermissionDecision>(resolve => {
           if (running.stopping) { resolve(false); return; }
           const id = randomUUID();
-          const finish = (allow: boolean) => { const p = this.permissions.get(id); if (!p) return; clearTimeout(p.timer); this.permissions.delete(id);
+          const finish = (allow: boolean, optionId?: string) => { const p = this.permissions.get(id); if (!p) return; clearTimeout(p.timer); this.permissions.delete(id);
             if (![...this.permissions.values()].some(other => other.runId === runId)) { this.store.db.prepare("UPDATE runs SET state='running' WHERE id=? AND state='waiting_permission'").run(runId); this.store.publish('attention_changed', { taskId, waiting: false }); }
-            this.event(taskId, runId, 'permission_result', { id, allow }); resolve(allow); };
-          this.permissions.set(id, { runId, respond: finish, timer: setTimeout(() => finish(false), 50000) });
+            this.event(taskId, runId, 'permission_result', { id, allow, optionId }); resolve(optionId ? { allow, optionId } : allow); };
+          this.permissions.set(id, { runId, choices: choices ?? [], respond: finish, timer: setTimeout(() => finish(false), 50000) });
           this.store.db.prepare("UPDATE runs SET state='waiting_permission' WHERE id=? AND state='running'").run(runId);
           this.store.publish('attention_changed', { taskId, waiting: true });
-          this.event(taskId, runId, 'permission', { id, tool, input });
+          this.event(taskId, runId, 'permission', { id, tool, input, choices: choices ?? [], timeoutSeconds: 50 });
         }),
       });
       const adapter = await startup;
@@ -124,12 +127,25 @@ export class RunManager {
     this.budgets.finish(runId,finalState);
     this.store.publish('budget_changed',{profileId:(this.store.db.prepare('SELECT profile_id FROM runs WHERE id=?').get(runId) as {profile_id:string}|undefined)?.profile_id});
     const failure = finalState==='failed' || finalState==='unknown' ? classifyFailure(error instanceof Error ? error.message : undefined) : undefined;
+    // A queued message is offered for sending only after a turn that ended well; the app starts it with the stored secret.
+    if (finalState === 'finished') {
+      const next = this.store.db.prepare("SELECT id FROM queued_messages WHERE task_id=? AND state='queued' AND send_at_turn_end=1 ORDER BY created_at,rowid LIMIT 1").get(entry.taskId) as { id: string } | undefined;
+      const profile = (this.store.db.prepare('SELECT profile_id FROM runs WHERE id=?').get(runId) as { profile_id: string } | undefined)?.profile_id;
+      if (next) this.store.publish('queue_ready', { taskId: entry.taskId, queueId: next.id, profileId: profile });
+    }
     this.event(entry.taskId, runId, 'run_state', { state: finalState, message: error instanceof Error ? error.message : undefined, ...(failure ? { cause: failure.cause, action: failure.action } : {}) });
     this.active.delete(runId);
   }
-  answer(runId: string, permissionId: string, allow: boolean) {
+  /** Answer a pending permission: either allow once/reject, or one of the choices the backend really offered. */
+  answer(runId: string, permissionId: string, allow: boolean | undefined, optionId?: string) {
     const permission = this.permissions.get(permissionId);
     if (!permission || permission.runId !== runId) throw new AppError(404, 'Autorizzazione scaduta o appartenente a un’altra run');
+    if (optionId !== undefined) {
+      const choice = permission.choices.find(item => item.id === optionId);
+      if (!choice) throw new AppError(400, 'Scelta non offerta dal backend per questa richiesta');
+      permission.respond(choice.kind === 'allow', optionId); return { accepted: true, optionId };
+    }
+    if (allow === undefined) throw new AppError(400, 'Indica consenti, rifiuta o una scelta offerta');
     permission.respond(allow); return { accepted: true };
   }
   async stop(runId: string) {

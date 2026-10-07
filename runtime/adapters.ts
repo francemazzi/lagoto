@@ -2,15 +2,21 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { AppError } from './protocol.js';
+import { AppError, redact } from './protocol.js';
 import { JsonProcess, executable, cleanEnvironment, type ProcessMessage } from './process.js';
 import { ScopedFiles } from './scoped-files.js';
 import { cursorSandbox } from './sandbox.js';
 import { qwenNormalizer } from './qwen-normalizer.js';
 
 export type Profile = { id: string; provider: 'codex' | 'claude' | 'cursor' | 'qwen' | 'kimi' | 'ollama' | 'openrouter'; model: string; name: string; endpoint: string | null; executable: string | null; capabilities: string };
-export type AdapterEvent = { kind: 'text' | 'text_snapshot' | 'reasoning' | 'reasoning_snapshot' | 'tool' | 'result' | 'usage' | 'system' | 'error' | 'raw' | 'child'; text?: string; payload: unknown; itemId?: string };
-export type Permission = (tool: string, input: unknown) => Promise<boolean>;
+export type ToolCategory = 'terminal' | 'file_change' | 'plan';
+export type AdapterEvent = { kind: 'text' | 'text_snapshot' | 'reasoning' | 'reasoning_snapshot' | 'tool' | 'result' | 'usage' | 'system' | 'error' | 'raw' | 'child' | 'plan'; text?: string; payload: unknown; itemId?: string; category?: ToolCategory };
+export type PermissionChoice = { id: string; label: string; kind: 'allow' | 'reject' };
+export type PermissionDecision = boolean | { allow: boolean; optionId?: string };
+/** Choices are the options the backend really offers; a boolean answer keeps meaning allow once or reject once. */
+export type Permission = (tool: string, input: unknown, choices?: PermissionChoice[]) => Promise<PermissionDecision>;
+const allowed = (decision: PermissionDecision) => typeof decision === 'boolean' ? decision : decision.allow;
+const picked = (decision: PermissionDecision) => typeof decision === 'object' ? decision.optionId : undefined;
 export type RunOptions = { profile: Profile; cwd: string; directories: string[]; prompt: string; mode: 'plan' | 'agent'; effort?: string; secret?: string; home: string; onEvent: (event: AdapterEvent) => void; permission: Permission; onProcess?:(client:JsonProcess)=>void;
   /** Internal test harness can constrain the SDK worker with an OS policy; never exposed over IPC. */
   workerLauncher?:(command:string,args:string[],cwd:string,environment:Record<string,string>)=>JsonProcess };
@@ -26,6 +32,14 @@ export async function codexClient(cwd: string, configured?: string | null,onProc
   } catch (error) { await client.stop(); throw error; }
 }
 
+const FILE_TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit']);
+export function claudeToolCategory(name: unknown): ToolCategory | undefined {
+  if (typeof name !== 'string') return undefined;
+  if (name === 'Bash' || name === 'BashOutput') return 'terminal';
+  if (FILE_TOOLS.has(name)) return 'file_change';
+  if (name === 'TodoWrite') return 'plan';
+  return undefined;
+}
 export function normalizeClaude(message: ProcessMessage, currentMessage='message', children: Set<string> = new Set()): AdapterEvent[] {
   const raw: AdapterEvent = { kind: 'raw', payload: message };
   if (message.type === 'stream_event') {
@@ -34,7 +48,7 @@ export function normalizeClaude(message: ProcessMessage, currentMessage='message
     if (event?.type === 'content_block_delta' && typeof event.delta?.thinking === 'string') return [raw, { kind: 'reasoning', text: event.delta.thinking, payload: {} }];
   }
   if (message.type === 'assistant') return [raw, ...((message.message?.content ?? []) as ProcessMessage[]).flatMap((block,index):AdapterEvent[] =>
-    block.type==='tool_use'?[{kind:'tool',payload:block},...(block.name==='Task'&&typeof block.id==='string'?(children.add(block.id),[{kind:'child' as const,payload:{childId:block.id,state:'started',title:typeof block.input?.description==='string'?block.input.description.slice(0,200):null,source:'claude:Task'}}]):[])]:block.type==='text'?[{kind:'text_snapshot',text:block.text,itemId:`${message.message?.id ?? currentMessage}:${index}`,payload:{}}]:[])];
+    block.type==='tool_use'?[{kind:'tool',payload:block,...(claudeToolCategory(block.name)?{category:claudeToolCategory(block.name)!}:{})},...(block.name==='TodoWrite'&&Array.isArray(block.input?.todos)?[{kind:'plan' as const,payload:{entries:block.input.todos.map((todo:any)=>({text:String(todo.content??todo.activeForm??''),status:String(todo.status??'pending')}))}}]:[]),...(block.name==='Task'&&typeof block.id==='string'?(children.add(block.id),[{kind:'child' as const,payload:{childId:block.id,state:'started',title:typeof block.input?.description==='string'?block.input.description.slice(0,200):null,source:'claude:Task'}}]):[])]:block.type==='text'?[{kind:'text_snapshot',text:block.text,itemId:`${message.message?.id ?? currentMessage}:${index}`,payload:{}}]:[])];
   if (message.type === 'user') return [raw, ...((Array.isArray(message.message?.content) ? message.message.content : []) as ProcessMessage[]).filter(block => block.type === 'tool_result').flatMap((block): AdapterEvent[] => [{ kind: 'tool' as const, payload: block },
     ...(children.has(block.tool_use_id) ? [{ kind: 'child' as const, payload: { childId: block.tool_use_id, state: block.is_error ? 'failed' : 'completed', result: (typeof block.content === 'string' ? block.content : JSON.stringify(block.content ?? '')).slice(0, 4000), source: 'claude:Task' } }] : [])])];
   if (message.type === 'result') return [raw, { kind: message.is_error ? 'error' : 'result', text: message.result, payload: message }, { kind: 'usage', payload: { usage: message.usage, cost: message.total_cost_usd, scope: 'session', source: 'runtime-estimate' } }];
@@ -49,6 +63,32 @@ export function claudeNormalizer() {
   };
 }
 
+/** Category of a Codex thread item, from the item types observed in codex-cli 0.160.1 (commandExecution). */
+export function codexItemCategory(item: any): ToolCategory | undefined {
+  switch (item?.type) { case 'commandExecution': return 'terminal'; case 'fileChange': return 'file_change'; case 'plan': case 'todoList': return 'plan'; default: return undefined; }
+}
+/** Pure translation of one Codex app-server notification into journal events (raw frames are recorded by the caller). */
+export function normalizeCodexMessage(message: ProcessMessage): AdapterEvent[] {
+  const p = message.params ?? {};
+  switch (message.method) {
+    case 'item/agentMessage/delta': return [{ kind: 'text', text: p.delta, itemId: p.itemId, payload: {} }];
+    case 'item/reasoning/summaryTextDelta': return [{ kind: 'reasoning', text: p.delta, itemId: p.itemId, payload: {} }];
+    case 'error': return [{ kind: 'error', text: p.error?.message, payload: p }];
+    case 'thread/tokenUsage/updated': return [{ kind: 'usage', payload: p }];
+    case 'turn/completed': return [{ kind: p.turn?.status === 'completed' ? 'result' : 'error', payload: p }];
+    case 'item/completed': if (p.item?.type === 'agentMessage') return [{ kind: 'text_snapshot', text: p.item.text, itemId: p.item.id, payload: {} }];
+    // falls through: other completed items are tools
+    case 'item/started': {
+      if (['agentMessage', 'reasoning', 'userMessage'].includes(p.item?.type)) return [];
+      const category = codexItemCategory(p.item);
+      const events: AdapterEvent[] = [{ kind: 'tool', payload: p.item, ...(category ? { category } : {}) }];
+      if (category === 'plan') events.push({ kind: 'plan', payload: { entries: [{ text: String(p.item?.text ?? p.item?.summary ?? ''), status: 'pending' }] } });
+      return events;
+    }
+    default: return [];
+  }
+}
+
 async function startCodex(options: RunOptions): Promise<RunningAdapter> {
   const client = await codexClient(options.cwd, options.profile.executable,options.onProcess);
   let turnId: string | null = null;
@@ -59,20 +99,16 @@ async function startCodex(options: RunOptions): Promise<RunningAdapter> {
   client.onMessage = message => {
     options.onEvent({ kind: 'raw', payload: message });
     if (message.method?.endsWith('/requestApproval') && message.id != null) {
-      void options.permission(message.method, message.params).then(allow => client.send({ jsonrpc: '2.0', id: message.id, result: { decision: allow ? 'accept' : 'decline' } })).catch(error => reject(error)); return;
+      const choices: PermissionChoice[] = [{ id: 'accept', label: 'Consenti una volta', kind: 'allow' }, { id: 'decline', label: 'Rifiuta', kind: 'reject' }];
+      void options.permission(message.method, message.params, choices).then(decision => { const wanted = picked(decision); client.send({ jsonrpc: '2.0', id: message.id, result: { decision: wanted && choices.some(choice => choice.id === wanted) ? wanted : allowed(decision) ? 'accept' : 'decline' } }); }).catch(error => reject(error)); return;
     }
     if (message.id != null && message.method) {
       client.send({ jsonrpc: '2.0', id: message.id, error: { code: -32601, message: 'Client capability not available' } }); return;
     }
     const p = message.params ?? {};
-    if (message.method === 'item/agentMessage/delta') options.onEvent({ kind: 'text', text: p.delta, itemId: p.itemId, payload: {} });
-    else if (message.method === 'item/reasoning/summaryTextDelta') options.onEvent({ kind: 'reasoning', text: p.delta, itemId: p.itemId, payload: {} });
-    else if(message.method==='item/completed'&&p.item?.type==='agentMessage')options.onEvent({kind:'text_snapshot',text:p.item.text,itemId:p.item.id,payload:{}});
-    else if(message.method==='error')options.onEvent({kind:'error',text:p.error?.message,payload:p});
-    else if (['item/started', 'item/completed'].includes(message.method) && !['agentMessage','reasoning','userMessage'].includes(p.item?.type)) options.onEvent({ kind: 'tool', payload: p.item });
-    else if (message.method === 'thread/tokenUsage/updated') options.onEvent({ kind: 'usage', payload: p });
-    else if (message.method === 'turn/completed') {
-      finished = true; options.onEvent({ kind: p.turn?.status === 'completed' ? 'result' : 'error', payload: p });
+    for (const event of normalizeCodexMessage(message)) options.onEvent(event);
+    if (message.method === 'turn/completed') {
+      finished = true;
       if (p.turn?.status !== 'completed') reject(new AppError(p.turn?.status === 'interrupted' ? 499 : 502, p.turn.error?.message ?? 'Turno Codex non completato')); else resolve();
     }
   };
@@ -107,13 +143,13 @@ async function startClaude(options: RunOptions): Promise<RunningAdapter> {
     if (message.type === 'control_request') {
       options.onEvent({kind:'raw',payload:message});
       if (message.request?.subtype === 'can_use_tool') {
-        void options.permission(message.request.tool_name, message.request.input).then(allow => client.send({ type: 'control_response', response: { subtype: 'success', request_id: message.request_id,
-          response: allow ? { behavior: 'allow', updatedInput: message.request.input } : { behavior: 'deny', message: 'Operazione rifiutata' } } })).catch(error => reject(error));
+        void options.permission(message.request.tool_name, message.request.input, [{ id: 'allow', label: 'Consenti una volta', kind: 'allow' }, { id: 'deny', label: 'Rifiuta', kind: 'reject' }]).then(decision => client.send({ type: 'control_response', response: { subtype: 'success', request_id: message.request_id,
+          response: allowed(decision) ? { behavior: 'allow', updatedInput: message.request.input } : { behavior: 'deny', message: 'Operazione rifiutata' } } })).catch(error => reject(error));
       } else client.send({ type: 'control_response', response: { subtype: 'error', request_id: message.request_id, error: 'Unsupported control request' } });
       return;
     }
     for (const event of normalize(message)) options.onEvent(event);
-    if (message.type === 'result') { finished = true; if (message.is_error) reject(new AppError(502, 'Turno Claude fallito')); else resolve(); }
+    if (message.type === 'result') { finished = true; if (message.is_error) reject(new AppError(502, `Turno Claude fallito: ${String(redact(typeof message.result === 'string' ? message.result : 'senza dettagli')).slice(0, 400)}`)); else resolve(); }
   };
   client.send({ type: 'control_request', request_id: randomUUID(), request: { subtype: 'initialize', hooks: {} } });
   client.send({ type: 'user', session_id: '', message: { role: 'user', content: options.prompt }, parent_tool_use_id: null });
@@ -139,7 +175,7 @@ async function startQwen(options: RunOptions): Promise<RunningAdapter> {
   client.onClose = () => { if (!done) reject(new AppError(502, 'Qwen SDK terminato senza esito')); };
   client.onMessage = message => {
     if (message.method === 'permission') {
-      void options.permission(message.params.tool, message.params.input).then(allow => client.send({ jsonrpc: '2.0', id: message.id, result: { allow } })).catch(error => reject(error)); return;
+      void options.permission(message.params.tool, message.params.input, [{ id: 'allow', label: 'Consenti una volta', kind: 'allow' }, { id: 'deny', label: 'Rifiuta', kind: 'reject' }]).then(decision => client.send({ jsonrpc: '2.0', id: message.id, result: { allow: allowed(decision) } })).catch(error => reject(error)); return;
     }
     if (message.method === 'event') {
       const native = message.params;
@@ -150,6 +186,24 @@ async function startQwen(options: RunOptions): Promise<RunningAdapter> {
   };
   client.send({ method: 'start', params: { prompt: options.prompt, model: options.profile.model, cwd: options.cwd, directories: options.directories, mode: options.mode } });
   return { get sessionId() { return sessionId; }, completion, stop: () => client.stop() };
+}
+
+/** The choices an ACP backend really offered for a permission request, with their own labels. */
+export function acpPermissionChoices(options: any): PermissionChoice[] {
+  return (Array.isArray(options) ? options : []).map((option: any) => ({ id: String(option.optionId), label: String(option.name ?? option.optionId), kind: String(option.kind ?? option.optionId ?? '').startsWith('allow') ? 'allow' as const : 'reject' as const }));
+}
+const ACP_CATEGORIES: Record<string, ToolCategory> = { execute: 'terminal', edit: 'file_change', delete: 'file_change', move: 'file_change' };
+/** Pure translation of one ACP `session/update` into journal events. Unknown variants are kept as system data, never dropped. */
+export function normalizeAcpUpdate(update: any): AdapterEvent[] {
+  const kind = update?.sessionUpdate;
+  if (kind === 'agent_message_chunk' && update.content?.type === 'text') return [{ kind: 'text', text: update.content.text, payload: {} }];
+  if (kind === 'agent_thought_chunk' && update.content?.type === 'text') return [{ kind: 'reasoning', text: update.content.text, payload: {} }];
+  if (kind === 'plan' && Array.isArray(update.entries)) return [{ kind: 'plan', payload: { entries: update.entries.map((entry: any) => ({ text: String(entry.content ?? ''), status: String(entry.status ?? 'pending') })) } }];
+  if (kind === 'tool_call' || kind === 'tool_call_update') {
+    const category = ACP_CATEGORIES[String(update.kind)];
+    return [{ kind: 'tool', payload: update, ...(category ? { category } : {}) }];
+  }
+  return [{ kind: 'system', payload: update }];
 }
 
 async function startCursor(options: RunOptions): Promise<RunningAdapter> {
@@ -174,20 +228,19 @@ async function startCursor(options: RunOptions): Promise<RunningAdapter> {
       void (async () => {
         if (!activeSession || p.sessionId !== activeSession) throw new AppError(403, 'Sessione ACP non autorizzata');
         if (message.method === 'fs/read_text_file') return files.read(p.path, p.line, p.limit);
-        if (options.mode !== 'agent' || !await options.permission(message.method, p)) throw new AppError(403, 'Scrittura rifiutata');
+        if (options.mode !== 'agent' || !allowed(await options.permission(message.method, p, [{ id: 'allow', label: 'Consenti una volta', kind: 'allow' }, { id: 'reject', label: 'Rifiuta', kind: 'reject' }]))) throw new AppError(403, 'Scrittura rifiutata');
         return files.write(p.path, p.content);
       })().then(result => client.send({ jsonrpc: '2.0', id: message.id, result }), error => client.send({ jsonrpc: '2.0', id: message.id, error: { code: -32000, message: error.message } })).catch(() => {});
     } else if (message.method === 'session/request_permission') {
-      void options.permission(p.toolCall?.title ?? 'Cursor tool', p.toolCall).then(allow => {
-        const choice = p.options?.find((v: any) => v.kind === (allow ? 'allow_once' : 'reject_once'));
+      const offered = acpPermissionChoices(p.options);
+      void options.permission(p.toolCall?.title ?? 'Cursor tool', p.toolCall, offered).then(decision => {
+        const allow = allowed(decision); const wanted = picked(decision);
+        const choice = (wanted && p.options?.find((v: any) => v.optionId === wanted)) || p.options?.find((v: any) => v.kind === (allow ? 'allow_once' : 'reject_once'));
         client.send({ jsonrpc: '2.0', id: message.id, result: { outcome: choice ? { outcome: 'selected', optionId: choice.optionId } : { outcome: 'cancelled' } } });
       }).catch(() => { /* Late permission after process close has no effect. */ });
     } else if (message.id != null && message.method) client.send({ jsonrpc: '2.0', id: message.id, error: { code: -32601, message: 'Client capability not available' } });
     else if (message.method === 'session/update') {
-      const update = p.update;
-      if (update?.sessionUpdate === 'agent_message_chunk' && update.content?.type === 'text') options.onEvent({ kind: 'text', text: update.content.text, payload: {} });
-      else if (update?.sessionUpdate === 'agent_thought_chunk' && update.content?.type === 'text') options.onEvent({ kind: 'reasoning', text: update.content.text, payload: {} });
-      else options.onEvent({ kind: ['tool_call','tool_call_update'].includes(update?.sessionUpdate) ? 'tool' : 'system', payload: update });
+      for (const event of normalizeAcpUpdate(p.update)) options.onEvent(event);
     }
   };
   try {

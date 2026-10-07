@@ -1,0 +1,824 @@
+{
+ "provider": "codex",
+ "model": "gpt-6.1-sol",
+ "identity": {
+  "runtime": "codex",
+  "version": "codex-cli 0.160.1"
+ },
+ "capturedAt": "2026-10-07T18:35:15.914Z",
+ "scope": "Real protocol frames from a synthetic task in an empty directory; paths, host, account and personal tool lists removed or normalized.",
+ "permissions": [],
+ "frames": [
+  {
+   "method": "thread/started",
+   "params": {
+    "thread": {
+     "id": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+     "environments": [
+      {
+       "environmentId": "local",
+       "cwd": "/tmp/lagoto-fixture/work",
+       "runtimeWorkspaceRoots": [
+        "/tmp/lagoto-fixture/work"
+       ]
+      }
+     ],
+     "extra": null,
+     "sessionId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+     "forkedFromId": null,
+     "parentThreadId": null,
+     "preview": "",
+     "ephemeral": false,
+     "section": null,
+     "sectionEnteredAt": null,
+     "projectId": null,
+     "historyMode": "paginated",
+     "modelProvider": "openai",
+     "model": "gpt-6.1-sol",
+     "reasoningEffort": "xhigh",
+     "createdAt": 1791398102,
+     "updatedAt": 1791398102,
+     "recencyAt": 1791398102,
+     "status": {
+      "type": "idle"
+     },
+     "path": "/Users/user/.codex/sessions/2026/10/07/rollout-2026-10-07T20-35-02-01a117a5-c2d8-70a1-be66-c1a79dbc7a62.jsonl",
+     "cwd": "/tmp/lagoto-fixture/work",
+     "cliVersion": "0.160.1",
+     "originator": "lagoto",
+     "source": "vscode",
+     "canAcceptDirectInput": true,
+     "threadSource": null,
+     "agentNickname": null,
+     "agentRole": null,
+     "gitInfo": null,
+     "name": null,
+     "daybreakEnabled": null,
+     "turns": []
+    }
+   },
+   "emittedAtMs": 1791398102856
+  },
+  {
+   "method": "thread/status/changed",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "status": {
+     "type": "active",
+     "activeFlags": []
+    }
+   },
+   "emittedAtMs": 1791398102886
+  },
+  {
+   "method": "turn/started",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turn": {
+     "id": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+     "items": [],
+     "itemsView": "notLoaded",
+     "status": "inProgress",
+     "error": null,
+     "startedAt": 1791398102,
+     "completedAt": null,
+     "durationMs": null
+    }
+   },
+   "emittedAtMs": 1791398102886
+  },
+  {
+   "method": "item/started",
+   "params": {
+    "item": {
+     "type": "userMessage",
+     "id": "01a117a5-d2f9-7bb2-a05d-d52c87257cb2",
+     "clientId": null,
+     "content": [
+      {
+       "type": "text",
+       "text": "This is a synthetic protocol capture in an empty directory. Do exactly this, briefly: (1) write a numbered plan of 3 short steps; (2) create notes.txt containing the single word CAPTURE; (3) run the shell command `ls` and report its output. Do nothing else.",
+       "text_elements": []
+      }
+     ]
+    },
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "startedAtMs": 1791398105850
+   },
+   "emittedAtMs": 1791398105850
+  },
+  {
+   "method": "item/completed",
+   "params": {
+    "item": {
+     "type": "userMessage",
+     "id": "01a117a5-d2f9-7bb2-a05d-d52c87257cb2",
+     "clientId": null,
+     "content": [
+      {
+       "type": "text",
+       "text": "This is a synthetic protocol capture in an empty directory. Do exactly this, briefly: (1) write a numbered plan of 3 short steps; (2) create notes.txt containing the single word CAPTURE; (3) run the shell command `ls` and report its output. Do nothing else.",
+       "text_elements": []
+      }
+     ]
+    },
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "completedAtMs": 1791398105850
+   },
+   "emittedAtMs": 1791398105858
+  },
+  {
+   "method": "item/started",
+   "params": {
+    "item": {
+     "type": "agentMessage",
+     "id": "msg_051c86b4f95216fa016ac690dc408c81918a2c3c88aae5b8b1",
+     "text": "",
+     "phase": "commentary",
+     "memoryCitation": null,
+     "delivery": null,
+     "questions": null
+    },
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "startedAtMs": 1791398108204
+   },
+   "emittedAtMs": 1791398108204
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690dc408c81918a2c3c88aae5b8b1",
+    "delta": "1"
+   },
+   "emittedAtMs": 1791398108208
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690dc408c81918a2c3c88aae5b8b1",
+    "delta": "."
+   },
+   "emittedAtMs": 1791398108208
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690dc408c81918a2c3c88aae5b8b1",
+    "delta": " Create"
+   },
+   "emittedAtMs": 1791398108208
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690dc408c81918a2c3c88aae5b8b1",
+    "delta": " the"
+   },
+   "emittedAtMs": 1791398108410
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690dc408c81918a2c3c88aae5b8b1",
+    "delta": " requested"
+   },
+   "emittedAtMs": 1791398108526
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690dc408c81918a2c3c88aae5b8b1",
+    "delta": " file"
+   },
+   "emittedAtMs": 1791398108526
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690dc408c81918a2c3c88aae5b8b1",
+    "delta": ".\n"
+   },
+   "emittedAtMs": 1791398108526
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690dc408c81918a2c3c88aae5b8b1",
+    "delta": "2"
+   },
+   "emittedAtMs": 1791398108526
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690dc408c81918a2c3c88aae5b8b1",
+    "delta": "."
+   },
+   "emittedAtMs": 1791398108526
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690dc408c81918a2c3c88aae5b8b1",
+    "delta": " Run"
+   },
+   "emittedAtMs": 1791398108526
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690dc408c81918a2c3c88aae5b8b1",
+    "delta": " `"
+   },
+   "emittedAtMs": 1791398108526
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690dc408c81918a2c3c88aae5b8b1",
+    "delta": "ls"
+   },
+   "emittedAtMs": 1791398108526
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690dc408c81918a2c3c88aae5b8b1",
+    "delta": "`.\n"
+   },
+   "emittedAtMs": 1791398108714
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690dc408c81918a2c3c88aae5b8b1",
+    "delta": "3"
+   },
+   "emittedAtMs": 1791398108714
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690dc408c81918a2c3c88aae5b8b1",
+    "delta": "."
+   },
+   "emittedAtMs": 1791398108714
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690dc408c81918a2c3c88aae5b8b1",
+    "delta": " Report"
+   },
+   "emittedAtMs": 1791398108714
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690dc408c81918a2c3c88aae5b8b1",
+    "delta": " the"
+   },
+   "emittedAtMs": 1791398108714
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690dc408c81918a2c3c88aae5b8b1",
+    "delta": " output"
+   },
+   "emittedAtMs": 1791398108714
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690dc408c81918a2c3c88aae5b8b1",
+    "delta": ".\n"
+   },
+   "emittedAtMs": 1791398108714
+  },
+  {
+   "method": "item/completed",
+   "params": {
+    "item": {
+     "type": "agentMessage",
+     "id": "msg_051c86b4f95216fa016ac690dc408c81918a2c3c88aae5b8b1",
+     "text": "1. Create the requested file.\n2. Run `ls`.\n3. Report the output.\n",
+     "phase": "commentary",
+     "memoryCitation": null,
+     "delivery": null,
+     "questions": null
+    },
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "completedAtMs": 1791398108714
+   },
+   "emittedAtMs": 1791398108716
+  },
+  {
+   "method": "item/started",
+   "params": {
+    "item": {
+     "type": "commandExecution",
+     "id": "exec-510e89d2-af8a-4fba-bc87-c33109032c35",
+     "pluginId": null,
+     "scriptPath": null,
+     "command": "/bin/zsh -lc 'printf CAPTURE > notes.txt\nls'",
+     "cwd": "/tmp/lagoto-fixture/work",
+     "processId": "93787",
+     "source": "unifiedExecStartup",
+     "status": "inProgress",
+     "commandActions": [
+      {
+       "type": "unknown",
+       "command": "printf CAPTURE > notes.txt\nls"
+      }
+     ],
+     "aggregatedOutput": null,
+     "exitCode": null,
+     "durationMs": null
+    },
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "startedAtMs": 1791398110434
+   },
+   "emittedAtMs": 1791398110434
+  },
+  {
+   "method": "item/completed",
+   "params": {
+    "item": {
+     "type": "commandExecution",
+     "id": "exec-510e89d2-af8a-4fba-bc87-c33109032c35",
+     "pluginId": null,
+     "scriptPath": null,
+     "command": "/bin/zsh -lc 'printf CAPTURE > notes.txt\nls'",
+     "cwd": "/tmp/lagoto-fixture/work",
+     "processId": "93787",
+     "source": "unifiedExecStartup",
+     "status": "completed",
+     "commandActions": [
+      {
+       "type": "unknown",
+       "command": "printf CAPTURE > notes.txt\nls"
+      }
+     ],
+     "aggregatedOutput": "fixture.txt\nnotes.txt\n",
+     "exitCode": 0,
+     "durationMs": 0
+    },
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "completedAtMs": 1791398110434
+   },
+   "emittedAtMs": 1791398110435
+  },
+  {
+   "method": "thread/tokenUsage/updated",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "tokenUsage": {
+     "total": {
+      "totalTokens": 26780,
+      "inputTokens": 26677,
+      "cachedInputTokens": 13184,
+      "cacheWriteInputTokens": 0,
+      "outputTokens": 103,
+      "reasoningOutputTokens": 0
+     },
+     "last": {
+      "totalTokens": 26780,
+      "inputTokens": 26677,
+      "cachedInputTokens": 13184,
+      "cacheWriteInputTokens": 0,
+      "outputTokens": 103,
+      "reasoningOutputTokens": 0
+     },
+     "modelContextWindow": 258400
+    }
+   },
+   "emittedAtMs": 1791398110437
+  },
+  {
+   "method": "item/started",
+   "params": {
+    "item": {
+     "type": "reasoning",
+     "id": "rs_051c86b4f95216fa016ac690e3117081918c8eec34743bed0d",
+     "summary": [],
+     "content": []
+    },
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "startedAtMs": 1791398115156
+   },
+   "emittedAtMs": 1791398115156
+  },
+  {
+   "method": "item/completed",
+   "params": {
+    "item": {
+     "type": "reasoning",
+     "id": "rs_051c86b4f95216fa016ac690e3117081918c8eec34743bed0d",
+     "summary": [],
+     "content": []
+    },
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "completedAtMs": 1791398115156
+   },
+   "emittedAtMs": 1791398115157
+  },
+  {
+   "method": "item/started",
+   "params": {
+    "item": {
+     "type": "agentMessage",
+     "id": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+     "text": "",
+     "phase": "final_answer",
+     "memoryCitation": null,
+     "delivery": null,
+     "questions": null
+    },
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "startedAtMs": 1791398115227
+   },
+   "emittedAtMs": 1791398115227
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": "Created"
+   },
+   "emittedAtMs": 1791398115242
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": " `"
+   },
+   "emittedAtMs": 1791398115412
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": "notes"
+   },
+   "emittedAtMs": 1791398115412
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": ".txt"
+   },
+   "emittedAtMs": 1791398115412
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": "`"
+   },
+   "emittedAtMs": 1791398115412
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": " containing"
+   },
+   "emittedAtMs": 1791398115412
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": " `"
+   },
+   "emittedAtMs": 1791398115412
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": "CAP"
+   },
+   "emittedAtMs": 1791398115412
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": "TURE"
+   },
+   "emittedAtMs": 1791398115420
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": "`.\n\n"
+   },
+   "emittedAtMs": 1791398115588
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": "`"
+   },
+   "emittedAtMs": 1791398115588
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": "ls"
+   },
+   "emittedAtMs": 1791398115588
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": "`"
+   },
+   "emittedAtMs": 1791398115588
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": " output"
+   },
+   "emittedAtMs": 1791398115588
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": ":\n"
+   },
+   "emittedAtMs": 1791398115588
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": "```"
+   },
+   "emittedAtMs": 1791398115588
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": "text"
+   },
+   "emittedAtMs": 1791398115588
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": "\n"
+   },
+   "emittedAtMs": 1791398115588
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": "fixture"
+   },
+   "emittedAtMs": 1791398115588
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": ".txt"
+   },
+   "emittedAtMs": 1791398115588
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": "\n"
+   },
+   "emittedAtMs": 1791398115588
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": "notes"
+   },
+   "emittedAtMs": 1791398115588
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": ".txt"
+   },
+   "emittedAtMs": 1791398115588
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": "\n"
+   },
+   "emittedAtMs": 1791398115588
+  },
+  {
+   "method": "item/agentMessage/delta",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "itemId": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+    "delta": "```"
+   },
+   "emittedAtMs": 1791398115588
+  },
+  {
+   "method": "item/completed",
+   "params": {
+    "item": {
+     "type": "agentMessage",
+     "id": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+     "text": "Created `notes.txt` containing `CAPTURE`.\n\n`ls` output:\n```text\nfixture.txt\nnotes.txt\n```",
+     "phase": "final_answer",
+     "memoryCitation": null,
+     "delivery": null,
+     "questions": null
+    },
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "completedAtMs": 1791398115633
+   },
+   "emittedAtMs": 1791398115637
+  },
+  {
+   "method": "thread/tokenUsage/updated",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turnId": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+    "tokenUsage": {
+     "total": {
+      "totalTokens": 53679,
+      "inputTokens": 53519,
+      "cachedInputTokens": 39680,
+      "cacheWriteInputTokens": 0,
+      "outputTokens": 160,
+      "reasoningOutputTokens": 26
+     },
+     "last": {
+      "totalTokens": 26899,
+      "inputTokens": 26842,
+      "cachedInputTokens": 26496,
+      "cacheWriteInputTokens": 0,
+      "outputTokens": 57,
+      "reasoningOutputTokens": 26
+     },
+     "modelContextWindow": 258400
+    }
+   },
+   "emittedAtMs": 1791398115755
+  },
+  {
+   "method": "thread/status/changed",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "status": {
+     "type": "idle"
+    }
+   },
+   "emittedAtMs": 1791398115774
+  },
+  {
+   "method": "turn/completed",
+   "params": {
+    "threadId": "01a117a5-c2d8-70a1-be66-c1a79dbc7a62",
+    "turn": {
+     "id": "01a117a5-c74e-7bb2-a5fb-0324cad409ab",
+     "items": [
+      {
+       "type": "agentMessage",
+       "id": "msg_051c86b4f95216fa016ac690e3373c819193e1f9c475748d68",
+       "text": "Created `notes.txt` containing `CAPTURE`.\n\n`ls` output:\n```text\nfixture.txt\nnotes.txt\n```",
+       "phase": "final_answer",
+       "memoryCitation": null,
+       "delivery": null,
+       "questions": null
+      }
+     ],
+     "itemsView": "summary",
+     "status": "completed",
+     "error": null,
+     "startedAt": 1791398102,
+     "completedAt": 1791398115,
+     "durationMs": 12901
+    }
+   },
+   "emittedAtMs": 1791398115774
+  }
+ ]
+}

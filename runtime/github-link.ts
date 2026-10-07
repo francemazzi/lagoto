@@ -25,6 +25,15 @@ export class GitHubLinks {
   get(id:string){const row=this.store.db.prepare("SELECT state,payload FROM repository_operations WHERE id=? AND kind='github-link'").get(id) as {state:string;payload:string}|undefined;
     if(!row)throw new AppError(404,'Collegamento GitHub non trovato');return{...JSON.parse(row.payload),state:row.state} as LinkOperation;}
   list(projectId:string,repositoryId:string){return(this.store.db.prepare("SELECT id FROM repository_operations WHERE project_id=? AND repository_id=? AND kind='github-link' ORDER BY created_at DESC").all(projectId,repositoryId) as {id:string}[]).map(r=>this.get(r.id));}
+  /** Each known link with whether it could be confirmed right now. Offline or failing checks are reported, never hidden. */
+  async listVerified(projectId:string,repositoryId:string){
+    const operations=this.list(projectId,repositoryId);
+    return Promise.all(operations.map(async op=>{
+      if(op.state!=='completed')return{...op,verification:{state:'not-applicable' as const}};
+      try{const remote=await this.remote(op.owner,op.name);return{...op,verification:remote?{state:'verified' as const,checkedAt:now()}:{state:'missing' as const,checkedAt:now()}};}
+      catch(error){return{...op,verification:{state:'unverifiable' as const,reason:'Impossibile contattare GitHub: il collegamento salvato non è stato riconfermato',detail:String(redact(error instanceof Error?error.message:String(error))).slice(0,200)}};}
+    }));
+  }
   private save(op:LinkOperation){this.store.db.prepare('UPDATE repository_operations SET state=?,payload=?,updated_at=? WHERE id=?').run(op.state,JSON.stringify(op),now(),op.id);}
   async account(){
     const hosts=JSON.parse(await this.gh(['auth','status','--json','hosts'])).hosts;
