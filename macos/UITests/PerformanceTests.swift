@@ -20,18 +20,20 @@ import XCTest
         // Click the visible task rows one after the other; the app publishes "<task id>|<milliseconds>" on the transcript of the task it just opened.
         let first = app.element("task-row:Contratto API")
         XCTAssertTrue(first.waitForExistence(timeout: 60)); first.click()
+        // Rows that are not tasks (a project page, integrations) have no transcript: reading it then must not fail the test.
+        func published() -> String { let element = app.element("transcript"); return element.exists ? ((element.value as? String) ?? "") : "" }
         var samples: [Int] = []
-        var lastTask = ((app.element("transcript").value as? String) ?? "").split(separator: "|").first.map(String.init) ?? ""
+        var lastTask = published().split(separator: "|").first.map(String.init) ?? ""
         let started = Date()
         // The sidebar has the keyboard focus after the click: every Down arrow selects the next row, and every task row opened is one switch.
         let probe = app.element("task-row:Contratto API"); probe.click()
         Thread.sleep(forTimeInterval: 3)
-        XCTAssertTrue(((app.element("transcript").value as? String) ?? "").contains("|"), "valore esposto dalla trascrizione: «\(String(describing: app.element("transcript").value))»")
+        XCTAssertTrue(published().contains("|"), "valore esposto dalla trascrizione: «\(published())»")
         for _ in 0..<120 where samples.count < 45 && Date().timeIntervalSince(started) < 300 {
             app.typeKey(.downArrow, modifierFlags: [])
             let deadline = Date().addingTimeInterval(1.5)
             while Date() < deadline {
-                let parts = ((app.element("transcript").value as? String) ?? "").split(separator: "|")
+                let parts = published().split(separator: "|")
                 if parts.count == 2, String(parts[0]) != lastTask, let ms = Int(parts[1]) { lastTask = String(parts[0]); samples.append(ms); break }
                 Thread.sleep(forTimeInterval: 0.05)
             }
