@@ -6,7 +6,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { cursorSandbox } from '../runtime/sandbox.js';
 
-it('enforces Cursor write roots for direct writes, descendants, traversal and symlinks', async () => {
+it('P04-I04 enforces Cursor write roots for direct writes, descendants, traversal and symlinks', async () => {
   const root = await mkdtemp(join(tmpdir(), 'lagoto-scope-'));
   try {
     const allowed = join(root, 'allowed'); const outside = join(root, 'outside');

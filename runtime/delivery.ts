@@ -9,7 +9,7 @@ import {join} from 'node:path';
 type Selection={repositoryId:string;paths:string[];remote?:string};
 type Item=Selection & {name:string;path:string;branch:string;base:string;fingerprint:string;diff:string;remoteURL?:string;state:string;commit?:string;error?:string;indexBefore?:string;indexPrepared?:string};
 type Delivery={id:string;taskId:string;message:string;hash:string;items:Item[];checkpointId:string;state:string};
-export function deliveryView(delivery:Delivery){return{...delivery,items:delivery.items.map(({indexBefore,indexPrepared,...item})=>item)};}
+export function deliveryView(delivery:Delivery){return{...delivery,items:delivery.items.map(({indexBefore:_indexBefore,indexPrepared:_indexPrepared,...item})=>item)};}
 const digest=(value:unknown)=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 export class Deliveries {
   private pending=new Map<string,Promise<Delivery>>();

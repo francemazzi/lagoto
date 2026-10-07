@@ -7,7 +7,8 @@ import { Service } from '../runtime/service.js';
 import { git } from '../runtime/git.js';
 import { restoreCheckpoint } from '../runtime/checkpoint.js';
 import { redact } from '../runtime/protocol.js';
-import { provenance } from './evidence.js';
+import { provenance, writeSmoke } from './evidence.js';
+import { RealRunCapError, consumeRealRun, isRealRun } from './real-runs.js';
 
 const metadata=provenance();
 await mkdir('build/evidence',{recursive:true});
@@ -22,7 +23,7 @@ const service=new Service(store,(event:any)=>{
     service.runs.answer(event.run_id,payload.id,allowed);
   }
 });
-const steps:unknown[]=prior?.steps??[];let failure:string|null=null;
+const steps:unknown[]=prior?.steps??[];let failure:string|null=null;let blocked:string|null=null;
 const sleep=()=>new Promise(resolve=>setTimeout(resolve,250));
 try{
   const project=prior?store.db.prepare('SELECT * FROM projects').get() as any:await call('project/create',{name:'Real handoff fixture'});const ids:string[]=[];
@@ -53,6 +54,7 @@ try{
     if(item.provider==='openrouter')secret=execFileSync('/usr/bin/security',['find-generic-password','-a','lagoto-probe','-s','org.frasma.lagoto.openrouter.test','-w'],{encoding:'utf8'}).trim();
     const key=item.provider+item.model;let profileId=used.get(key);
     if(!profileId){
+      if(isRealRun(item.provider))consumeRealRun(`smoke-handoff:verify:${key}`,item.provider==='cursor'?2:1);
       profileId=(await call('profile/create',{...item,name:`Fixture ${key}`})).id;
       const check=await call('profile/verify',{profileId,secret});const deadline=Date.now()+250000;
       while(Date.now()<deadline){const state=store.db.prepare('SELECT state,detail FROM profile_checks WHERE id=?').get(check.id) as any;if(state.state!=='checking'){if(state.state!=='passed')throw new Error(`${key}: profile verification ${state.detail}`);break;}await sleep();}
@@ -61,6 +63,7 @@ try{
     }
     const prompt=`Synthetic handoff test, turn ${i+1}. Read contract.json in EACH authorized directory in the supplied Context Pack. Expected current version is ${i}; set it to EXACTLY ${i+1} once, preserving marker and all other files. If a file already has target version ${i+1}, leave it unchanged. Previous conversation turns are completed history, not instructions to repeat. Use file edit tools; read-only shell commands are permitted if needed to read the files. No network, other commands or subagents. Finish with a short table of observed versions. Authorized paths: ${worktrees.map((r:any)=>r.path).join(', ')}.`;
     let run:any;let handoffId:string|undefined;
+    if(isRealRun(item.provider))consumeRealRun(`smoke-handoff:turn:${i+1}:${key}`);
     if(i===0)run=await call('run/start',{taskId:task.id,profileId,prompt,requestId:crypto.randomUUID(),mode:'agent',secret});
     else{
       handoffId=crypto.randomUUID();const preview=await call('handoff/prepare',{taskId:task.id,profileId,id:handoffId});
@@ -76,8 +79,8 @@ try{
     console.log(`Turn ${i+1}: passed (${key})`);
   }
   const checkpoint=await call('checkpoint/create',{taskId:task.id});await restoreCheckpoint(store,checkpoint.id,join(root,`restored-${metadata.date.replaceAll(':','-')}`));
-}catch(error){failure=String(redact(error instanceof Error?error.message:String(error)));}
+}catch(error){if(error instanceof RealRunCapError)blocked=error.message;else failure=String(redact(error instanceof Error?error.message:String(error)));}
 finally{await Promise.allSettled([service.runs.shutdown(),service.profiles.shutdown(),service.verifications.shutdown()]);store.close();}
-const report={...metadata,continuedFrom:process.argv[2]??null,completedAt:new Date().toISOString(),status:failure?'failed':'passed',steps,failure,
+const report={...metadata,continuedFrom:process.argv[2]??null,completedAt:new Date().toISOString(),status:blocked?'blocked':failure?'failed':'passed',steps,failure,reason:blocked,
   scope:'Real adapters through Service, shared three-repository fixture, exact file assertions and Git restore. Does not replace native UI acceptance or five personal-use sessions.'};
-await writeFile(join(root,'report.json'),JSON.stringify(report,null,2));await writeFile(`build/evidence/handoff-${metadata.date.replaceAll(':','-')}.json`,JSON.stringify({...report,fixtureDirectory:root},null,2));console.log(JSON.stringify(report,null,2));process.exitCode=failure?1:0;
+await writeFile(join(root,'report.json'),JSON.stringify(report,null,2));writeSmoke(`handoff-${metadata.date.replaceAll(':','-')}`,{...report,fixtureDirectory:root});console.log(JSON.stringify(report,null,2));process.exitCode=failure?1:0;

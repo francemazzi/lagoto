@@ -20,6 +20,8 @@ describe('Native foundations', () => {
   it('P01-I02 rejects unknown methods and invalid input without writes', async () => {
     const { service } = setup(); await expect(call(service, 'shell/exec', { command: 'touch hacked' })).rejects.toThrow('Metodo non supportato');
     await expect(call(service, 'project/create', { name: '', extra: true })).rejects.toThrow(); expect(await call(service, 'project/list')).toEqual([]);
+    await expect(call(service, 'run/start', { taskId: crypto.randomUUID(), profileId: crypto.randomUUID(), prompt: 'x', requestId: crypto.randomUUID(), mode: 'agent' })).rejects.toThrow();
+    expect(service.store.db.prepare('SELECT count(*) AS count FROM runs').get()).toEqual({ count: 0 });
   });
   it('P01-I03 admits only one runtime owner and releases the database on clean exit', () => {
     const { store } = setup(); expect(() => new Store(store.directory)).toThrow('Archivio già aperto'); const directory = store.directory; store.close();

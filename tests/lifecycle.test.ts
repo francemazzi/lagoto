@@ -15,7 +15,7 @@ function temp() { const path = mkdtempSync(join(tmpdir(), 'lagoto-lifecycle-'));
 function deferred() { let resolve!: () => void; const promise = new Promise<void>(yes => { resolve = yes; }); return { promise, resolve }; }
 afterEach(() => { for (const store of stores.splice(0)) store.close(); for (const folder of folders.splice(0)) rmSync(folder, { force: true, recursive: true }); });
 describe('Lifecycle primitives', () => {
-  it('migrates a P00 v1 database without losing data or silently opening a newer schema', () => {
+  it('P01-I04 migrates a P00 v1 database without losing data or silently opening a newer schema', () => {
     const db = new Database(':memory:');
     db.exec(readFileSync('runtime/migrations/001-foundation.sql','utf8'));
     db.exec("INSERT INTO migrations VALUES(1,'fixture'); INSERT INTO projects VALUES('project','Preserve',0,'fixture'); CREATE TABLE run_requests(id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES runs(id))");
@@ -24,7 +24,7 @@ describe('Lifecycle primitives', () => {
     migrate(db); expect(db.prepare('SELECT count(*) AS count FROM migrations').get()).toEqual({count:9});
     db.exec("INSERT INTO migrations VALUES(999,'future')"); expect(()=>migrate(db)).toThrow('più recente'); db.close();
   });
-  it('single writer, request fingerprint and shutdown remain valid during asynchronous finalization', async () => {
+  it('P04-I03 single writer, request fingerprint and shutdown remain valid during asynchronous finalization', async () => {
     const store=new Store(temp()); stores.push(store); const service=new Service(store);
     const call=async(method:string,params:Record<string,unknown>)=>service.handle({jsonrpc:'2.0',id:'test',method,params}) as Promise<any>;
     const project=await call('project/create',{name:'Lifecycle'}); const task=await call('task/create',{projectId:project.id,title:'Controlled fake'});
@@ -65,7 +65,7 @@ describe('Lifecycle primitives', () => {
     try { await client.stop(); expect(()=>process.kill(child,0)).toThrow(); }
     finally { try { process.kill(child,'SIGTERM'); } catch {} }
   });
-  it('rejects ACP paths outside the granted roots, including symlinks and Git internals', async () => {
+  it('P04-I04 rejects ACP paths outside the granted roots, including symlinks and Git internals', async () => {
     const root=temp(),outside=temp(); writeFileSync(join(outside,'private.txt'),'fixture'); symlinkSync(outside,join(root,'escape'));
     const files=new ScopedFiles([root]); await files.write(join(root,'allowed.txt'),'a\nb\n');
     expect(await files.read(join(root,'allowed.txt'),2,1)).toEqual({content:'b\n'});
@@ -73,7 +73,7 @@ describe('Lifecycle primitives', () => {
     await expect(files.write(join(outside,'blocked.txt'),'no')).rejects.toThrow('esterno');
     await expect(files.write(join(root,'.git/config'),'no')).rejects.toThrow('autorizzato');
   });
-  it('does not journal a successful save when SQLite is full', async () => {
+  it('P01-I04 does not journal a successful save when SQLite is full', async () => {
     const store=new Store(temp());stores.push(store); const service=new Service(store);
     const p=await service.handle({jsonrpc:'2.0',id:'p',method:'project/create',params:{name:'Full disk'}}) as {id:string};
     const t=await service.handle({jsonrpc:'2.0',id:'t',method:'task/create',params:{projectId:p.id,title:'Keep'}}) as {id:string};
@@ -81,7 +81,7 @@ describe('Lifecycle primitives', () => {
     expect(()=>store.event(t.id,null,'text',{text:'x'.repeat(1024*1024)})).toThrow();
     expect(store.events(t.id)).toHaveLength(0); expect(store.task(t.id).title).toBe('Keep');
   });
-  it('decodes the same contract fixture as native Swift Codable', () => {
+  it('P01-I02 decodes the same contract fixture as native Swift Codable', () => {
     const fixture=JSON.parse(readFileSync('fixtures/protocol-v1.json','utf8'));
     expect(fixture[0].result.text).toBe('Caffè 🐕'); expect(fixture[1].error.code).toBe(409);
     expect(fixture[2].params.payload.text).toContain('```swift'); expect(JSON.parse(JSON.stringify(fixture))).toEqual(fixture);

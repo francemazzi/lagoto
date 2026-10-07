@@ -4,7 +4,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { startAdapter, type Profile, type AdapterEvent } from '../runtime/adapters.js';
 import { redact } from '../runtime/protocol.js';
-import { provenance } from './evidence.js';
+import { provenance, writeSmoke } from './evidence.js';
+import { consumeRealRun, isRealRun } from './real-runs.js';
 
 const provider = process.argv[2] as Profile['provider'];
 const model = process.argv[3];
@@ -24,6 +25,7 @@ const profile: Profile = { id: crypto.randomUUID(), provider, model, name: `${pr
 const started = Date.now();
 let status = 'failed'; let failure: string | null = null; let sessionId: string | null = null;
 let runtime: Awaited<ReturnType<typeof startAdapter>> | undefined;
+if (isRealRun(provider)) consumeRealRun(`smoke-provider:${provider}:${model}`);
 try {
   runtime = await startAdapter({ profile, cwd: roots[0]!, directories: roots, home: join(fixture, 'isolated-home'), mode: 'agent', secret,
     prompt: `This is a bounded integration test in synthetic directories. Read fixture.txt in each of these three directories: ${roots.join(', ')}. Create ONLY result.txt in the first directory, containing exactly the three fixture markers separated by newlines (LAGOTO_BACKEND_V1, LAGOTO_FRONTEND_V1, LAGOTO_DESKTOP_V1). Do not run shell commands, access the network, or spawn subagents. Finally reply LAGOTO_OK.`,
@@ -50,7 +52,7 @@ const report = { ...evidenceContext, completedAt: new Date().toISOString(), stat
   events: redact(events), assertion: 'read three roots and verify exact written bytes; not a full capability gate' };
 await mkdir('build/evidence', { recursive: true });
 await mkdir('build/evidence/history', { recursive: true });
-await writeFile(`build/evidence/history/smoke-${provider}-${model.replaceAll('/', '_').replaceAll(':', '_')}-${evidenceContext.date.replaceAll(':','-')}.json`, JSON.stringify(report, null, 2), { flag: 'wx' });
-await writeFile(`build/evidence/smoke-${provider}-${model.replaceAll('/', '_').replaceAll(':', '_')}.json`, JSON.stringify(report, null, 2));
+writeSmoke(`history/smoke-${provider}-${model.replaceAll('/', '_').replaceAll(':', '_')}-${evidenceContext.date.replaceAll(':','-')}`, report);
+writeSmoke(`smoke-${provider}-${model.replaceAll('/', '_').replaceAll(':', '_')}`, report);
 console.log(JSON.stringify({ ...report, events: undefined }, null, 2));
 process.exitCode = status === 'passed' ? 0 : 1;

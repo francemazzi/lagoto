@@ -52,7 +52,7 @@ describe('Runtime integration', () => {
   });
 });
 describe('Recovery primitives (partial P07, not a full Git restore gate)', () => {
-  it('preserves included binary bytes and detects corruption before restore', async () => {
+  it('P07-I01 MEM-01 preserves included binary bytes and detects corruption before restore', async () => {
     const { store, service } = setup(); const repo = temp(); await git(repo, ['init']); await git(repo, ['config','user.name','Lagoto Test']); await git(repo, ['config','user.email','test@example.invalid']);
     writeFileSync(join(repo,'file.txt'),'base'); await git(repo,['add','file.txt']); await git(repo,['commit','-m','base']);
     const p = await call(service,'project/create',{name:'Recovery'}); const r = await call(service,'repository/add',{projectId:p.id,path:repo}); const t = await call(service,'task/create',{projectId:p.id,title:'Binary'});
@@ -65,7 +65,7 @@ describe('Recovery primitives (partial P07, not a full Git restore gate)', () =>
   });
 });
 describe('Budget accounting integration (partial P09)', () => {
-  it('BAT-01/BAT-06/BAT-14 freezes shared allowance, reserves atomically and settles exactly once', () => {
+  it('P05-I07/P09-I07 BAT-01/BAT-06/BAT-14 freezes shared allowance, reserves atomically and settles exactly once', () => {
     const {store}=setup(); const ledger=new BudgetLedger(store); const assigned=allowanceAmount(30000000,3000000,30);
     const a=ledger.open('account-pool','2026-10-05','cycle-1','microEUR',assigned);
     expect(ledger.open('account-pool','2026-10-05','cycle-1','microEUR',100).assigned).toBe(900000);
@@ -75,7 +75,7 @@ describe('Budget accounting integration (partial P09)', () => {
     expect(row).toEqual({spent:480000,reserved:0}); expect(battery(assigned,row.spent,row.reserved)).toBeCloseTo(46.6667,3);
     expect(()=>ledger.reserve(a.id,500000,'over')).toThrow('insufficiente');
   });
-  it('BAT-12/BAT-17 counts calendar days over DST and requires seven complete active days', () => {
+  it('P09-I07/P09-I08 BAT-12/BAT-17 counts calendar days over DST and requires seven complete active days', () => {
     expect(daysUntilReset(new Date('2026-10-24T10:00:00+02:00'),new Date('2026-10-27T00:00:00+01:00'))).toBe(3);
     expect(daysUntilReset(new Date('2026-09-28T10:00:00+02:00'),new Date('2026-10-01T12:00:00+02:00'))).toBe(4);
     expect(calibratedBaseline([80,100,120,90,110,70,130].map(amount=>({amount,complete:true})))).toBe(100);

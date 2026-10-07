@@ -17,7 +17,7 @@ export function redact(value: unknown): unknown {
     [k, /^(api[_-]?key|authorization|password|secret|access[_-]?token|refresh[_-]?token|cookie)$/i.test(k) ? '[REDACTED]' : redact(v)]));
   if (typeof value !== 'string') return value;
   return value.replace(/\b(?:sk-[A-Za-z0-9_-]{12,}|gh[pousr]_[A-Za-z0-9_]{12,}|github_pat_[A-Za-z0-9_]{12,})\b/g, '[REDACTED]')
-    .replace(/(Bearer\s+)[\w.+\/-]+/gi, '$1[REDACTED]')
+    .replace(/(Bearer\s+)[\w.+/-]+/gi, '$1[REDACTED]')
     .replace(/(https?:\/\/)[^\s/@]+:[^\s/@]+@/g, '$1[REDACTED]@');
 }
 export function errorResponse(id: string | number | null, error: unknown) {

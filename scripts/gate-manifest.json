@@ -1,0 +1,1379 @@
+{
+  "version": 1,
+  "description": "Copertura richiesta per chiudere ogni requisito Pxx-Inn di ROADMAP.md. tests: token nei nomi vitest; scenarios: tag di docs/validation.md nei nomi vitest; native: token nei nomi XCUITest; smokes: glob su build/evidence/*.json con status passed e freschi; attestations: documenti con esito passed e commit fresco.",
+  "scopes": {
+    "v0.1": [
+      "P00",
+      "P01",
+      "P02",
+      "P03",
+      "P04",
+      "P05",
+      "P06",
+      "P07",
+      "P08",
+      "P09",
+      "P10",
+      "P11",
+      "P12"
+    ],
+    "v0.2": [
+      "P13",
+      "P14",
+      "P15",
+      "P16"
+    ]
+  },
+  "freshnessPaths": [
+    "runtime",
+    "scripts",
+    "fixtures",
+    "macos/Sources",
+    "macos/UITests",
+    "package.json",
+    "pnpm-lock.yaml"
+  ],
+  "requirements": {
+    "P00-I01": {
+      "kind": "deterministic",
+      "tests": [
+        "P00-I01"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P00-I02": {
+      "kind": "live",
+      "tests": [
+        "P00-I02"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [
+        "probe-auth-*.json"
+      ],
+      "attestations": []
+    },
+    "P00-I03": {
+      "kind": "deterministic",
+      "tests": [
+        "P00-I03"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P00-I04": {
+      "kind": "live",
+      "tests": [
+        "P00-I04"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [
+        "package-*.json"
+      ],
+      "attestations": []
+    },
+    "P00-I05": {
+      "kind": "live",
+      "tests": [],
+      "scenarios": [],
+      "native": [
+        "P00_I05"
+      ],
+      "smokes": [
+        "package-*.json"
+      ],
+      "attestations": []
+    },
+    "P00-I06": {
+      "kind": "live",
+      "tests": [
+        "P00-I06"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [
+        "smoke-openrouter-*.json",
+        "ollama-offline-*.json"
+      ],
+      "attestations": []
+    },
+    "P00-I07": {
+      "kind": "live",
+      "tests": [
+        "P00-I07"
+      ],
+      "scenarios": [
+        "GH-05",
+        "GH-06",
+        "GH-09"
+      ],
+      "native": [],
+      "smokes": [
+        "github-[0-9a-f]*.json"
+      ],
+      "attestations": []
+    },
+    "P00-I08": {
+      "kind": "deterministic",
+      "tests": [
+        "P00-I08"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P01-I01": {
+      "kind": "deterministic",
+      "tests": [
+        "P01-I01"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P01-I02": {
+      "kind": "native",
+      "tests": [
+        "P01-I02"
+      ],
+      "scenarios": [],
+      "native": [
+        "P01_I02"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P01-I03": {
+      "kind": "deterministic",
+      "tests": [
+        "P01-I03"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P01-I04": {
+      "kind": "deterministic",
+      "tests": [
+        "P01-I04"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P01-I05": {
+      "kind": "deterministic",
+      "tests": [
+        "P01-I05"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P01-I06": {
+      "kind": "native",
+      "tests": [
+        "P01-I06"
+      ],
+      "scenarios": [],
+      "native": [
+        "P01_I06"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P02-I01": {
+      "kind": "native",
+      "tests": [],
+      "scenarios": [],
+      "native": [
+        "P02_I01"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P02-I02": {
+      "kind": "native",
+      "tests": [],
+      "scenarios": [],
+      "native": [
+        "P02_I02"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P02-I03": {
+      "kind": "native",
+      "tests": [
+        "P02-I03"
+      ],
+      "scenarios": [],
+      "native": [
+        "P02_I03"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P02-I04": {
+      "kind": "native",
+      "tests": [],
+      "scenarios": [],
+      "native": [
+        "P02_I04"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P02-I05": {
+      "kind": "native",
+      "tests": [
+        "P02-I05"
+      ],
+      "scenarios": [],
+      "native": [
+        "P02_I05"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P02-I06": {
+      "kind": "native",
+      "tests": [],
+      "scenarios": [],
+      "native": [
+        "P02_I06"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P02-I07": {
+      "kind": "native",
+      "tests": [
+        "P02-I07"
+      ],
+      "scenarios": [],
+      "native": [
+        "P02_I07"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P02-I08": {
+      "kind": "native",
+      "tests": [
+        "P02-I08"
+      ],
+      "scenarios": [],
+      "native": [
+        "P02_I08"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P03-I01": {
+      "kind": "native",
+      "tests": [
+        "P03-I01"
+      ],
+      "scenarios": [],
+      "native": [
+        "P03_I01"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P03-I02": {
+      "kind": "native",
+      "tests": [
+        "P03-I02"
+      ],
+      "scenarios": [
+        "GH-04"
+      ],
+      "native": [
+        "P03_I02"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P03-I03": {
+      "kind": "native",
+      "tests": [
+        "P03-I03"
+      ],
+      "scenarios": [],
+      "native": [
+        "P03_I03"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P03-I04": {
+      "kind": "deterministic",
+      "tests": [
+        "P03-I04"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P03-I05": {
+      "kind": "native",
+      "tests": [
+        "P03-I05"
+      ],
+      "scenarios": [],
+      "native": [
+        "P03_I05"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P03-I06": {
+      "kind": "native",
+      "tests": [
+        "P03-I06"
+      ],
+      "scenarios": [],
+      "native": [
+        "P03_I06"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P03-I07": {
+      "kind": "native",
+      "tests": [
+        "P03-I07"
+      ],
+      "scenarios": [
+        "GH-02",
+        "GH-03"
+      ],
+      "native": [
+        "P03_I07"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P03-I08": {
+      "kind": "live",
+      "tests": [
+        "P03-I08"
+      ],
+      "scenarios": [
+        "GH-01",
+        "GH-07",
+        "GH-08"
+      ],
+      "native": [
+        "P03_I08"
+      ],
+      "smokes": [
+        "github-workflow-*.json"
+      ],
+      "attestations": []
+    },
+    "P04-I01": {
+      "kind": "deterministic",
+      "tests": [
+        "P04-I01"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P04-I02": {
+      "kind": "deterministic",
+      "tests": [
+        "P04-I02"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P04-I03": {
+      "kind": "deterministic",
+      "tests": [
+        "P04-I03"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P04-I04": {
+      "kind": "deterministic",
+      "tests": [
+        "P04-I04"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P04-I05": {
+      "kind": "deterministic",
+      "tests": [
+        "P04-I05"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P04-I06": {
+      "kind": "deterministic",
+      "tests": [
+        "P04-I06"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P05-I01": {
+      "kind": "deterministic",
+      "tests": [
+        "P05-I01"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P05-I02": {
+      "kind": "deterministic",
+      "tests": [
+        "P05-I02"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P05-I03": {
+      "kind": "deterministic",
+      "tests": [
+        "P05-I03"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P05-I04": {
+      "kind": "deterministic",
+      "tests": [
+        "P05-I04"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P05-I05": {
+      "kind": "deterministic",
+      "tests": [
+        "P05-I05"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P05-I06": {
+      "kind": "deterministic",
+      "tests": [
+        "P05-I06"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P05-I07": {
+      "kind": "deterministic",
+      "tests": [
+        "P05-I07"
+      ],
+      "scenarios": [
+        "BAT-05",
+        "BAT-06",
+        "BAT-14",
+        "BAT-15",
+        "BAT-16"
+      ],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P06-I01": {
+      "kind": "live",
+      "tests": [
+        "P06-I01"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [
+        "smoke-claude-*.json",
+        "control-claude-*-cancel.json",
+        "control-claude-*-deny.json"
+      ],
+      "attestations": []
+    },
+    "P06-I02": {
+      "kind": "live",
+      "tests": [
+        "P06-I02"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [
+        "smoke-codex-*.json",
+        "control-codex-*-cancel.json",
+        "control-codex-*-deny.json"
+      ],
+      "attestations": []
+    },
+    "P06-I03": {
+      "kind": "live",
+      "tests": [
+        "P06-I03"
+      ],
+      "scenarios": [],
+      "native": [
+        "P06_I03"
+      ],
+      "smokes": [
+        "probe-auth-*.json"
+      ],
+      "attestations": []
+    },
+    "P06-I04": {
+      "kind": "deterministic",
+      "tests": [
+        "P06-I04"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P06-I05": {
+      "kind": "native",
+      "tests": [
+        "P06-I05"
+      ],
+      "scenarios": [],
+      "native": [
+        "P06_I05"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P06-I06": {
+      "kind": "deterministic",
+      "tests": [
+        "P06-I06"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P06-I07": {
+      "kind": "live",
+      "tests": [
+        "P06-I07"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [
+        "smoke-openrouter-qwen*.json",
+        "smoke-openrouter-moonshotai*.json"
+      ],
+      "attestations": []
+    },
+    "P06-I08": {
+      "kind": "live",
+      "tests": [
+        "P06-I08"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [
+        "ollama-offline-*.json"
+      ],
+      "attestations": []
+    },
+    "P07-I01": {
+      "kind": "deterministic",
+      "tests": [
+        "P07-I01"
+      ],
+      "scenarios": [
+        "MEM-01"
+      ],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P07-I02": {
+      "kind": "deterministic",
+      "tests": [
+        "P07-I02"
+      ],
+      "scenarios": [
+        "MEM-02"
+      ],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P07-I03": {
+      "kind": "deterministic",
+      "tests": [
+        "P07-I03"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P07-I04": {
+      "kind": "deterministic",
+      "tests": [
+        "P07-I04"
+      ],
+      "scenarios": [
+        "MEM-03",
+        "MEM-04"
+      ],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P07-I05": {
+      "kind": "deterministic",
+      "tests": [
+        "P07-I05"
+      ],
+      "scenarios": [
+        "MEM-05",
+        "MEM-06"
+      ],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P07-I06": {
+      "kind": "deterministic",
+      "tests": [
+        "P07-I06"
+      ],
+      "scenarios": [
+        "HAND-07"
+      ],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P08-I01": {
+      "kind": "deterministic",
+      "tests": [
+        "P08-I01"
+      ],
+      "scenarios": [
+        "HAND-04"
+      ],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P08-I02": {
+      "kind": "deterministic",
+      "tests": [
+        "P08-I02"
+      ],
+      "scenarios": [
+        "HAND-03"
+      ],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P08-I03": {
+      "kind": "deterministic",
+      "tests": [
+        "P08-I03"
+      ],
+      "scenarios": [
+        "HAND-08",
+        "HAND-09"
+      ],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P08-I04": {
+      "kind": "deterministic",
+      "tests": [
+        "P08-I04"
+      ],
+      "scenarios": [
+        "HAND-01",
+        "HAND-02",
+        "HAND-06"
+      ],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P08-I05": {
+      "kind": "deterministic",
+      "tests": [
+        "P08-I05"
+      ],
+      "scenarios": [
+        "HAND-04"
+      ],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P08-I06": {
+      "kind": "live",
+      "tests": [],
+      "scenarios": [
+        "HAND-05"
+      ],
+      "native": [],
+      "smokes": [
+        "handoff-*.json"
+      ],
+      "attestations": []
+    },
+    "P09-I01": {
+      "kind": "live",
+      "tests": [
+        "P09-I01"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [
+        "probe-usage-*.json"
+      ],
+      "attestations": []
+    },
+    "P09-I02": {
+      "kind": "deterministic",
+      "tests": [
+        "P09-I02"
+      ],
+      "scenarios": [
+        "BAT-06",
+        "BAT-07",
+        "BAT-11",
+        "BAT-12"
+      ],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P09-I03": {
+      "kind": "deterministic",
+      "tests": [
+        "P09-I03"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P09-I04": {
+      "kind": "deterministic",
+      "tests": [
+        "P09-I04"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P09-I05": {
+      "kind": "deterministic",
+      "tests": [
+        "P09-I05"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P09-I06": {
+      "kind": "deterministic",
+      "tests": [
+        "P09-I06"
+      ],
+      "scenarios": [
+        "BAT-20",
+        "BAT-21"
+      ],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P09-I07": {
+      "kind": "deterministic",
+      "tests": [
+        "P09-I07"
+      ],
+      "scenarios": [
+        "BAT-01",
+        "BAT-02",
+        "BAT-03",
+        "BAT-04",
+        "BAT-12",
+        "BAT-13"
+      ],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P09-I08": {
+      "kind": "deterministic",
+      "tests": [
+        "P09-I08"
+      ],
+      "scenarios": [
+        "BAT-17",
+        "BAT-18",
+        "BAT-19"
+      ],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P09-I09": {
+      "kind": "deterministic",
+      "tests": [
+        "P09-I09"
+      ],
+      "scenarios": [
+        "BAT-08",
+        "BAT-09",
+        "BAT-10",
+        "BAT-16",
+        "BAT-22"
+      ],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P09-I10": {
+      "kind": "native",
+      "tests": [
+        "P09-I10"
+      ],
+      "scenarios": [],
+      "native": [
+        "P09_I10"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P10-I01": {
+      "kind": "live",
+      "tests": [
+        "P10-I01"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [
+        "smoke-cursor-*.json",
+        "control-cursor-*-deny.json",
+        "control-cursor-*-deny-command.json"
+      ],
+      "attestations": []
+    },
+    "P10-I02": {
+      "kind": "live",
+      "tests": [],
+      "scenarios": [],
+      "native": [],
+      "smokes": [
+        "handoff-*.json"
+      ],
+      "attestations": []
+    },
+    "P10-I03": {
+      "kind": "deterministic",
+      "tests": [
+        "P10-I03"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P10-I04": {
+      "kind": "deterministic",
+      "tests": [
+        "P10-I04"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P10-I05": {
+      "kind": "deterministic",
+      "tests": [
+        "P10-I05"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P10-I06": {
+      "kind": "deterministic",
+      "tests": [
+        "P10-I06"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P11-I01": {
+      "kind": "deterministic",
+      "tests": [
+        "P11-I01"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P11-I02": {
+      "kind": "native",
+      "tests": [
+        "P11-I02"
+      ],
+      "scenarios": [],
+      "native": [
+        "P11_I02"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P11-I03": {
+      "kind": "live",
+      "tests": [
+        "P11-I03"
+      ],
+      "scenarios": [
+        "GH-10"
+      ],
+      "native": [
+        "P11_I03"
+      ],
+      "smokes": [
+        "delivery-github-*.json"
+      ],
+      "attestations": []
+    },
+    "P11-I04": {
+      "kind": "deterministic",
+      "tests": [
+        "P11-I04"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P11-I05": {
+      "kind": "deterministic",
+      "tests": [
+        "P11-I05"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P11-I06": {
+      "kind": "deterministic",
+      "tests": [
+        "P11-I06"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P12-I01": {
+      "kind": "live",
+      "tests": [],
+      "scenarios": [],
+      "native": [],
+      "smokes": [
+        "package-*.json"
+      ],
+      "attestations": [
+        "docs/evidence/release-checklist.md"
+      ]
+    },
+    "P12-I02": {
+      "kind": "native",
+      "tests": [
+        "P12-I02"
+      ],
+      "scenarios": [
+        "BAT-13"
+      ],
+      "native": [
+        "P12_I02"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P12-I03": {
+      "kind": "live",
+      "tests": [],
+      "scenarios": [],
+      "native": [
+        "P12_I03"
+      ],
+      "smokes": [
+        "performance-*.json"
+      ],
+      "attestations": []
+    },
+    "P12-I04": {
+      "kind": "deterministic",
+      "tests": [
+        "P12-I04"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P12-I05": {
+      "kind": "live",
+      "tests": [
+        "P12-I05"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [
+        "smoke-codex-*.json",
+        "smoke-claude-*.json",
+        "smoke-cursor-*.json",
+        "smoke-openrouter-*.json",
+        "ollama-offline-*.json"
+      ],
+      "attestations": []
+    },
+    "P12-I06": {
+      "kind": "live",
+      "tests": [],
+      "scenarios": [],
+      "native": [],
+      "smokes": [
+        "personal-sessions-check-*.json"
+      ],
+      "attestations": [
+        "docs/evidence/personal-sessions.md"
+      ]
+    },
+    "P13-I01": {
+      "kind": "deterministic",
+      "tests": [
+        "P13-I01"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P13-I02": {
+      "kind": "deterministic",
+      "tests": [
+        "P13-I02"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P13-I03": {
+      "kind": "deterministic",
+      "tests": [
+        "P13-I03"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P13-I04": {
+      "kind": "native",
+      "tests": [],
+      "scenarios": [],
+      "native": [
+        "P13_I04"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P13-I05": {
+      "kind": "live",
+      "tests": [
+        "P13-I05"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [
+        "smoke-acp-*.json"
+      ],
+      "attestations": []
+    },
+    "P14-I01": {
+      "kind": "deterministic",
+      "tests": [
+        "P14-I01"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P14-I02": {
+      "kind": "deterministic",
+      "tests": [
+        "P14-I02"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P14-I03": {
+      "kind": "deterministic",
+      "tests": [
+        "P14-I03"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P14-I04": {
+      "kind": "deterministic",
+      "tests": [
+        "P14-I04"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P14-I05": {
+      "kind": "live",
+      "tests": [
+        "P14-I05"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [
+        "team-*.json"
+      ],
+      "attestations": []
+    },
+    "P14-I06": {
+      "kind": "deterministic",
+      "tests": [
+        "P14-I06"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P14-I07": {
+      "kind": "deterministic",
+      "tests": [
+        "P14-I07"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P14-I08": {
+      "kind": "native",
+      "tests": [
+        "P14-I08"
+      ],
+      "scenarios": [],
+      "native": [
+        "P14_I08"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P14-I09": {
+      "kind": "deterministic",
+      "tests": [
+        "P14-I09"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P14-I10": {
+      "kind": "deterministic",
+      "tests": [
+        "P14-I10"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P14-I11": {
+      "kind": "deterministic",
+      "tests": [
+        "P14-I11"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P15-I01": {
+      "kind": "deterministic",
+      "tests": [
+        "P15-I01"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P15-I02": {
+      "kind": "deterministic",
+      "tests": [
+        "P15-I02"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [],
+      "attestations": []
+    },
+    "P15-I03": {
+      "kind": "native",
+      "tests": [],
+      "scenarios": [],
+      "native": [
+        "P15_I03"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P16-I01": {
+      "kind": "native",
+      "tests": [],
+      "scenarios": [],
+      "native": [
+        "P16_I01"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P16-I02": {
+      "kind": "native",
+      "tests": [],
+      "scenarios": [],
+      "native": [
+        "P16_I02"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P16-I03": {
+      "kind": "native",
+      "tests": [],
+      "scenarios": [],
+      "native": [
+        "P16_I03"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P16-I04": {
+      "kind": "native",
+      "tests": [],
+      "scenarios": [],
+      "native": [
+        "P16_I04"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P16-I05": {
+      "kind": "native",
+      "tests": [],
+      "scenarios": [],
+      "native": [
+        "P16_I05"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P16-I06": {
+      "kind": "native",
+      "tests": [
+        "P16-I06"
+      ],
+      "scenarios": [],
+      "native": [
+        "P16_I06"
+      ],
+      "smokes": [],
+      "attestations": []
+    },
+    "P16-I07": {
+      "kind": "live",
+      "tests": [
+        "P16-I07"
+      ],
+      "scenarios": [],
+      "native": [],
+      "smokes": [
+        "package-*.json"
+      ],
+      "attestations": []
+    }
+  }
+}

@@ -44,7 +44,7 @@ export class GitInitializations {
       files.push({path,hash:hash(bytes),size:bytes.length,mode:stat.mode&0o777,text});
     }
     const ignored=(await git(op.path,[...args,'ls-files','--others','--ignored','--exclude-standard','-z'])).split('\0').filter(Boolean).sort();
-    const fingerprint=hash(JSON.stringify({identity:await repositoryIdentity(op.path,null),files:files.map(({text,...file})=>file),excluded,ignored}));
+    const fingerprint=hash(JSON.stringify({identity:await repositoryIdentity(op.path,null),files:files.map(({text:_text,...file})=>file),excluded,ignored}));
     return{files,excluded,ignored,fingerprint};
   }
   async scan(projectId:string,repositoryId:string,id:string){

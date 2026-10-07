@@ -1,5 +1,4 @@
 import { realpath, mkdir, mkdtemp } from 'node:fs/promises';
-import { join } from 'node:path';
 import { AppError } from './protocol.js';
 
 /** OS-enforced write scope. The CLI remains unmodified; its descendants inherit the policy. */

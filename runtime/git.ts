@@ -93,7 +93,7 @@ export async function prepareWorktrees(store: Store, taskId: string, repositoryI
       store.db.prepare("UPDATE preparations SET state='prepared' WHERE task_id=? AND repository_id=?").run(taskId,row.repository_id);
     }
     store.db.transaction(()=>{for(const row of plan)store.db.prepare('INSERT INTO task_repositories VALUES(?,?,?,?,?)').run(row.task_id,row.repository_id,row.path,row.branch,row.base);})();
-    return plan.map(({state,...row})=>row);
+    return plan.map(({state:_state,...row})=>row);
   }catch(error){store.event(taskId,null,'preparation_failed',{message:String(redact(String(error))),recoverable:true});throw error;}
 }
 export async function diffs(store: Store, taskId: string) {

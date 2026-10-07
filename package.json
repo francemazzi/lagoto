@@ -21,7 +21,11 @@
     "dev:runtime": "pnpm build:runtime && node dist/runtime/server.js",
     "inventory": "tsx scripts/inventory.ts",
     "smoke:provider": "pnpm build:runtime && node dist/scripts/smoke-provider.js",
-    "smoke:controls": "pnpm build:runtime && node dist/scripts/smoke-controls.js"
+    "smoke:controls": "pnpm build:runtime && node dist/scripts/smoke-controls.js",
+    "lint": "oxlint runtime scripts tests",
+    "lint:swift": "xcrun swift-format lint --recursive macos/Sources macos/Tests macos/UITests",
+    "test:ui": "tsx scripts/ui-tests.ts",
+    "gate:ci": "tsx scripts/gate.ts all --ci --ui"
   },
   "dependencies": {
     "@qwen-code/sdk": "0.1.17",
@@ -31,6 +35,7 @@
   "devDependencies": {
     "@types/better-sqlite3": "9.6.0",
     "@types/node": "22.20.5",
+    "oxlint": "1.87.0",
     "tsx": "4.23.15",
     "typescript": "7.0.2",
     "vitest": "5.0.3"

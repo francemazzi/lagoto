@@ -77,12 +77,12 @@ La UI può procedere con fixture dopo P01; le prove pure di memoria possono proc
 
 **Dipende da:** P00 per le decisioni comuni.
 
-- [ ] **P01.1 — Struttura.** UI Swift/runtime TypeScript/fixture condivise separati, TypeScript strict, Swift Codable, lockfile e licenza preservata. **P01-I01:** installazione pulita, typecheck, lint, build e avvio.
-- [ ] **P01.2 — IPC.** Request ID, timeout, Zod, eventi e allowlist per scope. **P01-I02:** payload invalido, metodo ignoto e task non autorizzato rifiutati senza effetti.
-- [ ] **P01.3 — Lifecycle.** Singola istanza backend/DB, health check, restart e shutdown. **P01-I03:** crash e doppio avvio non duplicano run né writer del database.
-- [ ] **P01.4 — Storage.** Schema per task, profili, pool, policy, journal e artefatti; migrazioni e permessi locali. **P01-I04:** migrazione di fixture, errore disco pieno e recupero senza falso salvataggio.
-- [ ] **P01.5 — Runner dei gate.** Fake adapter, fixture Git e CI senza segreti. **P01-I05:** test obbligatorio assente, skip inatteso o errore intenzionale fanno fallire il gate; mock e live distinti.
-- [ ] **P01.6 — Renderer.** Rendering nativo senza HTML attivo, URL filtrati e log redatti. **P01-I06:** contenuto ostile non ottiene shell, filesystem o segreti attraverso il bridge.
+- [x] **P01.1 — Struttura.** UI Swift/runtime TypeScript/fixture condivise separati, TypeScript strict, Swift Codable, lockfile e licenza preservata. **P01-I01:** installazione pulita, typecheck, lint, build e avvio.
+- [x] **P01.2 — IPC.** Request ID, timeout, Zod, eventi e allowlist per scope. **P01-I02:** payload invalido, metodo ignoto e task non autorizzato rifiutati senza effetti.
+- [x] **P01.3 — Lifecycle.** Singola istanza backend/DB, health check, restart e shutdown. **P01-I03:** crash e doppio avvio non duplicano run né writer del database.
+- [x] **P01.4 — Storage.** Schema per task, profili, pool, policy, journal e artefatti; migrazioni e permessi locali. **P01-I04:** migrazione di fixture, errore disco pieno e recupero senza falso salvataggio.
+- [x] **P01.5 — Runner dei gate.** Fake adapter, fixture Git e CI senza segreti. **P01-I05:** test obbligatorio assente, skip inatteso o errore intenzionale fanno fallire il gate; mock e live distinti.
+- [x] **P01.6 — Renderer.** Rendering nativo senza HTML attivo, URL filtrati e log redatti. **P01-I06:** contenuto ostile non ottiene shell, filesystem o segreti attraverso il bridge.
 
 **Gate:** shell reale con backend e adapter finto, contratti validati e report ripetibili.
 

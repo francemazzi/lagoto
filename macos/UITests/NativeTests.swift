@@ -1,7 +1,7 @@
 import XCTest
 
 @MainActor final class NativeTests: XCTestCase {
-    func testProjectPersistsAcrossNativeRelaunch() throws {
+    func testP00_I05_projectPersistsAcrossNativeRelaunch() throws {
         continueAfterFailure = false
         let dataPath = FileManager.default.temporaryDirectory.appendingPathComponent("LagotoUI-\(UUID().uuidString)").path
         let app = XCUIApplication()

@@ -2,7 +2,7 @@ import XCTest
 @testable import Lagoto
 
 final class KeychainTests: XCTestCase {
-    func testNativeCredentialLifecycleIsScopedToProfile() throws {
+    func testP06_I03_nativeCredentialLifecycleIsScopedToProfile() throws {
         let a = "synthetic-test-\(UUID().uuidString)", b = "synthetic-test-\(UUID().uuidString)"
         defer { try? CredentialStore.remove(profileID: a); try? CredentialStore.remove(profileID: b) }
         try CredentialStore.save("synthetic-A", profileID: a)

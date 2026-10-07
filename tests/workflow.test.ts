@@ -54,14 +54,14 @@ it('P07-I01 restores three complete Git repositories with byte-identical index, 
   }
 });
 
-it('does not hide a credential from Git history in an otherwise sanitized checkpoint',async()=>{
+it('P07-I01 does not hide a credential from Git history in an otherwise sanitized checkpoint',async()=>{
   const {store,task,worktrees}=await fixture();const path=worktrees[0].path;
   writeFileSync(join(path,'.env'),'SYNTHETIC=private');await git(path,['add','.env']);
   await expect(createCheckpoint(store,task.id)).rejects.toThrow('sensibile');
   expect(store.db.prepare('SELECT COUNT(*) AS count FROM checkpoints').get()).toEqual({count:0});
 });
 
-it('detects staging-only edits even when worktree bytes and porcelain states match',async()=>{
+it('P07-I06 detects staging-only edits even when worktree bytes and porcelain states match',async()=>{
   const {worktrees}=await fixture();const path=worktrees[0].path;
   writeFileSync(join(path,'contract.json'),'staged A');await git(path,['add','contract.json']);writeFileSync(join(path,'contract.json'),'working');const before=await fingerprint(path);
   writeFileSync(join(path,'contract.json'),'staged B');await git(path,['add','contract.json']);writeFileSync(join(path,'contract.json'),'working');
@@ -189,7 +189,7 @@ it('P08-I02 stops an actual verification process before handoff and preserves an
   const rows=await service.verifications.list(task.id);expect(rows[0]!.state).toBe('interrupted');expect(preview.context).toContain('interrupted');
 });
 
-it('a successful verification becomes stale after external file changes',async()=>{
+it('P07-I06 HAND-07 a successful verification becomes stale after external file changes',async()=>{
   const {service,task,worktrees}=await fixture();await call(service,'verification/start',{taskId:task.id,repositoryId:worktrees[0].repository_id,command:'test -f contract.json'});
   let rows:any[]=[];for(let i=0;i<100;i++){rows=await service.verifications.list(task.id);if(rows[0].state!=='running')break;await new Promise(r=>setTimeout(r,20));}
   expect(rows[0]!.state).toBe('passed');writeFileSync(join(worktrees[0].path,'contract.json'),'changed');expect((await service.verifications.list(task.id))[0]!.state).toBe('stale');
