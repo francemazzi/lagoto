@@ -24,7 +24,7 @@ export function inspectBundle(app: string, executableName = 'Lagoto'): BundleChe
   const present = existsSync(executable);
   const text = present ? readFileSync(executable).toString('latin1') : '';
   checks.push({ name: 'native-executable-present', ok: present });
-  checks.push({ name: 'no-data-dir-override-in-native-executable', ok: present && !text.includes('LAGOTO_DATA_DIR') && !text.includes('LAGOTO_UI_FIXTURE') && !text.includes('LagotoShowcase') && !text.includes('LagotoWindowSize') });
+  checks.push({ name: 'no-data-dir-override-in-native-executable', ok: present && !text.includes('LAGOTO_TEST_DATA_DIR') && !text.includes('LAGOTO_UI_FIXTURE') && !text.includes('LagotoShowcase') && !text.includes('LagotoWindowSize') && !text.includes('LagotoCloneParent') });
   checks.push({ name: 'no-window-size-override-in-native-executable', ok: present && !text.includes('LagotoWindowSize') });
   const runtime = join(app, 'Contents/Resources/runtime/node');
   checks.push({ name: 'bundled-node-present', ok: existsSync(runtime) });

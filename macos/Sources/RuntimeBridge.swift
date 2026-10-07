@@ -28,7 +28,7 @@ import Observation
                 environment["LAGOTO_DATA_DIR"] = archive
             }
             #if DEBUG
-            if let path = ProcessInfo.processInfo.environment["LAGOTO_DATA_DIR"] { environment["LAGOTO_DATA_DIR"] = path }
+            if let path = ProcessInfo.processInfo.environment["LAGOTO_TEST_DATA_DIR"] { environment["LAGOTO_DATA_DIR"] = path }
             #endif
             process.environment = environment
             let stdin = Pipe(), stdout = Pipe(), stderr = Pipe()

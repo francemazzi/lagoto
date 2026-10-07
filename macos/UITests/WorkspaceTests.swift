@@ -51,7 +51,7 @@ import XCTest
         first.terminate()
         // Relaunch without resetting the stored tab: the argument list below deliberately leaves `workspace.tab` alone.
         let second = XCUIApplication()
-        second.launchEnvironment["LAGOTO_DATA_DIR"] = data
+        second.launchEnvironment["LAGOTO_TEST_DATA_DIR"] = data
         second.launchArguments = ["-LagotoWindowSize", "1280x800"]
         second.launch()
         second.openTask()

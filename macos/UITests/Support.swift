@@ -12,7 +12,7 @@ import XCTest
     }
     @discardableResult static func launch(data: String? = nil, size: String? = "1280x800", arguments: [String] = [], showcase: Bool = false) throws -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchEnvironment["LAGOTO_DATA_DIR"] = try data ?? archive()
+        app.launchEnvironment["LAGOTO_TEST_DATA_DIR"] = try data ?? archive()
         // Window and workspace layout are reset on every launch unless a test says otherwise.
         var args = ["-workspace.tab", "files", "-workspace.width", "380"]
         if let size { args += ["-LagotoWindowSize", size] }

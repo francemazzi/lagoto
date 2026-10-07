@@ -5,7 +5,7 @@ import XCTest
         continueAfterFailure = false
         let dataPath = FileManager.default.temporaryDirectory.appendingPathComponent("LagotoUI-\(UUID().uuidString)").path
         let app = XCUIApplication()
-        app.launchEnvironment["LAGOTO_DATA_DIR"] = dataPath
+        app.launchEnvironment["LAGOTO_TEST_DATA_DIR"] = dataPath
         app.launch()
         XCTAssertTrue(app.staticTexts["Archivio locale pronto"].waitForExistence(timeout: 20))
         // The small CI display can move toolbar items into overflow.
