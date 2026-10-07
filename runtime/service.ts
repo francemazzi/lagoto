@@ -23,6 +23,7 @@ import { APP_VERSION } from './version.js';
 import { exportPreview, exportTask, importTask } from './export.js';
 import { storageUsage, cleanupPlan, cleanupApply } from './retention.js';
 import { requestReview } from './review.js';
+import { profileStates } from './profile-state.js';
 import { searchArchive } from './search.js';
 import { listDirectory, readWorkspaceFile, fileDiff } from './workspace-files.js';
 import { childrenReport, stopChild } from './children.js';
@@ -218,6 +219,7 @@ export class Service {
         this.store.publish('profiles_changed',{profileId});
         return {loggedOut:true,stoppedRuns:stopped,secretReset:true};
       }
+      case 'profile/states': return profileStates(this.store.db,new RunBudgets(this.store));
       case 'profile/list': return (this.store.db.prepare('SELECT * FROM profiles ORDER BY provider,name').all() as { capabilities: string }[]).map(row => ({ ...row, capabilities: JSON.parse(row.capabilities) }));
       case 'budget/pools': return this.store.db.prepare('SELECT * FROM budget_pools ORDER BY name').all();
       case 'budget/create': {
