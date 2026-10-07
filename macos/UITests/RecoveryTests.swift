@@ -8,7 +8,7 @@ import XCTest
         let app = try Fixture.launch()
         XCTAssertTrue(app.staticTexts["Archivio locale pronto"].waitForExistence(timeout: 30))
         XCTAssertTrue(app.element("task-row:Lavoro interrotto").waitForExistence(timeout: 20))
-        XCTAssertTrue(app.element("badge-uncertain").waitForExistence(timeout: 10), "il lavoro è segnato come da riconciliare")
+        XCTAssertTrue(app.images["Esecuzione da riconciliare"].firstMatch.waitForExistence(timeout: 10), "il lavoro è segnato come da riconciliare")
         XCTAssertFalse(app.element("badge-active").exists, "nessuno stato «in esecuzione» senza evidenza")
         app.openTask("Lavoro interrotto")
         XCTAssertTrue(app.staticTexts["Esecuzione da riconciliare"].waitForExistence(timeout: 15))
@@ -20,7 +20,7 @@ import XCTest
         XCTAssertTrue(reconcile.waitForExistence(timeout: 10))
         reconcile.click()
         XCTAssertTrue(app.staticTexts["Lavoro salvato sul Mac"].waitForExistence(timeout: 15), "dopo la riconciliazione il lavoro è di nuovo utilizzabile")
-        XCTAssertFalse(app.element("badge-uncertain").exists)
+        XCTAssertFalse(app.images["Esecuzione da riconciliare"].firstMatch.exists)
         app.terminate()
     }
 }

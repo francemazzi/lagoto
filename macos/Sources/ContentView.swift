@@ -6,7 +6,7 @@ struct TaskRowLabel: View {
     var body: some View {
         Label {
             HStack(spacing: 6) {
-                Text(task.title).lineLimit(1); Spacer(minLength: 0)
+                Text(task.title).lineLimit(1).accessibilityIdentifier("task-row:\(task.title)"); Spacer(minLength: 0)
                 if task.isWaiting { Image(systemName: "hand.raised.fill").foregroundStyle(.orange).accessibilityLabel("In attesa di una tua autorizzazione").accessibilityIdentifier("badge-waiting") }
                 else if task.isActive { ProgressView().controlSize(.mini).accessibilityLabel("In esecuzione").accessibilityIdentifier("badge-active") }
                 else if task.isUncertain { Image(systemName: "exclamationmark.arrow.triangle.2.circlepath").foregroundStyle(.secondary).accessibilityLabel("Esecuzione da riconciliare").accessibilityIdentifier("badge-uncertain") }
@@ -40,7 +40,7 @@ struct ContentView: View {
                 Section("Progetti") {
                     ForEach(projects.filter { search.isEmpty || $0.name.localizedCaseInsensitiveContains(search) || (tasks[$0.id] ?? []).contains { $0.title.localizedCaseInsensitiveContains(search) || $0.objective.localizedCaseInsensitiveContains(search) } }) { project in
                         DisclosureGroup(isExpanded: Binding(get: { expanded.contains(project.id) }, set: { if $0 { expanded.insert(project.id) } else { expanded.remove(project.id) } })) {
-                            ForEach((tasks[project.id] ?? []).filter { search.isEmpty || project.name.localizedCaseInsensitiveContains(search) || $0.title.localizedCaseInsensitiveContains(search) || $0.objective.localizedCaseInsensitiveContains(search) }) { task in TaskRowLabel(task: task).accessibilityIdentifier("task-row:\(task.title)").tag("task:\(task.id)") }
+                            ForEach((tasks[project.id] ?? []).filter { search.isEmpty || project.name.localizedCaseInsensitiveContains(search) || $0.title.localizedCaseInsensitiveContains(search) || $0.objective.localizedCaseInsensitiveContains(search) }) { task in TaskRowLabel(task: task).tag("task:\(task.id)") }
                             Button("Nuovo lavoro", systemImage: "plus") { selection = "project:\(project.id)" }.buttonStyle(.plain)
                         } label: { Label(project.name, systemImage: "folder").accessibilityIdentifier("project-row:\(project.name)").tag("project:\(project.id)") }
                         .contextMenu {
@@ -73,7 +73,7 @@ struct ContentView: View {
                 Button("Nuovo progetto", systemImage: "folder.badge.plus") { newProject = true }.keyboardShortcut("n", modifiers: [.command, .shift]).accessibilityIdentifier("new-project")
                 Menu("Archivio", systemImage: "ellipsis.circle") {
                     Button("Backup e ripristino…") { backup = true }
-                    Button("Spazio e pulizia…") { storage = true }.keyboardShortcut("s", modifiers: [.command, .option])
+                    Button("Spazio e pulizia…") { storage = true }
                     Menu("Importa un lavoro esportato") {
                         ForEach(projects) { project in Button(project.name) { importTask(into: project) } }
                     }.disabled(projects.isEmpty)
@@ -112,6 +112,7 @@ struct ContentView: View {
                 actions: { Button("Nuovo progetto") { newProject = true }.buttonStyle(.borderedProminent).disabled(!bridge.ready) }
             }
         }
+        .background { Button("Spazio e pulizia") { storage = true }.keyboardShortcut("s", modifiers: [.command, .option]).opacity(0).frame(width: 0, height: 0).accessibilityHidden(true) }
         .toolbar { ToolbarItem(placement: .principal) { BatteryAverageView(bridge: bridge) } }
         // Offline search over the local archive: messages, decisions, criteria and checkpoints, not only titles.
         .task(id: search) {

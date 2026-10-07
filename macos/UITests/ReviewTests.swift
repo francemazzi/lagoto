@@ -8,8 +8,9 @@ import XCTest
         XCTAssertTrue(app.element("composer").waitForExistence(timeout: 20))
         app.typeKey("i", modifierFlags: [.command, .option])
         app.element("workspace-tab-work").click()
-        let group = app.disclosureTriangles["Criteri e decisioni"].firstMatch
-        if group.waitForExistence(timeout: 5) { group.click() } else { app.staticTexts["Criteri e decisioni"].click() }
+        let group = app.descendants(matching: .any).matching(NSPredicate(format: "label == 'Criteri e decisioni' OR title == 'Criteri e decisioni'")).firstMatch
+        XCTAssertTrue(group.waitForExistence(timeout: 10), "gruppo dei criteri assente")
+        group.click()
         XCTAssertTrue(app.element("review-request").waitForExistence(timeout: 10))
     }
 

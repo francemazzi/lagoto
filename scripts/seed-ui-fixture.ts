@@ -64,8 +64,9 @@ const cursor = await profile('Cursor · composer', 'cursor', verified(['agent'],
 const local = await profile('Ollama · qwen3.5', 'ollama', verified(['agent'], []));
 await profile('Kimi · da verificare', 'kimi', { modes: [], efforts: [], verification: 'unverified' });
 await profile('Claude · accesso scaduto', 'claude', { modes: [], efforts: [], verification: 'failed', proof: { message: 'Failed to authenticate: OAuth session expired' } });
+const lost = await profile('Codex · sessione interrotta', 'codex', verified(['agent'], []));
 const renew = await profile('Qwen · budget scaduto', 'qwen', verified(['agent'], []));
-const limited = await profile('Codex · limite raggiunto', 'codex', verified(['agent'], []));
+const limited = await profile('Codex · riserva', 'codex', verified(['agent'], []));
 pool(codex.id, 30_000_000, new Date(Date.now() + 10 * 86400000), 0.4);       // 60% today
 pool(cursor.id, 30_000_000, new Date(Date.now() + 10 * 86400000), 0.8);      // 20% today
 pool(renew.id, 30_000_000, new Date(Date.now() - 86400000));                  // expired cycle
@@ -111,7 +112,7 @@ await call('verification/start', { taskId: task.id, repositoryId: repoBackend.id
 await new Promise(resolve => setTimeout(resolve, 600));
 // A run that was alive when the app died: the runtime must not present it as running after a restart.
 const interrupted = await call('task/create', { projectId: project.id, title: 'Lavoro interrotto', objective: 'Era in corso quando il Mac si è spento' });
-startRun(interrupted.id, codex.id, 'Continua il lavoro lungo', 'running');
+startRun(interrupted.id, lost.id, 'Continua il lavoro lungo', 'running');
 // A second project for the folder and GitHub flows: a folder without Git, a repository with two GitHub remotes, a folder that was moved.
 const folders = await call('project/create', { name: 'Progetto cartelle' });
 const plain = join(root, 'repos', 'senza-git'); mkdirSync(plain, { recursive: true });

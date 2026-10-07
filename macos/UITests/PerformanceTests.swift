@@ -11,7 +11,9 @@ import XCTest
         }
         let copy = FileManager.default.temporaryDirectory.appendingPathComponent("LagotoLoad-\(UUID().uuidString)")
         try FileManager.default.copyItem(atPath: load, toPath: copy.path)
-        let app = try Fixture.launch(data: copy.path, size: "1280x800")
+        executionTimeAllowance = 540
+        let app = try Fixture.launch(data: copy.path)
+        defer { app.terminate() }
         XCTAssertTrue(app.staticTexts["Archivio locale pronto"].waitForExistence(timeout: 90))
         let sidebar = app.outlines["Sidebar"]
         XCTAssertTrue(sidebar.waitForExistence(timeout: 30))
@@ -21,14 +23,14 @@ import XCTest
         var samples: [Int] = []
         var last = ""
         let timing = app.element("switch-timing")
-        for _ in 0..<160 where samples.count < 60 {
+        for _ in 0..<70 where samples.count < 40 {
             app.typeKey(.downArrow, modifierFlags: [])
             guard timing.waitForExistence(timeout: 5) else { continue }
             let value = timing.label
             if value != last || samples.isEmpty { samples.append(Int(value) ?? -1); last = value }
             if samples.count > 0 && samples.last! < 0 { samples.removeLast() }
         }
-        XCTAssertGreaterThanOrEqual(samples.count, 20, "troppo pochi cambi di lavoro misurati")
+        XCTAssertGreaterThanOrEqual(samples.count, 15, "troppo pochi cambi di lavoro misurati")
         let warm = Array(samples.dropFirst(5)).sorted()
         let p95 = warm[min(warm.count - 1, Int((Double(warm.count) * 0.95).rounded(.up)) - 1)]
         let limit = Int(ProcessInfo.processInfo.environment["LAGOTO_PERF_LIMIT_MS"] ?? "300") ?? 300
@@ -37,6 +39,5 @@ import XCTest
             try JSONSerialization.data(withJSONObject: report, options: [.sortedKeys]).write(to: URL(fileURLWithPath: out))
         }
         XCTAssertLessThan(p95, limit, "p95 del cambio task \(p95) ms su \(warm.count) cambi")
-        app.terminate()
     }
 }

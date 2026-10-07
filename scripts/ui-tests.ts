@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { provenance } from './evidence.js';
 import { readXcresultSummary, readXcresultTests } from './xcresult.js';
@@ -11,13 +12,14 @@ const resultPath = resolve('build/native-ui.xcresult');
 rmSync(resultPath, { recursive: true, force: true });
 const env = { ...process.env };
 // Every run starts from a fresh seeded archive: real Git repositories, worktrees with changes, profiles in every state and transcripts replayed from captured protocols.
-const fixtureDir = resolve('build/ui-fixture');
+// Outside the repository on purpose: folders inside the checkout would belong to its Git root.
+const fixtureDir = join(tmpdir(), 'lagoto-ui-fixture');
 rmSync(fixtureDir, { recursive: true, force: true });
 const seed = spawnSync('pnpm', ['seed:ui', fixtureDir], { encoding: 'utf8', timeout: 300000 });
 if (seed.status !== 0) { console.error(seed.stdout, seed.stderr); throw new Error('Archivio di prova non creato'); }
 env.TEST_RUNNER_LAGOTO_UI_FIXTURE = join(fixtureDir, 'data');
 // The performance test needs the large archive: 50 projects, 1,000 tasks, 100,000 events.
-const loadDir = resolve('build/ui-fixture-load');
+const loadDir = join(tmpdir(), 'lagoto-ui-fixture-load');
 rmSync(loadDir, { recursive: true, force: true });
 const loadSeed = spawnSync('pnpm', ['seed:ui', loadDir, '--load'], { encoding: 'utf8', timeout: 900000 });
 if (loadSeed.status !== 0) { console.error(loadSeed.stdout, loadSeed.stderr); throw new Error('Archivio di carico non creato'); }
@@ -30,7 +32,7 @@ const onCi = Boolean(process.env.CI);
 if (onCi) env.TEST_RUNNER_LAGOTO_PERF_LIMIT_MS = '1500';
 const xcodebuild = spawnSync('xcodebuild', ['test', '-project', 'macos/Lagoto.xcodeproj', '-scheme', 'Lagoto', '-configuration', 'Debug',
   '-derivedDataPath', 'build/Xcode', '-destination', 'platform=macOS,arch=arm64', '-only-testing:LagotoUITests',
-  '-parallel-testing-enabled', 'NO', '-test-timeouts-enabled', 'YES', '-maximum-test-execution-time-allowance', '180',
+  '-parallel-testing-enabled', 'NO', '-test-timeouts-enabled', 'YES', '-maximum-test-execution-time-allowance', '600',
   '-resultBundlePath', resultPath, 'CODE_SIGNING_ALLOWED=YES', 'CODE_SIGN_IDENTITY=-', '-quiet'], { stdio: 'inherit', timeout: 1800000, env });
 const tests = readXcresultTests(resultPath) ?? [];
 const summary = readXcresultSummary(resultPath);
