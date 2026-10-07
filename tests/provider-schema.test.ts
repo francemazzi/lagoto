@@ -49,7 +49,7 @@ describe('P12-I05 incompatible provider schemas are detected, never turned into 
     const verified = fakeCodex({ version: '1.0.0' });
     const profile = await call('profile/create', { name: 'C', provider: 'codex', model: 'm', executable: verified });
     const identity = await runtimeIdentity({ ...profileFor(verified), id: profile.id });
-    store.db.prepare('UPDATE profiles SET capabilities=? WHERE id=?').run(JSON.stringify({ modes: ['agent'], efforts: [], verification: 'passed', proof: { identity } }), profile.id);
+    store.db.prepare('UPDATE profiles SET capabilities=? WHERE id=?').run(JSON.stringify({ modes: ['agent'], efforts: [], verification: 'passed', proof: { identity, model: 'm', endpoint: null } }), profile.id);
     store.db.prepare('INSERT INTO repositories(id,project_id,name,path) VALUES(?,?,?,?)').run('11111111-1111-4111-8111-111111111111', project.id, 'r', temp());
     store.db.prepare('INSERT INTO task_repositories(task_id,repository_id,path,branch,base) VALUES(?,?,?,?,?)').run(task.id, '11111111-1111-4111-8111-111111111111', temp(), 'main', 'HEAD');
     const upgraded = fakeCodex({ version: '2.0.0' });
