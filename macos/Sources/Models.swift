@@ -35,9 +35,11 @@ extension JSONEncoder {
 struct Project: Decodable, Identifiable, Sendable { let id: String; let name: String }
 struct WorkTask: Decodable, Identifiable, Sendable {
     let id: String; let project_id: String; let title: String; let objective: String; let status: String
-    let waiting: Int?; let active: Int?
+    let waiting: Int?; let active: Int?; let uncertain: Int?
     var isWaiting: Bool { (waiting ?? 0) != 0 }
     var isActive: Bool { (active ?? 0) != 0 }
+    /// A run whose process the runtime could not account for after a restart; never shown as running.
+    var isUncertain: Bool { (uncertain ?? 0) != 0 }
 }
 struct Repository: Decodable, Identifiable, Sendable { let id: String; let name: String; let path: String; let git_root: String?; let remote: String? }
 struct RepositoryRemote: Decodable, Identifiable { let name: String; let url: String; let github: String?; var id: String { name } }
@@ -99,6 +101,12 @@ struct BatterySummary: Decodable, Sendable {
     let average: Double?; let count: Int; let lowest: BatteryEntry?; let profiles: [BatteryEntry]; let excluded: [BatteryExcluded]
     var label: String { guard let average else { return "Nessun budget" }; return average > 0 && average < 1 ? "<1%" : "\(Int(average))%" }
 }
+struct SearchHit: Decodable, Identifiable, Sendable {
+    let kind: String; let taskId: String; let taskTitle: String; let ref: String; let snippet: String
+    var id: String { "\(kind):\(ref)" }
+    var kindLabel: String { switch kind { case "message": "Messaggio"; case "decision": "Decisione"; case "criterion": "Criterio"; case "checkpoint": "Checkpoint"; default: "Lavoro" } }
+}
+struct SearchResult: Decodable, Sendable { let hits: [SearchHit]; let limited: Bool }
 struct ContextMeter: Decodable, Sendable {
     struct Occupancy: Decodable, Sendable { let used: Int?; let window: Int?; let source: String; let fraction: Double?; let compacted: Bool }
     struct Package: Decodable, Sendable { let estimatedTokens: Int }

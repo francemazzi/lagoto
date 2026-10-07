@@ -22,25 +22,25 @@ struct GitInitializeSheet: View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 8) {
                             ForEach(op["files"].array.compactMap { $0["path"].string }, id: \.self) { path in
-                                Toggle(path, isOn: Binding(get: { selected.contains(path) }, set: { if $0 { selected.insert(path) } else { selected.remove(path) } })).toggleStyle(.checkbox)
+                                Toggle(path, isOn: Binding(get: { selected.contains(path) }, set: { if $0 { selected.insert(path) } else { selected.remove(path) } })).toggleStyle(.checkbox).accessibilityIdentifier("init-file:\(path)")
                             }
                             if !op["ignored"].array.isEmpty { DisclosureGroup("Ignorati (\(op["ignored"].array.count))") { Text(op["ignored"].array.compactMap(\.string).joined(separator: "\n")).font(.caption) } }
-                            if !op["excluded"].array.isEmpty { DisclosureGroup("Esclusi dalla selezione") { ForEach(op["excluded"].array.indices, id: \.self) { i in Text("\(op["excluded"].array[i]["path"].string ?? "") · \(op["excluded"].array[i]["reason"].string ?? "")").font(.caption) } } }
+                            if !op["excluded"].array.isEmpty { DisclosureGroup("Esclusi dalla selezione") { ForEach(op["excluded"].array.indices, id: \.self) { i in Text("\(op["excluded"].array[i]["path"].string ?? "") · \(op["excluded"].array[i]["reason"].string ?? "")").font(.caption) } }.accessibilityIdentifier("init-excluded") }
                         }.frame(maxWidth: .infinity, alignment: .leading)
                     }.frame(height: 180)
-                    HStack { TextField("Nome autore", text: $authorName); TextField("Email autore", text: $authorEmail) }.textFieldStyle(.roundedBorder)
+                    HStack { TextField("Nome autore", text: $authorName).accessibilityIdentifier("init-author-name"); TextField("Email autore", text: $authorEmail).accessibilityIdentifier("init-author-email") }.textFieldStyle(.roundedBorder)
                     HStack { TextField("Branch", text: $branch); TextField("Messaggio del commit", text: $message) }.textFieldStyle(.roundedBorder)
                     Text("L’identità autore viene impostata soltanto in questo repository. GitHub richiede una pubblicazione separata dopo la preparazione locale.").font(.caption).foregroundStyle(.secondary)
-                    HStack { Button("Annulla") { dismiss() }; Spacer(); Button("Anteprima del commit") { Task { await preview(op) } }.disabled(selected.isEmpty || authorName.isEmpty || authorEmail.isEmpty || branch.isEmpty || message.isEmpty) }
+                    HStack { Button("Annulla") { dismiss() }; Spacer(); Button("Anteprima del commit") { Task { await preview(op) } }.disabled(selected.isEmpty || authorName.isEmpty || authorEmail.isEmpty || branch.isEmpty || message.isEmpty).accessibilityIdentifier("init-preview") }
                 } else {
                     Text("Branch \(op["branch"].string ?? "") · \(op["authorName"].string ?? "") <\(op["authorEmail"].string ?? "")>")
                     Text(op["message"].string ?? "").bold()
                     ScrollView { Text(op["diff"].string ?? "").font(.system(.caption, design: .monospaced)).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading) }.frame(height: 280)
                     if let failure = op["error"].string { Text(failure).foregroundStyle(.red) }
-                    if op["state"].string == "completed" { Label("Git pronto · primo commit verificato", systemImage: "checkmark.circle.fill").foregroundStyle(.green) }
+                    if op["state"].string == "completed" { Label("Git pronto · primo commit verificato", systemImage: "checkmark.circle.fill").foregroundStyle(.green).accessibilityIdentifier("init-done") }
                     HStack {
                         Button("Chiudi") { dismiss() }; Spacer()
-                        if op["state"].string != "completed" { Button(op["state"].string == "preview" ? "Inizializza solo sul Mac" : "Riprendi inizializzazione") { Task { await confirm(op) } }.buttonStyle(.borderedProminent) }
+                        if op["state"].string != "completed" { Button(op["state"].string == "preview" ? "Inizializza solo sul Mac" : "Riprendi inizializzazione") { Task { await confirm(op) } }.buttonStyle(.borderedProminent).accessibilityIdentifier("init-confirm") }
                     }
                 }
             } else { ProgressView("Controllo file e regole Git…") }

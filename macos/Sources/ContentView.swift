@@ -9,6 +9,7 @@ struct TaskRowLabel: View {
                 Text(task.title).lineLimit(1); Spacer(minLength: 0)
                 if task.isWaiting { Image(systemName: "hand.raised.fill").foregroundStyle(.orange).accessibilityLabel("In attesa di una tua autorizzazione").accessibilityIdentifier("badge-waiting") }
                 else if task.isActive { ProgressView().controlSize(.mini).accessibilityLabel("In esecuzione").accessibilityIdentifier("badge-active") }
+                else if task.isUncertain { Image(systemName: "exclamationmark.arrow.triangle.2.circlepath").foregroundStyle(.secondary).accessibilityLabel("Esecuzione da riconciliare").accessibilityIdentifier("badge-uncertain") }
             }
         } icon: { Image(systemName: "bubble.left") }
     }
@@ -25,6 +26,7 @@ struct ContentView: View {
     @State private var selection: String?
     @State private var expanded: Set<String> = []
     @FocusState private var searchFocused: Bool
+    @State private var hits: [SearchHit] = []
     @State private var search = ""
     @State private var newProject = false
     @State private var backup = false
@@ -45,6 +47,16 @@ struct ContentView: View {
                             Button("Rinomina…") { renamed = project.name; renaming = project }
                             Button("Sposta in cima") { Task { await moveFirst(project) } }
                             Button("Archivia progetto") { Task { await changeProject("project/archive", ["projectId": .string(project.id)]) } }
+                        }
+                    }
+                }
+                if !hits.isEmpty {
+                    Section("Nella cronologia") {
+                        ForEach(hits) { hit in
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(hit.taskTitle).lineLimit(1)
+                                Text("\(hit.kindLabel) · \(hit.snippet)").font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                            }.accessibilityElement(children: .combine).accessibilityIdentifier("search-hit:\(hit.taskTitle)").tag("task:\(hit.taskId)")
                         }
                     }
                 }
@@ -101,6 +113,14 @@ struct ContentView: View {
             }
         }
         .toolbar { ToolbarItem(placement: .principal) { BatteryAverageView(bridge: bridge) } }
+        // Offline search over the local archive: messages, decisions, criteria and checkpoints, not only titles.
+        .task(id: search) {
+            let needle = search.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard needle.count >= 2, bridge.ready else { hits = []; return }
+            try? await Task.sleep(for: .milliseconds(250))
+            if Task.isCancelled { return }
+            hits = (try? await bridge.decode(SearchResult.self, method: "search/query", params: ["query": .string(needle)]))?.hits ?? []
+        }
         .onChange(of: bridge.ready) { _, ready in if ready { Task { await reload() } } }
         .task { if bridge.ready { await reload() } }
         .task { for await _ in events.updates(.tasks) { if Task.isCancelled { break }; if bridge.ready { await refreshTasks() } } }
@@ -176,12 +196,12 @@ struct ProjectView: View {
             Text(project.name).font(.largeTitle).bold()
             Text("Un progetto, tutti i suoi repository.").foregroundStyle(.secondary)
             ForEach(repositories) { repo in
-                HStack { Image(systemName: "folder"); VStack(alignment: .leading) { Text(repo.name); Text(repo.path).font(.caption).foregroundStyle(.secondary).textSelection(.enabled) }; Spacer(); Button("Dettagli", systemImage: "ellipsis") { selectedRepository = repo }.labelStyle(.iconOnly).accessibilityLabel("Dettagli \(repo.name)") }
+                HStack { Image(systemName: "folder"); VStack(alignment: .leading) { Text(repo.name); Text(repo.path).font(.caption).foregroundStyle(.secondary).textSelection(.enabled); Text(repo.git_root == nil ? "Cartella senza Git" : "Repository Git").font(.caption2).foregroundStyle(.secondary) }; Spacer(); Button("Dettagli", systemImage: "ellipsis") { selectedRepository = repo }.labelStyle(.iconOnly).accessibilityLabel("Dettagli \(repo.name)").accessibilityIdentifier("repo-details:\(repo.name)") }.accessibilityElement(children: .contain).accessibilityIdentifier("repo-row:\(repo.name)")
             }
             Menu("Aggiungi repository", systemImage: "folder.badge.plus") {
                 Button("Cartella esistente…") { addFolder() }
                 Button("Clona da URL…") { cloning = true }
-            }
+            }.accessibilityIdentifier("add-repository-menu")
             ForEach(clones.filter { $0.state != "completed" }) { clone in
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {

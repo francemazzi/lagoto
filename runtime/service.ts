@@ -120,7 +120,7 @@ export class Service {
       case 'repository/initialize/list': {const i=z.object({projectId:identifier,repositoryId:identifier}).strict().parse(p);this.repositories.get(i.projectId,i.repositoryId);return(this.store.db.prepare("SELECT id FROM repository_operations WHERE project_id=? AND repository_id=? AND kind='initialize' ORDER BY created_at DESC").all(i.projectId,i.repositoryId) as {id:string}[]).map(row=>this.initializations.get(row.id));}
       case 'task/list': {
         const { projectId } = z.object({ projectId: identifier }).strict().parse(p); this.store.project(projectId);
-        return this.store.db.prepare("SELECT t.*, EXISTS(SELECT 1 FROM runs r WHERE r.task_id=t.id AND r.state='waiting_permission') AS waiting, EXISTS(SELECT 1 FROM runs r WHERE r.task_id=t.id AND r.state IN ('starting','running','stopping','waiting_permission','unknown')) AS active FROM tasks t WHERE t.project_id=? ORDER BY t.created_at,t.id").all(projectId);
+        return this.store.db.prepare("SELECT t.*, EXISTS(SELECT 1 FROM runs r WHERE r.task_id=t.id AND r.state='waiting_permission') AS waiting, EXISTS(SELECT 1 FROM runs r WHERE r.task_id=t.id AND r.state IN ('starting','running','stopping','waiting_permission')) AS active, EXISTS(SELECT 1 FROM runs r WHERE r.task_id=t.id AND r.state='unknown') AS uncertain FROM tasks t WHERE t.project_id=? ORDER BY t.created_at,t.id").all(projectId);
       }
       case 'task/create': {
         const { projectId, title, objective } = z.object({ projectId: identifier, title: z.string().trim().min(1).max(200), objective: z.string().max(100000).default('') }).strict().parse(p);

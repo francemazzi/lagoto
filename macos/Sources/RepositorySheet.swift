@@ -15,12 +15,16 @@ struct CloneSheet: View {
         VStack(alignment: .leading, spacing: 18) {
             Text("Clona un repository").font(.title2).bold()
             TextField("URL HTTPS o SSH", text: $source).textFieldStyle(.roundedBorder).accessibilityIdentifier("clone-source")
-            TextField("Nome della nuova cartella", text: $folder).textFieldStyle(.roundedBorder)
+            TextField("Nome della nuova cartella", text: $folder).textFieldStyle(.roundedBorder).accessibilityIdentifier("clone-folder")
             HStack { Button("Scegli destinazione…") { let panel = NSOpenPanel(); panel.canChooseDirectories = true; panel.canChooseFiles = false; panel.allowsMultipleSelection = false; if panel.runModal() == .OK { parent = panel.url } }; Text(parent?.path ?? "Nessuna cartella scelta").font(.caption).lineLimit(2) }
             Text("La destinazione deve essere nuova. Git usa il proprio accesso configurato. Un annullamento conserva la cartella parziale per il recupero.").font(.callout).foregroundStyle(.secondary)
-            if let error { Text(error).foregroundStyle(.red).textSelection(.enabled) }
-            HStack { Button("Annulla") { dismiss() }; Spacer(); Button("Clona") { Task { await clone() } }.keyboardShortcut(.defaultAction).disabled(busy || source.isEmpty || parent == nil || folder.isEmpty || folder.contains("/") || [".", ".."].contains(folder)) }
+            if let error { Text(error).foregroundStyle(.red).textSelection(.enabled).accessibilityIdentifier("clone-error") }
+            HStack { Button("Annulla") { dismiss() }; Spacer(); Button("Clona") { Task { await clone() } }.keyboardShortcut(.defaultAction).disabled(busy || source.isEmpty || parent == nil || folder.isEmpty || folder.contains("/") || [".", ".."].contains(folder)).accessibilityIdentifier("clone-submit") }
         }.padding(24).frame(width: 520).disabled(busy)
+        #if DEBUG
+        // Tests cannot drive the system folder picker: `-LagotoCloneParent <path>` presets the destination folder.
+        .task { if parent == nil, let path = UserDefaults.standard.string(forKey: "LagotoCloneParent") { parent = URL(fileURLWithPath: path) } }
+        #endif
     }
     private func clone() async {
         guard let parent else { return }; busy = true
@@ -46,21 +50,21 @@ struct RepositorySheet: View {
             Text(repository.path).font(.caption).textSelection(.enabled)
             if let detail {
                 if detail.availability == "unavailable" {
-                    Label("Cartella non disponibile", systemImage: "exclamationmark.triangle").foregroundStyle(.orange)
+                    Label("Cartella non disponibile", systemImage: "exclamationmark.triangle").foregroundStyle(.orange).accessibilityIdentifier("repo-unavailable")
                     Text(detail.error ?? "Volume assente o percorso spostato").font(.caption)
                     Button("Ricollega cartella spostata…") { relink() }
                 } else if detail.availability == "candidate" {
                     Text("Scegli i file del primo commit per preparare questa cartella al lavoro con Git.")
-                    Button("Prepara Git…") { initializing = true }
+                    Button("Prepara Git…") { initializing = true }.accessibilityIdentifier("prepare-git")
                 }
                 else {
-                    Text("Branch: \(detail.branch?.isEmpty == false ? detail.branch! : "HEAD scollegato")")
+                    Text("Branch: \(detail.branch?.isEmpty == false ? detail.branch! : "HEAD scollegato")").accessibilityIdentifier("repo-branch")
                     if !(detail.status ?? "").isEmpty { DisclosureGroup("Modifiche locali") { Text(detail.status ?? "").font(.system(.caption, design: .monospaced)).textSelection(.enabled) } }
                     ForEach(detail.candidates) { remote in
-                        HStack { VStack(alignment: .leading) { Text(remote.name).bold(); Text(remote.url).font(.caption).textSelection(.enabled) }; Spacer(); if remote.github != nil { Button("Collega") { Task { await choose(remote) } } } }
+                        HStack { VStack(alignment: .leading) { Text(remote.name).bold(); Text(remote.url).font(.caption).textSelection(.enabled) }; Spacer(); if remote.github != nil { Button("Collega") { Task { await choose(remote) } }.accessibilityIdentifier("link-remote:\(remote.name)") } }
                     }
                     if !detail.candidates.isEmpty { Text("Il collegamento sceglie il repository di riferimento. Accesso GitHub non verificato; nessun push viene eseguito.").font(.caption).foregroundStyle(.secondary) }
-                    Button("Crea e collega su GitHub…") { github = true }
+                    Button("Crea e collega su GitHub…") { github = true }.accessibilityIdentifier("open-github-link")
                 }
             } else { ProgressView() }
             if let error { Text(error).foregroundStyle(.red).textSelection(.enabled) }

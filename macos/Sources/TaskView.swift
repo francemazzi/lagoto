@@ -31,6 +31,9 @@ struct TaskView: View {
     @State private var error: String?
     @State private var followTail = true
     @FocusState private var composerFocused: Bool
+    #if DEBUG
+    @State private var switchMilliseconds: Int?
+    #endif
     private var profile: ModelProfile? { profiles.first { $0.id == selected } }
     private var active: RunRecord? { snapshot?.runs.last(where: \.active) }
     private var uncertain: Bool { snapshot?.runs.contains { $0.state == "unknown" } ?? false }
@@ -75,11 +78,23 @@ struct TaskView: View {
             WorkspaceColumn(bridge: bridge, taskID: work.id, repositories: snapshot?.repositories ?? [], tab: $workspaceTab, width: $workspaceWidth) { inspectorView }
                 .inspectorColumnWidth(min: 300, ideal: CGFloat(workspaceWidth), max: 700)
         }
+        #if DEBUG
+        // Debug-only: how long this task took from selection to its first complete snapshot (P12-I03 measures it from the UI tests).
+        .overlay(alignment: .bottomLeading) { if let switchMilliseconds { Text("\(switchMilliseconds)").font(.system(size: 1)).opacity(0.01).accessibilityIdentifier("switch-timing").accessibilityLabel("\(switchMilliseconds)") } }
+        #endif
         .sheet(isPresented: $showHandoff) { handoffSheet }
         .sheet(isPresented: $delivery) { DeliverySheet(bridge: bridge, taskID: work.id) }
         .sheet(isPresented: $exporting) { ExportSheet(bridge: bridge, taskID: work.id) }
         .task {
+            #if DEBUG
+            let started = ContinuousClock.now
+            #endif
             await reloadProfiles(); await refresh()
+            #if DEBUG
+            await Task.yield()
+            let elapsed = ContinuousClock.now - started
+            switchMilliseconds = Int(elapsed.components.seconds * 1000) + Int(elapsed.components.attoseconds / 1_000_000_000_000_000)
+            #endif
             if selected.isEmpty { selected = snapshot?.runs.last?.profile_id ?? profiles.first(where: \.verified)?.id ?? "" }
             if snapshot?.blocks.isEmpty != false { prompt = work.objective }
             await recoverHandoff()
@@ -150,7 +165,7 @@ struct TaskView: View {
             VStack(alignment: .leading, spacing: 20) {
                 Text("Il lavoro").font(.title2).bold()
                 Text(work.objective).textSelection(.enabled)
-                if uncertain { Button("Riconcilia processi dopo il riavvio") { Task { await reconcileRuns() } }.disabled(busy) }
+                if uncertain { Button("Riconcilia processi dopo il riavvio") { Task { await reconcileRuns() } }.disabled(busy).accessibilityIdentifier("reconcile-runs") }
                 DisclosureGroup("Criteri e decisioni") { TaskMemoryView(bridge: bridge, taskID: work.id) }
                 DisclosureGroup("Repository") { ForEach(snapshot?.repositories ?? [], id: \.pretty) { Text($0["name"].string ?? "").font(.headline); Text($0["path"].string ?? "").font(.caption).textSelection(.enabled) } }
                 DisclosureGroup("Modifiche") { ForEach(diff.array, id: \.pretty) { Text($0["status"].string ?? "").font(.caption); Text($0["diff"].string ?? "").font(.system(.caption, design: .monospaced)).textSelection(.enabled) } }

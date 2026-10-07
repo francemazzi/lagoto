@@ -58,7 +58,7 @@ describe('P02-I08 every state change reaches the UI without polling', () => {
     const listed = async () => (await call('task/list', { projectId: project.id }))[0];
     expect(state()).toBe('running'); expect((await listed()).waiting).toBe(0);
     const answer = ask('fileChange/requestApproval');
-    expect(state()).toBe('waiting_permission'); expect((await listed()).waiting).toBe(1); expect((await listed()).active).toBe(1);
+    expect(state()).toBe('waiting_permission'); expect((await listed()).waiting).toBe(1); expect((await listed()).active).toBe(1);expect((await listed()).uncertain).toBe(0);
     await tick();
     const permission = events.find(event => event.kind === 'permission');
     expect(events.some(event => event.kind === 'attention_changed' && event.payload.taskId === task.id)).toBe(true);

@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { Store } from '../runtime/storage.js';
 import { Service } from '../runtime/service.js';
@@ -109,6 +109,24 @@ await call('task/queue', { taskId: task.id, id: crypto.randomUUID(), text: 'Poi 
 await call('task/queue', { taskId: task.id, id: crypto.randomUUID(), text: 'E aggiungi un test di regressione' });
 await call('verification/start', { taskId: task.id, repositoryId: repoBackend.id, command: 'test -f contract.json' });
 await new Promise(resolve => setTimeout(resolve, 600));
+// A run that was alive when the app died: the runtime must not present it as running after a restart.
+const interrupted = await call('task/create', { projectId: project.id, title: 'Lavoro interrotto', objective: 'Era in corso quando il Mac si è spento' });
+startRun(interrupted.id, codex.id, 'Continua il lavoro lungo', 'running');
+// A second project for the folder and GitHub flows: a folder without Git, a repository with two GitHub remotes, a folder that was moved.
+const folders = await call('project/create', { name: 'Progetto cartelle' });
+const plain = join(root, 'repos', 'senza-git'); mkdirSync(plain, { recursive: true });
+writeFileSync(join(plain, 'README.md'), '# Senza Git\n'); writeFileSync(join(plain, 'notes.txt'), 'Appunti sintetici\n'); writeFileSync(join(plain, '.env'), 'DB_PASSWORD=hunter2-sintetico\n');
+await call('repository/add', { projectId: folders.id, path: plain });
+const prepare = join(root, 'repos', 'da-preparare'); mkdirSync(prepare, { recursive: true });
+writeFileSync(join(prepare, 'README.md'), '# Da preparare\n'); writeFileSync(join(prepare, '.env'), 'DB_PASSWORD=hunter2-sintetico\n');
+await call('repository/add', { projectId: folders.id, path: prepare });
+const multi = await repository('piu-remote', { 'README.md': '# Piu remote\n' });
+await git(multi, ['remote', 'add', 'origin', 'git@github.com:acme/piu-remote.git']); await git(multi, ['remote', 'add', 'upstream', 'https://github.com/altro/piu-remote.git']);
+await call('repository/add', { projectId: folders.id, path: multi });
+const moved = await repository('spostata', { 'README.md': '# Spostata\n' });
+await call('repository/add', { projectId: folders.id, path: moved });
+renameSync(moved, `${moved}-altrove`);
+
 const empty = await call('task/create', { projectId: project.id, title: 'Lavoro vuoto', objective: 'Ancora da iniziare' });
 
 if (load) {

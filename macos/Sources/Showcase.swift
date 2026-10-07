@@ -15,7 +15,7 @@ struct ShowcaseView: View {
             Text("Vetrina").font(.title).accessibilityIdentifier("showcase-title")
             PermissionCard(block: block(choices: choices), active: true) { _, optionID, allow in answer = optionID ?? (allow == true ? "allow" : "reject") }
             Text("Risposta: \(answer)").accessibilityIdentifier("showcase-answer")
-            List { TaskRowLabel(task: WorkTask(id: "w", project_id: "p", title: "Lavoro in attesa", objective: "", status: "active", waiting: 1, active: 1)) }.frame(height: 80)
+            List { TaskRowLabel(task: WorkTask(id: "w", project_id: "p", title: "Lavoro in attesa", objective: "", status: "active", waiting: 1, active: 1, uncertain: 0)) }.frame(height: 80)
         }.padding(24).frame(maxWidth: .infinity, alignment: .topLeading)
     }
     private func block(choices: JSONValue) -> TranscriptBlock {

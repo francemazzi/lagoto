@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { provenance } from './evidence.js';
 import { readXcresultSummary, readXcresultTests } from './xcresult.js';
@@ -16,6 +16,18 @@ rmSync(fixtureDir, { recursive: true, force: true });
 const seed = spawnSync('pnpm', ['seed:ui', fixtureDir], { encoding: 'utf8', timeout: 300000 });
 if (seed.status !== 0) { console.error(seed.stdout, seed.stderr); throw new Error('Archivio di prova non creato'); }
 env.TEST_RUNNER_LAGOTO_UI_FIXTURE = join(fixtureDir, 'data');
+// The performance test needs the large archive: 50 projects, 1,000 tasks, 100,000 events.
+const loadDir = resolve('build/ui-fixture-load');
+rmSync(loadDir, { recursive: true, force: true });
+const loadSeed = spawnSync('pnpm', ['seed:ui', loadDir, '--load'], { encoding: 'utf8', timeout: 900000 });
+if (loadSeed.status !== 0) { console.error(loadSeed.stdout, loadSeed.stderr); throw new Error('Archivio di carico non creato'); }
+env.TEST_RUNNER_LAGOTO_UI_LOAD_FIXTURE = join(loadDir, 'data');
+const perfOut = resolve('build/ui-perf.json');
+rmSync(perfOut, { force: true });
+env.TEST_RUNNER_LAGOTO_PERF_OUT = perfOut;
+// A CI runner is not the registered Mac: it gets a looser limit and its evidence is never counted as the p95 certification.
+const onCi = Boolean(process.env.CI);
+if (onCi) env.TEST_RUNNER_LAGOTO_PERF_LIMIT_MS = '1500';
 const xcodebuild = spawnSync('xcodebuild', ['test', '-project', 'macos/Lagoto.xcodeproj', '-scheme', 'Lagoto', '-configuration', 'Debug',
   '-derivedDataPath', 'build/Xcode', '-destination', 'platform=macOS,arch=arm64', '-only-testing:LagotoUITests',
   '-parallel-testing-enabled', 'NO', '-test-timeouts-enabled', 'YES', '-maximum-test-execution-time-allowance', '180',
@@ -25,6 +37,15 @@ const summary = readXcresultSummary(resultPath);
 const status = xcodebuild.status === 0 && summary && summary.total > 0 && summary.failed === 0 && summary.skipped === 0 ? 'passed' : 'failed';
 const report = { ...provenance(), status, xcodebuildStatus: xcodebuild.status, summary, tests };
 mkdirSync('build', { recursive: true });
+if (existsSync(perfOut)) {
+  const perf = JSON.parse(readFileSync(perfOut, 'utf8'));
+  const meta = provenance();
+  mkdirSync('build/evidence', { recursive: true });
+  writeFileSync(`build/evidence/performance-ui-${meta.date.replaceAll(':', '-')}.json`, JSON.stringify({ ...meta,
+    status: onCi ? 'blocked' : perf.p95Ms < 300 ? 'passed' : 'failed', ...(onCi ? { reason: 'ci-runner-not-the-registered-mac' } : {}),
+    scope: 'Native task switch on the 50 projects, 1,000 tasks, 100,000 events archive: selection to first complete snapshot, inference excluded, Debug build, keyboard-driven.',
+    samples: perf.count, p95Ms: perf.p95Ms, maximumMs: perf.maximumMs, limitMs: perf.limitMs, machine: onCi ? 'ci' : 'local' }, null, 2));
+}
 writeFileSync('build/native-ui.json', JSON.stringify(report, null, 2));
 console.log(`XCUITest: ${status}; ${tests.length} test cases; ${tests.filter(test => test.result === 'Passed').length} passed`);
 process.exitCode = status === 'passed' ? 0 : 1;
