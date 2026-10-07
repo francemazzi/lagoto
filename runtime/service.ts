@@ -19,6 +19,10 @@ import { GitHubLinks } from './github-link.js';
 import { GitInitializations } from './git-initialize.js';
 import { authStatus } from './auth-status.js';
 import { contextMeter } from './context-meter.js';
+import { APP_VERSION } from './version.js';
+import { exportPreview, exportTask, importTask } from './export.js';
+import { storageUsage, cleanupPlan, cleanupApply } from './retention.js';
+import { requestReview } from './review.js';
 import { childrenReport, stopChild } from './children.js';
 import { readUsage, withFreshness } from './usage-sources.js';
 
@@ -54,7 +58,7 @@ export class Service {
     switch (request.method) {
       case 'initialize': {
         const input = z.object({ protocolVersion: z.literal(protocolVersion) }).strict().parse(p);
-        return { protocolVersion: input.protocolVersion, version: '0.1.0', platform: process.platform, arch: process.arch, sqlite: this.store.db.prepare('SELECT sqlite_version() AS version').get() };
+        return { protocolVersion: input.protocolVersion, version: APP_VERSION, platform: process.platform, arch: process.arch, sqlite: this.store.db.prepare('SELECT sqlite_version() AS version').get() };
       }
       case 'backup/create': {const {destination}=z.object({destination:z.string().min(1)}).strict().parse(p);return createBackup(this.store,destination);}
       case 'backup/restore': {const {source,destination}=z.object({source:z.string().min(1),destination:z.string().min(1)}).strict().parse(p);return restoreBackup(source,destination);}
@@ -137,6 +141,13 @@ export class Service {
           repositories:this.store.db.prepare('SELECT tr.*,r.name FROM task_repositories tr JOIN repositories r ON r.id=tr.repository_id WHERE task_id=?').all(taskId),
           queued:this.store.db.prepare("SELECT * FROM queued_messages WHERE task_id=? AND state='queued' ORDER BY created_at").all(taskId)};
       }
+      case 'task/review': {const {taskId}=z.object({taskId:identifier}).strict().parse(p);return requestReview(this.store,this.memory,taskId);}
+      case 'task/export/preview': {const {taskId}=z.object({taskId:identifier}).strict().parse(p);return exportPreview(this.store,taskId);}
+      case 'task/export': {const i=z.object({taskId:identifier,destination:z.string().min(2).max(4096),hash:z.string().regex(/^[a-f0-9]{64}$/)}).strict().parse(p);return exportTask(this.store,i.taskId,i.destination,i.hash);}
+      case 'task/import': {const i=z.object({projectId:identifier,source:z.string().min(2).max(4096)}).strict().parse(p);return importTask(this.store,i.projectId,i.source);}
+      case 'storage/usage': return storageUsage(this.store);
+      case 'storage/cleanup/preview': {const i=z.object({keepCheckpoints:z.number().int().min(1).max(100).optional(),keepDays:z.number().int().min(0).max(3650).optional()}).strict().parse(p);return cleanupPlan(this.store,i);}
+      case 'storage/cleanup': {const i=z.object({hash:z.string().regex(/^[a-f0-9]{64}$/),keepCheckpoints:z.number().int().min(1).max(100).optional(),keepDays:z.number().int().min(0).max(3650).optional()}).strict().parse(p);return cleanupApply(this.store,i.hash,{keepCheckpoints:i.keepCheckpoints,keepDays:i.keepDays});}
       case 'task/children': {const {taskId}=z.object({taskId:identifier}).strict().parse(p);this.store.task(taskId);return childrenReport(this.store.db,taskId);}
       case 'child/stop': {const i=z.object({runId:identifier,childId:z.string().min(1).max(200)}).strict().parse(p);const row=this.store.db.prepare('SELECT task_id FROM runs WHERE id=?').get(i.runId) as {task_id:string}|undefined;if(!row)throw new AppError(404,'Run non trovata');const outcome=stopChild();this.store.event(row.task_id,i.runId,'child_control',{childId:i.childId,outcome:'unsupported',message:outcome.reason});return outcome;}
       case 'checkpoint/changes': {const {taskId}=z.object({taskId:identifier}).strict().parse(p);return changesSince(this.store,taskId);}

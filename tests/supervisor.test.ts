@@ -115,3 +115,31 @@ describe('P05-I06 oversized and malformed input cannot corrupt the runtime', () 
     expect(store.db.prepare('SELECT count(*) AS count FROM projects').get()).toEqual({ count: 0 });
   });
 });
+
+describe('P12-I02 network loss and restart never leave a run that looks alive', () => {
+  it('P12-I02 a connection reset ends the run as failed with a network cause and action, leaves nothing running and saves the work', async () => {
+    const f = await fixture();
+    const runs = new RunManager(f.store, () => {}, async options => {
+      const completion = new Promise<void>((_, reject) => setTimeout(() => reject(Object.assign(new Error('read ECONNRESET'), { code: 'ECONNRESET' })), 20));
+      void options; return { sessionId: 's', completion, stop: async () => {} };
+    });
+    const run = await runs.start(f.task.id, f.profile.id, 'x', crypto.randomUUID(), 'agent') as any;
+    await until(() => ['failed', 'unknown', 'interrupted'].includes(stateOf(f.store, run.id)));
+    expect(stateOf(f.store, run.id)).toBe('failed');
+    const event = (f.store.events(f.task.id) as any[]).filter(e => e.kind === 'run_state').at(-1);
+    expect(event.payload).toMatchObject({ state: 'failed', cause: 'network' });
+    expect(event.payload.action).toContain('connessione');
+    expect(f.store.db.prepare("SELECT count(*) AS count FROM runs WHERE state IN ('starting','running','waiting_permission','stopping')").get()).toEqual({ count: 0 });
+    await runs.shutdown();
+  });
+  it('P12-I02 BAT-13 after a restart no run is reported as running and the day allowance is not reloaded', async () => {
+    const f = await fixture();
+    const runs = new RunManager(f.store, () => {}, async () => ({ sessionId: 's', completion: new Promise<void>(() => {}), stop: async () => {} }));
+    const run = await runs.start(f.task.id, f.profile.id, 'x', crypto.randomUUID(), 'agent') as any;
+    await until(() => stateOf(f.store, run.id) === 'running');
+    const directory = f.directory; f.store.close();
+    const reopened = await fixture(directory, false);
+    expect(stateOf(reopened.store, run.id)).toBe('unknown');
+    expect(reopened.store.db.prepare("SELECT count(*) AS count FROM runs WHERE state IN ('starting','running','waiting_permission')").get()).toEqual({ count: 0 });
+  });
+});
