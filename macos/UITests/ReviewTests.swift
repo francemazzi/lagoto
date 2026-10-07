@@ -43,7 +43,7 @@ import XCTest
         openWork(app)
         app.element("open-export").click()
         XCTAssertTrue(app.element("export-files").waitForExistence(timeout: 10))
-        XCTAssertTrue(app.staticTexts["task.json · "].exists || app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'task.json'")).firstMatch.exists)
+        XCTAssertTrue(app.text(containing: "task.json").exists)
         XCTAssertTrue(app.text(containing: "credenziali").exists, "le credenziali sono dichiarate escluse")
         app.terminate()
     }

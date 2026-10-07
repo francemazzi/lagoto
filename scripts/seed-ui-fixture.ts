@@ -109,7 +109,10 @@ await call('decision/save', { taskId: task.id, content: 'Il contratto usa identi
 await call('task/queue', { taskId: task.id, id: crypto.randomUUID(), text: 'Poi aggiorna anche la documentazione' });
 await call('task/queue', { taskId: task.id, id: crypto.randomUUID(), text: 'E aggiungi un test di regressione' });
 await call('verification/start', { taskId: task.id, repositoryId: repoBackend.id, command: 'test -f contract.json' });
-await new Promise(resolve => setTimeout(resolve, 600));
+for (let i = 0; i < 100; i++) { // wait until the verification has finished, or the app would find it running and mark it unknown at startup
+  if (!store.db.prepare("SELECT 1 FROM verifications WHERE state IN ('running','starting')").get()) break;
+  await new Promise(resolve => setTimeout(resolve, 100));
+}
 // A run that was alive when the app died: the runtime must not present it as running after a restart.
 const interrupted = await call('task/create', { projectId: project.id, title: 'Lavoro interrotto', objective: 'Era in corso quando il Mac si è spento' });
 const lostRun = startRun(interrupted.id, lost.id, 'Continua il lavoro lungo', 'running');

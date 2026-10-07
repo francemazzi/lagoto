@@ -21,8 +21,9 @@ import XCTest
     }
     private func git(_ arguments: [String], in directory: URL) -> String {
         let process = Process(), pipe = Pipe()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/git"); process.arguments = ["-C", directory.path] + arguments; process.standardOutput = pipe
-        try? process.run(); process.waitUntilExit()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/git"); process.arguments = ["-C", directory.path] + arguments; process.standardOutput = pipe; process.standardError = pipe
+        do { try process.run() } catch { return "errore: \(error)" }
+        process.waitUntilExit()
         return String(decoding: pipe.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
     }
 

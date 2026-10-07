@@ -17,21 +17,25 @@ import XCTest
         XCTAssertTrue(app.staticTexts["Archivio locale pronto"].waitForExistence(timeout: 90))
         let sidebar = app.outlines["Sidebar"]
         XCTAssertTrue(sidebar.waitForExistence(timeout: 30))
-        // Start on the first task row and walk down the sidebar; every task row selected is one switch.
+        // Click the visible task rows one after the other; the app publishes "<task id>|<milliseconds>" on the transcript of the task it just opened.
         let first = app.element("task-row:Contratto API")
         XCTAssertTrue(first.waitForExistence(timeout: 60)); first.click()
+        let rows = app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH 'task-row:'"))
+        let total = rows.count
+        XCTAssertGreaterThan(total, 20, "righe dei lavori visibili: \(total)")
         var samples: [Int] = []
-        var last = ""
-        let timing = app.element("transcript")
-        XCTAssertTrue(timing.waitForExistence(timeout: 30), "la trascrizione non è comparsa")
-        for _ in 0..<60 where samples.count < 40 {
-            app.typeKey(.downArrow, modifierFlags: [])
-            guard timing.exists else { continue }
-            let value = (timing.value as? String).flatMap { $0.isEmpty ? nil : $0 } ?? timing.label
-            if value != last || samples.isEmpty { samples.append(Int(value) ?? -1); last = value }
-            if samples.count > 0 && samples.last! < 0 { samples.removeLast() }
+        var lastTask = ""
+        for index in 0..<min(total, 45) {
+            rows.element(boundBy: index).click()
+            let deadline = Date().addingTimeInterval(8)
+            while Date() < deadline {
+                let raw = (app.element("transcript").value as? String) ?? ""
+                let parts = raw.split(separator: "|")
+                if parts.count == 2, String(parts[0]) != lastTask, let ms = Int(parts[1]) { lastTask = String(parts[0]); samples.append(ms); break }
+                Thread.sleep(forTimeInterval: 0.05)
+            }
         }
-        XCTAssertGreaterThanOrEqual(samples.count, 20, "troppo pochi cambi di lavoro misurati")
+        XCTAssertGreaterThanOrEqual(samples.count, 20, "troppo pochi cambi di lavoro misurati: \(samples)")
         let warm = Array(samples.dropFirst(5)).sorted()
         let p95 = warm[min(warm.count - 1, Int((Double(warm.count) * 0.95).rounded(.up)) - 1)]
         let limit = Int(ProcessInfo.processInfo.environment["LAGOTO_PERF_LIMIT_MS"] ?? "300") ?? 300
