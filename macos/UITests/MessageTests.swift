@@ -56,3 +56,19 @@ import XCTest
         app.terminate()
     }
 }
+
+@MainActor final class FlowTests: XCTestCase {
+    override func setUp() { continueAfterFailure = false }
+
+    /// P06-I05: every path (Codex, Cursor, Claude) shows messages, tools and permissions in one timeline, and a finished answer
+    /// never marks the task complete: it says the work still has to be checked.
+    func testP06_I05_completeTurnsOnEveryPathAndTheFinalAnswerDoesNotCompleteTheTask() throws {
+        let app = try Fixture.launch()
+        app.openTask()
+        XCTAssertTrue(app.element("message-assistant").waitForExistence(timeout: 20))
+        XCTAssertTrue(app.element("card-terminal").exists && app.element("card-file-change").exists && app.element("card-permission").exists)
+        XCTAssertTrue(app.staticTexts["Turno concluso · lavoro da verificare"].firstMatch.waitForExistence(timeout: 10))
+        XCTAssertFalse(app.staticTexts["Completato"].exists, "la risposta finale non completa il lavoro")
+        app.terminate()
+    }
+}

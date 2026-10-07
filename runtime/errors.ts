@@ -1,5 +1,5 @@
 /** Failure causes shown to the user; each maps to a concrete next action. A cause is never guessed from silence. */
-export type FailureCause = 'server_unavailable' | 'model_missing' | 'queue_busy' | 'network_denied' | 'network' | 'quota' | 'credit' | 'auth' | 'process' | 'tool' | 'capability_missing' | 'unknown';
+export type FailureCause = 'server_unavailable' | 'model_missing' | 'model_load' | 'queue_busy' | 'network_denied' | 'network' | 'quota' | 'credit' | 'auth' | 'process' | 'tool' | 'capability_missing' | 'unknown';
 export type Failure = { cause: FailureCause; action: string };
 
 const rules: { cause: FailureCause; pattern: RegExp; action: string }[] = [
@@ -7,6 +7,7 @@ const rules: { cause: FailureCause; pattern: RegExp; action: string }[] = [
   { cause: 'credit', pattern: /insufficient[_ ](credit|funds|balance)|payment required|\b402\b|billing|out of credits|credit balance/i, action: 'Ricarica il credito del provider o scegli un altro profilo; nessuna spesa alternativa viene avviata.' },
   { cause: 'quota', pattern: /rate[_ -]?limit|quota|usage limit|too many requests|limit reached|\b429\b(?!.*queue)/i, action: 'Attendi il reset del limite o scegli un altro modello; il lavoro è salvato.' },
   { cause: 'auth', pattern: /\b401\b|\b403\b|unauthori[sz]ed|invalid (api )?key|authenticat|oauth|session (has )?expired|not logged in|accesso .* non utilizzabile|chiave api richiesta/i, action: 'Rinnova l’accesso in Integrazioni.' },
+  { cause: 'model_load', pattern: /error loading model|failed to load model|llama runner (process )?(has )?terminated|out of memory|insufficient (system )?memory|unable to allocate/i, action: 'Il modello non si è caricato: libera memoria o scegli un modello più piccolo.' },
   { cause: 'model_missing', pattern: /model .*(not found|does not exist|not available)|no such model|\b404\b.*model|model.*\b404\b|unknown model|pull the model/i, action: 'Il modello non è disponibile sul server: scaricalo o scegline un altro.' },
   { cause: 'server_unavailable', pattern: /ECONNREFUSED|connection refused|fetch failed|server .*(not running|non disponibile|spento)|connect ECONNREFUSED/i, action: 'Avvia il server locale (per esempio Ollama) e riprova.' },
   { cause: 'queue_busy', pattern: /\bbusy\b|queue(d)? full|server is (busy|overloaded)|\b503\b|\b529\b|overloaded|retry after/i, action: 'Il server è occupato: attendi o riprova più tardi.' },

@@ -67,7 +67,7 @@ describe('P06-I04 catalogs and capabilities are never guessed or silently replac
     expect(claudeModels().every(model => model.source === 'declared' && model.efforts.includes('high'))).toBe(true);
     expect(parseCursorModels('')).toEqual([]);
   });
-  it('P06-I04 a profile whose model or endpoint changed after verification is refused instead of falling back, and an unsupported effort is refused', async () => {
+  it('P06-I04 P02-I03 a profile whose model or endpoint changed after verification is refused instead of falling back, and an unsupported effort is refused', async () => {
     const s = await setup();
     const profile = await s.verified('codex', 'gpt-a');
     s.store.db.prepare('UPDATE profiles SET model=? WHERE id=?').run('gpt-b', profile.id);
@@ -80,7 +80,7 @@ describe('P06-I04 catalogs and capabilities are never guessed or silently replac
 });
 
 describe('P06-I05 a finished turn is not a finished task', () => {
-  it('P06-I05 each run is separated in the timeline and the final answer never completes the task', async () => {
+  it('P06-I05 P02-I05 each run is separated in the timeline and the final answer never completes the task', async () => {
     const s = await setup();
     const profile = await s.verified('codex', 'm');
     const runs = new RunManager(s.store, () => {}, async options => { options.onEvent({ kind: 'result', text: 'Tutto fatto, task completato!', payload: {} }); return { sessionId: 's', completion: Promise.resolve(), stop: async () => {} }; });

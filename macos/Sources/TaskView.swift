@@ -17,6 +17,7 @@ struct TaskView: View {
     @AppStorage("workspace.tab") private var workspaceTab = "files"
     @AppStorage("workspace.width") private var workspaceWidth = 380.0
     @State private var delivery = false
+    @State private var exporting = false
     @State private var diff: JSONValue = .null
     @State private var checkpoints: JSONValue = .null
     @State private var verifications: JSONValue = .null
@@ -76,6 +77,7 @@ struct TaskView: View {
         }
         .sheet(isPresented: $showHandoff) { handoffSheet }
         .sheet(isPresented: $delivery) { DeliverySheet(bridge: bridge, taskID: work.id) }
+        .sheet(isPresented: $exporting) { ExportSheet(bridge: bridge, taskID: work.id) }
         .task {
             await reloadProfiles(); await refresh()
             if selected.isEmpty { selected = snapshot?.runs.last?.profile_id ?? profiles.first(where: \.verified)?.id ?? "" }
@@ -167,7 +169,8 @@ struct TaskView: View {
                     Button("Aggiorna verifiche") { Task { await refreshInspector() } }
                     if verifications.array.contains(where: { $0["state"].string == "running" }) { Button("Interrompi verifica") { Task { _ = try? await bridge.call("verification/stop", ["taskId": .string(work.id)]); await refreshInspector() } } }
                 }
-                Button("Revisiona e consegna…") { delivery = true }.disabled(active != nil || uncertain || busy)
+                Button("Revisiona e consegna…") { delivery = true }.disabled(active != nil || uncertain || busy).accessibilityIdentifier("open-delivery")
+                Button("Esporta il lavoro…") { exporting = true }.accessibilityIdentifier("open-export")
                 Text("La fine di una risposta non certifica il completamento del lavoro.").font(.caption).foregroundStyle(.secondary)
             }.padding(20)
         }

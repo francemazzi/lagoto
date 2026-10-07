@@ -9,6 +9,8 @@ struct TaskMemoryView: View {
     @State private var decision = ""
     @State private var supersedes = ""
     @State private var error: String?
+    @State private var review: JSONValue?
+    @State private var reviewError: String?
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Criteri: \(Int(progress["completed"].number ?? 0))/\(Int(progress["total"].number ?? 0))").font(.headline)
@@ -21,12 +23,21 @@ struct TaskMemoryView: View {
                         ForEach(tests.array.filter { $0["state"].string == "passed" }, id: \.pretty) { test in
                             Button("\(test["repositoryName"].string ?? "Repository") · \(test["command"]["command"].string ?? "Verifica")") { Task { await link(item, test) } }
                         }
-                    }.disabled(tests.array.allSatisfy { $0["state"].string != "passed" })
+                    }.disabled(tests.array.allSatisfy { $0["state"].string != "passed" }).accessibilityIdentifier("link-verification")
                 }
             }
             TextField("Nuovo criterio di completamento", text: $criterion, axis: .vertical)
             Button("Aggiungi criterio") { Task { await addCriterion() } }.disabled(criterion.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            Button("Segna lavoro completato") { Task { do { _ = try await bridge.call("task/complete", ["taskId": .string(taskID)]); await reload() } catch { self.error = error.localizedDescription } } }.disabled((progress["total"].number ?? 0) == 0 || progress["total"] != progress["completed"])
+            Button("Richiedi revisione") { Task { await requestReview() } }.accessibilityIdentifier("review-request")
+            if let review {
+                VStack(alignment: .leading, spacing: 4) {
+                    Label(review["note"].string ?? "Pronto per la revisione", systemImage: "eye").font(.callout)
+                    ForEach(review["waivers"].array, id: \.pretty) { Text("Deroga: \($0["content"].string ?? "") — \($0["reason"].string ?? "")").font(.caption) }
+                }.accessibilityIdentifier("review-result")
+            }
+            if let reviewError { Label(reviewError, systemImage: "exclamationmark.triangle").font(.callout).foregroundStyle(.orange).textSelection(.enabled).accessibilityIdentifier("review-blocked") }
+            if progress["status"].string == "review" { Label("In revisione", systemImage: "eye.circle").accessibilityIdentifier("task-in-review") }
+            Button("Segna lavoro completato") { Task { do { _ = try await bridge.call("task/complete", ["taskId": .string(taskID)]); await reload() } catch { self.error = error.localizedDescription } } }.disabled((progress["total"].number ?? 0) == 0 || progress["total"] != progress["completed"]).accessibilityIdentifier("complete-task")
             if progress["status"].string == "completed" { Label("Lavoro completato", systemImage: "checkmark.circle") }
             Divider()
             Text("Decisioni confermate").font(.headline)
@@ -37,6 +48,11 @@ struct TaskMemoryView: View {
             Button("Conferma decisione") { Task { await saveDecision() } }.disabled(decision.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             if let error { Text(error).font(.caption).foregroundStyle(.red).textSelection(.enabled) }
         }.task { await reload() }
+    }
+    /// Review is asked for and checked by the runtime; it never completes the work.
+    private func requestReview() async {
+        do { review = try await bridge.call("task/review", ["taskId": .string(taskID)]); reviewError = nil; await reload() }
+        catch { review = nil; reviewError = error.localizedDescription }
     }
     private func reload() async {
         do { progress = try await bridge.call("task/progress", ["taskId": .string(taskID)]); tests = try await bridge.call("verification/list", ["taskId": .string(taskID)]) } catch { self.error = error.localizedDescription }

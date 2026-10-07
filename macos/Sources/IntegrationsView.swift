@@ -10,6 +10,8 @@ struct IntegrationsView: View {
     @State private var adding = false
     @State private var error: String?
     @State private var budgetProfile: ModelProfile?
+    @State private var auth: [String: JSONValue] = [:]
+    @State private var logoutProfile: ModelProfile?
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
@@ -17,7 +19,14 @@ struct IntegrationsView: View {
                 Text("Ogni profilo mantiene il proprio modello, account e percorso di accesso.").foregroundStyle(.secondary)
                 if !modelsOnly {
                     ForEach(inventory, id: \.pretty) { item in
-                        HStack { Text(item["id"].string ?? "").fontWeight(.medium); Spacer(); Text(item["version"].string ?? "Non installato").foregroundStyle(.secondary) }
+                        let id = item["id"].string ?? ""
+                        VStack(alignment: .leading, spacing: 2) {
+                            HStack { Text(id).fontWeight(.medium); Spacer(); Text(item["version"].string ?? "Non installato").foregroundStyle(.secondary) }
+                            if let status = auth[id] {
+                                Text("Accesso: \(authLabel(status["state"].string)) · fonte: comando di stato del CLI ufficiale").font(.caption).foregroundStyle(status["state"].string == "ok" ? Color.secondary : Color.orange)
+                                    .accessibilityIdentifier("auth-status:\(id)")
+                            }
+                        }
                     }
                     Text("Codex, Claude e Cursor usano il login dei rispettivi CLI ufficiali. Le chiavi API restano nel Portachiavi di questo Mac.").font(.callout).foregroundStyle(.secondary)
                     Divider()
@@ -43,7 +52,10 @@ struct IntegrationsView: View {
                                     }
                                 }
                             }
-                            Menu("Opzioni") { Button("Budget personale…") { budgetProfile = profile } }
+                            Menu("Opzioni") {
+                                Button("Budget personale…") { budgetProfile = profile }
+                                Button("Scollega e rimuovi la chiave…", role: .destructive) { logoutProfile = profile }
+                            }
                         }
                         if let action = states[profile.id]?.action { Text(action).font(.caption).foregroundStyle(.secondary).accessibilityIdentifier("profile-action:\(profile.name)") }
                         if let message = profile.capabilities["proof"]["message"].string { Text(message).font(.caption).foregroundStyle(.secondary).textSelection(.enabled) }
@@ -55,7 +67,16 @@ struct IntegrationsView: View {
             }.padding(32).frame(maxWidth: 840, alignment: .leading).frame(maxWidth: .infinity, alignment: .leading)
         }.sheet(isPresented: $adding) { ProfileSheet(bridge: bridge) { adding = false; Task { await reload() } } }
         .sheet(item: $budgetProfile) { profile in BudgetSheet(bridge: bridge, profile: profile) }
-        .task { inventory = (try? await bridge.call("integration/list"))?.array ?? []; await reload() }
+        .confirmationDialog("Scollegare questo profilo?", isPresented: Binding(get: { logoutProfile != nil }, set: { if !$0 { logoutProfile = nil } }), presenting: logoutProfile) { profile in
+            Button("Scollega \(profile.name)", role: .destructive) { Task { await logout(profile) } }
+        } message: { profile in Text("Le run attive di \(profile.name) vengono interrotte, la chiave salvata nel Portachiavi viene eliminata e il profilo torna da verificare. Il login del CLI ufficiale non viene toccato.") }
+        .task {
+            inventory = (try? await bridge.call("integration/list"))?.array ?? []
+            await reload()
+            for provider in ["codex", "claude", "cursor"] where inventory.contains(where: { $0["id"].string == provider && $0["version"].string != nil }) {
+                auth[provider] = try? await bridge.call("integration/auth-status", ["provider": .string(provider)])
+            }
+        }
         .task { for await _ in events.updates(.profiles) { if Task.isCancelled { break }; if bridge.ready { await reload() } } }
         .task { for await _ in events.updates(.budget) { if Task.isCancelled { break }; if bridge.ready { await reload() } } }
     }
@@ -63,6 +84,17 @@ struct IntegrationsView: View {
         do {
             profiles = try await bridge.decode([ModelProfile].self, method: "profile/list")
             states = Dictionary(uniqueKeysWithValues: try await bridge.decode([ProfileState].self, method: "profile/states").map { ($0.profileId, $0) })
+        } catch { self.error = error.localizedDescription }
+    }
+    private func authLabel(_ state: String?) -> String {
+        switch state { case "ok": "attivo"; case "absent": "assente"; case "expired": "scaduto"; case "cancelled": "annullato"; default: "non riconosciuto" }
+    }
+    /// The runtime stops the runs and resets the proof; the key lives in the Keychain, so the app deletes it.
+    private func logout(_ profile: ModelProfile) async {
+        do {
+            _ = try await bridge.call("profile/logout", ["profileId": .string(profile.id)])
+            try CredentialStore.remove(profileID: profile.id)
+            await reload()
         } catch { self.error = error.localizedDescription }
     }
     private func verify(_ profile: ModelProfile) async {
@@ -95,7 +127,7 @@ struct ProfileSheet: View {
                 TextField("Nome del profilo", text: $name).accessibilityIdentifier("profile-name")
                 TextField("Identificativo del modello", text: $model).accessibilityIdentifier("profile-model")
                 if !catalog.isEmpty {
-                    Menu("Scegli dal catalogo") { ForEach(catalog, id: \.pretty) { item in Button(item["name"].string ?? item["id"].string ?? "") { model = item["model"].string ?? item["id"].string ?? "" } } }
+                    Menu("Scegli dal catalogo") { ForEach(catalog, id: \.pretty) { item in Button((item["name"].string ?? item["id"].string ?? "") + (item["source"].string == "declared" ? " · elenco dichiarato" : "")) { model = item["model"].string ?? item["id"].string ?? "" } } }
                 }
                 if cloud || provider == "ollama" { TextField("Endpoint", text: $endpoint).accessibilityIdentifier("profile-endpoint") }
                 if cloud { SecureField("Chiave API", text: $secret).accessibilityIdentifier("profile-secret") }
@@ -107,7 +139,7 @@ struct ProfileSheet: View {
         .task(id: provider) {
             catalog = []; model = ""; secret = ""
             endpoint = provider == "ollama" ? "http://127.0.0.1:11434/v1" : provider == "openrouter" ? "https://openrouter.ai/api/v1" : ""
-            if ["codex", "ollama"].contains(provider) { catalog = (try? await bridge.call("model/\(provider)"))?.array ?? [] }
+            if ["codex", "ollama", "claude", "cursor"].contains(provider) { catalog = (try? await bridge.call("model/\(provider)"))?.array ?? [] }
         }
     }
     private func save() async {

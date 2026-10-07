@@ -26,7 +26,7 @@ async function journal(events: AdapterEvent[]) {
 }
 
 describe('P02-I08 replay of real Codex protocol frames', () => {
-  it('P02-I08 turns codex-cli 0.160.1 frames into a text answer, a categorized terminal tool with its output, usage and a result', async () => {
+  it('P02-I08 P06-I02 turns codex-cli 0.160.1 frames into a text answer, a categorized terminal tool with its output, usage and a result', async () => {
     const fixture = load('codex-0.160.1.json');
     const events = fixture.frames.flatMap(frame => normalizeCodexMessage(frame));
     expect(events.map(event => event.kind)).toEqual(expect.arrayContaining(['text', 'tool', 'usage', 'result']));
@@ -42,7 +42,7 @@ describe('P02-I08 replay of real Codex protocol frames', () => {
 });
 
 describe('P02-I08 replay of real Cursor ACP frames', () => {
-  it('P02-I08 turns cursor-agent 2026.10.01 updates into a file-change tool with its diff, a terminal tool and the real permission choices', async () => {
+  it('P02-I08 P10-I01 turns cursor-agent 2026.10.01 updates into a file-change tool with its diff, a terminal tool and the real permission choices', async () => {
     const fixture = load('cursor-2026.10.01.json');
     const events = fixture.frames.filter(frame => frame.method === 'session/update').flatMap(frame => normalizeAcpUpdate(frame.params.update));
     const { blocks } = await journal(events);
@@ -66,7 +66,7 @@ describe('P02-I08 replay of real Cursor ACP frames', () => {
 });
 
 describe('P02-I08 replay of real Claude Code stream-json frames', () => {
-  it('P02-I08 turns the Read and Write tool frames into tool blocks, with Write marked as a file change', async () => {
+  it('P02-I08 P06-I01 turns the Read and Write tool frames into tool blocks, with Write marked as a file change', async () => {
     const fixture = load('claude-2.1.283-tools.json');
     const normalize = claudeNormalizer();
     const events = fixture.frames.flatMap(frame => normalize(frame));

@@ -27,6 +27,8 @@ struct ContentView: View {
     @State private var search = ""
     @State private var newProject = false
     @State private var backup = false
+    @State private var storage = false
+    @State private var importMessage: String?
     @State private var name = ""
     @State private var error: String?
     var body: some View {
@@ -56,6 +58,10 @@ struct ContentView: View {
                 Button("Nuovo progetto", systemImage: "folder.badge.plus") { newProject = true }.keyboardShortcut("n", modifiers: [.command, .shift]).accessibilityIdentifier("new-project")
                 Menu("Archivio", systemImage: "ellipsis.circle") {
                     Button("Backup e ripristino…") { backup = true }
+                    Button("Spazio e pulizia…") { storage = true }
+                    Menu("Importa un lavoro esportato") {
+                        ForEach(projects) { project in Button(project.name) { importTask(into: project) } }
+                    }.disabled(projects.isEmpty)
                     if !archived.isEmpty {
                         Menu("Ripristina progetto") {
                             ForEach(archived) { project in
@@ -96,6 +102,8 @@ struct ContentView: View {
         .task { if bridge.ready { await reload() } }
         .task { for await _ in events.updates(.tasks) { if Task.isCancelled { break }; if bridge.ready { await refreshTasks() } } }
         .sheet(isPresented: $backup) { BackupSheet(bridge: bridge) }
+        .sheet(isPresented: $storage) { StorageSheet(bridge: bridge) }
+        .alert("Importazione", isPresented: Binding(get: { importMessage != nil }, set: { if !$0 { importMessage = nil } })) { Button("OK") { importMessage = nil } } message: { Text(importMessage ?? "") }
         .sheet(item: $renaming) { project in
             VStack(alignment: .leading, spacing: 20) {
                 Text("Rinomina progetto").font(.title2)
@@ -111,6 +119,14 @@ struct ContentView: View {
             }.padding(24).frame(width: 400)
         }
         .alert("Operazione non completata", isPresented: Binding(get: { error != nil }, set: { if !$0 { error = nil } })) { Button("OK") { error = nil } } message: { Text(error ?? "") }
+    }
+    private func importTask(into project: Project) {
+        let panel = NSOpenPanel(); panel.canChooseDirectories = true; panel.canChooseFiles = false; panel.title = "Scegli la cartella esportata"
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        Task {
+            do { let done = try await bridge.call("task/import", ["projectId": .string(project.id), "source": .string(url.path)]); importMessage = "Importati \(Int(done["criteria"].number ?? 0)) criteri e \(Int(done["decisions"].number ?? 0)) decisioni in un nuovo lavoro."; await reload() }
+            catch { importMessage = error.localizedDescription }
+        }
     }
     /// Refresh only the task rows (activity and waiting badges); the selection and the project list stay untouched.
     private func refreshTasks() async {
