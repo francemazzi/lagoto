@@ -43,7 +43,7 @@ extension XCUIApplication {
     }
     /// Text on screen: SwiftUI static texts expose their string as value, buttons and groups as label.
     func text(containing part: String) -> XCUIElement {
-        descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS %@ OR value CONTAINS %@", part, part)).firstMatch
+        staticTexts.matching(NSPredicate(format: "label CONTAINS %@ OR value CONTAINS %@", part, part)).firstMatch
     }
     func openTask(_ title: String = "Contratto API", file: StaticString = #filePath, line: UInt = #line) {
         let ready = staticTexts["Archivio locale pronto"]

@@ -23,6 +23,7 @@ struct WorkspaceColumn<WorkTab: View>: View {
     @State private var selectedPreview: String?
     @State private var changes: [RepositoryChanges] = []
     @State private var changesError: String?
+    @State private var explorerRepository = ""
     @ViewBuilder var workTab: () -> WorkTab
 
     private let tabs: [(id: String, title: String)] = [("files", "File"), ("preview", "Anteprima"), ("changes", "Modifiche"), ("work", "Lavoro")]
@@ -45,7 +46,7 @@ struct WorkspaceColumn<WorkTab: View>: View {
                 case "preview": PreviewTabs(items: $previews, selected: $selectedPreview)
                 case "changes": changesView
                 case "work": workTab()
-                default: ExplorerView(bridge: bridge, taskID: taskID, repositories: repositories) { repository, path in Task { await open(repository: repository, path: path, source: .file) } }
+                default: ExplorerView(bridge: bridge, taskID: taskID, repositories: repositories, repositoryID: $explorerRepository) { repository, path in Task { await open(repository: repository, path: path, source: .file) } }
                 }
             }.frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -105,8 +106,8 @@ struct ExplorerView: View {
     let bridge: RuntimeBridge
     let taskID: String
     let repositories: [JSONValue]
+    @Binding var repositoryID: String
     var open: (_ repositoryID: String, _ path: String) -> Void
-    @State private var repositoryID = ""
     @State private var listings: [String: WorkspaceListing] = [:]
     @State private var expanded: Set<String> = []
     @State private var error: String?

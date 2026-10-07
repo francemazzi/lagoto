@@ -112,7 +112,9 @@ await call('verification/start', { taskId: task.id, repositoryId: repoBackend.id
 await new Promise(resolve => setTimeout(resolve, 600));
 // A run that was alive when the app died: the runtime must not present it as running after a restart.
 const interrupted = await call('task/create', { projectId: project.id, title: 'Lavoro interrotto', objective: 'Era in corso quando il Mac si è spento' });
-startRun(interrupted.id, lost.id, 'Continua il lavoro lungo', 'running');
+const lostRun = startRun(interrupted.id, lost.id, 'Continua il lavoro lungo', 'running');
+// The durable identity the supervisor recorded for the process; its group no longer exists, so reconciling can prove the stop.
+store.db.prepare('INSERT INTO process_leases(id,owner_kind,owner_id,leader,started,members,state,updated_at) VALUES(?,?,?,?,?,?,?,?)').run(crypto.randomUUID(), 'run', lostRun, 99999999, 'Thu Jan  1 00:00:00 1970', '[]', 'running', new Date().toISOString());
 // A second project for the folder and GitHub flows: a folder without Git, a repository with two GitHub remotes, a folder that was moved.
 const folders = await call('project/create', { name: 'Progetto cartelle' });
 const plain = join(root, 'repos', 'senza-git'); mkdirSync(plain, { recursive: true });

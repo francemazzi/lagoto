@@ -10,7 +10,8 @@ import XCTest
         app.element("workspace-tab-work").click()
         let group = app.descendants(matching: .any).matching(NSPredicate(format: "label == 'Criteri e decisioni' OR title == 'Criteri e decisioni'")).firstMatch
         XCTAssertTrue(group.waitForExistence(timeout: 10), "gruppo dei criteri assente")
-        group.click()
+        // The triangle sits at the left edge of the group; clicking the middle of the label does not toggle it.
+        group.coordinate(withNormalizedOffset: CGVector(dx: 0.04, dy: 0.5)).click()
         XCTAssertTrue(app.element("review-request").waitForExistence(timeout: 10))
     }
 

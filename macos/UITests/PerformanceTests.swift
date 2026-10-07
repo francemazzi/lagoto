@@ -22,8 +22,8 @@ import XCTest
         XCTAssertTrue(first.waitForExistence(timeout: 60)); first.click()
         var samples: [Int] = []
         var last = ""
-        let timing = app.element("switch-timing")
-        XCTAssertTrue(timing.waitForExistence(timeout: 30), "il tempo di cambio task non è esposto")
+        let timing = app.element("transcript")
+        XCTAssertTrue(timing.waitForExistence(timeout: 30), "la trascrizione non è comparsa")
         for _ in 0..<70 where samples.count < 40 {
             app.typeKey(.downArrow, modifierFlags: [])
             guard timing.exists else { continue }

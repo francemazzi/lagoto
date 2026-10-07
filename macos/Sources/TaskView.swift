@@ -68,6 +68,9 @@ struct TaskView: View {
                         }.padding(24).frame(maxWidth: 860).frame(maxWidth: .infinity)
                     }
                     .accessibilityElement(children: .contain).accessibilityIdentifier("transcript")
+                    #if DEBUG
+                    .accessibilityValue(switchMilliseconds.map(String.init) ?? "")
+                    #endif
                     .onChange(of: snapshot?.blocks.last?.last_seq) { _, _ in if followTail { proxy.scrollTo("tail", anchor: .bottom) } }
                     .overlay(alignment: .bottomTrailing) { Button(followTail ? "Lettura libera" : "Segui la risposta") { followTail.toggle(); if followTail { proxy.scrollTo("tail", anchor: .bottom) } }.font(.caption).buttonStyle(.plain).padding(12) }
                 }

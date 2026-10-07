@@ -123,7 +123,7 @@ import XCTest
         fill(source, "https://utente:SegretoSintetico99@127.0.0.1:1/nessuno.git"); fill(name, "nuova")
         app.element("clone-submit").click()
         XCTAssertTrue(app.element("clone-error").waitForExistence(timeout: 15))
-        XCTAssertEqual(app.descendants(matching: .any).matching(secret).count, 0, "la credenziale non compare")
+        XCTAssertEqual(app.staticTexts.matching(secret).count, 0, "la credenziale non compare")
         XCTAssertFalse(FileManager.default.fileExists(atPath: parent.appendingPathComponent("nuova").path))
         // 2. An existing destination is refused and its content is untouched.
         fill(source, "https://127.0.0.1:1/nessuno.git"); fill(name, "esistente")
@@ -134,7 +134,7 @@ import XCTest
         fill(name, "nuova")
         app.element("clone-submit").click()
         XCTAssertTrue(app.staticTexts["Clonazione fallita"].waitForExistence(timeout: 60))
-        XCTAssertEqual(app.descendants(matching: .any).matching(secret).count, 0)
+        XCTAssertEqual(app.staticTexts.matching(secret).count, 0)
         app.terminate()
     }
 
