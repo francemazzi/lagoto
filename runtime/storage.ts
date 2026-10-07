@@ -48,13 +48,30 @@ export class Store {
   close() { if (this.db.open) { this.releaseLock(); this.db.close(); } }
   project(id: string) { const result = this.db.prepare('SELECT * FROM projects WHERE id=?').get(id); if (!result) throw new AppError(404, 'Progetto non trovato'); return result; }
   task(id: string) { const result = this.db.prepare('SELECT * FROM tasks WHERE id=?').get(id); if (!result) throw new AppError(404, 'Task non trovato'); return result as { id: string; project_id: string; title: string; objective: string; status: string }; }
+  /** Receives every journaled event and every published signal, always after the surrounding transaction committed. */
+  listener: ((event: unknown) => void) | null = null;
+  /** Push a non-journaled change signal (budget, queue, attention) to the UI. Carries ids only, never content. */
+  publish(kind: string, payload: Record<string, unknown> = {}) {
+    const listener = this.listener; if (!listener) return;
+    setImmediate(() => { try { listener({ kind, payload, ephemeral: true }); } catch { /* a UI listener must never break persistence */ } });
+  }
   event(taskId: string, runId: string | null, kind: string, payload: unknown, sourceKey?: string) {
+    const stored = this.eventInTransaction(taskId, runId, kind, payload, sourceKey);
+    if (stored && this.listener) {
+      const listener = this.listener;
+      // Raw provider frames can be large; the UI only needs to know that something arrived.
+      const body = kind === 'raw' ? null : JSON.parse(stored.payload);
+      setImmediate(() => { try { listener({ ...stored, payload: body }); } catch { /* see publish */ } });
+    }
+    return stored;
+  }
+  private eventInTransaction(taskId: string, runId: string | null, kind: string, payload: unknown, sourceKey?: string) {
     return this.db.transaction(() => {
       const id = randomUUID();
       const result = this.db.prepare('INSERT OR IGNORE INTO events(id,task_id,run_id,kind,payload,source_key,created_at) VALUES(?,?,?,?,?,?,?)').run(id, taskId, runId, kind, JSON.stringify(redact(payload)), sourceKey ?? null, now());
       if (!result.changes) return undefined;
       const event = this.db.prepare('SELECT * FROM events WHERE id=?').get(id) as any;
-      projectEvent(this.db,event); return event;
+      projectEvent(this.db,event); return event as { payload: string; seq: number; id: string };
     })();
   }
   events(taskId: string, after = 0) {

@@ -3,6 +3,7 @@ import SwiftUI
 struct TaskView: View {
     let bridge: RuntimeBridge
     let work: WorkTask
+    @Environment(EventStore.self) private var events
     @State private var snapshot: TaskSnapshot?
     @State private var profiles: [ModelProfile] = []
     @State private var selected = ""
@@ -73,9 +74,19 @@ struct TaskView: View {
             if selected.isEmpty { selected = snapshot?.runs.last?.profile_id ?? profiles.first(where: \.verified)?.id ?? "" }
             if snapshot?.blocks.isEmpty != false { prompt = work.objective }
             await recoverHandoff()
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .milliseconds(active == nil ? 1500 : 250))
-                if !Task.isCancelled && bridge.ready { await refresh() }
+        }
+        // The runtime pushes every change: reload on a signal, at most about six times a second, never on a timer.
+        .task(id: work.id) {
+            for await _ in events.updates(.task(work.id)) {
+                if Task.isCancelled { break }
+                if bridge.ready { await refresh() }
+                try? await Task.sleep(for: .milliseconds(150))
+            }
+        }
+        .task(id: selected) {
+            for await _ in events.updates(.budget) {
+                if Task.isCancelled { break }
+                if bridge.ready, !selected.isEmpty { budget = (try? await bridge.call("budget/status", ["profileId": .string(selected)])) ?? .null }
             }
         }
         .onChange(of: selected) { _, _ in mode = profile?.modes.first ?? "agent"; effort = ""; Task { budget = (try? await bridge.call("budget/status", ["profileId": .string(selected)])) ?? .null } }

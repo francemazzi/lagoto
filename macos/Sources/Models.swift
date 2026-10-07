@@ -33,7 +33,12 @@ extension JSONEncoder {
     static var pretty: JSONEncoder { let e = JSONEncoder(); e.outputFormatting = [.prettyPrinted, .sortedKeys]; return e }
 }
 struct Project: Decodable, Identifiable, Sendable { let id: String; let name: String }
-struct WorkTask: Decodable, Identifiable, Sendable { let id: String; let project_id: String; let title: String; let objective: String; let status: String }
+struct WorkTask: Decodable, Identifiable, Sendable {
+    let id: String; let project_id: String; let title: String; let objective: String; let status: String
+    let waiting: Int?; let active: Int?
+    var isWaiting: Bool { (waiting ?? 0) != 0 }
+    var isActive: Bool { (active ?? 0) != 0 }
+}
 struct Repository: Decodable, Identifiable, Sendable { let id: String; let name: String; let path: String; let git_root: String?; let remote: String? }
 struct RepositoryRemote: Decodable, Identifiable { let name: String; let url: String; let github: String?; var id: String { name } }
 struct RepositoryDetail: Decodable { let availability: String; let branch: String?; let status: String?; let candidates: [RepositoryRemote]; let error: String? }

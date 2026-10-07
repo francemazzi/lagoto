@@ -21,7 +21,7 @@ export class RunManager {
   constructor(private store: Store, private notify: (event: unknown) => void, private adapterFactory = startAdapter, private authCheck: typeof authStatus = authStatus) {}
   private event(taskId: string, runId: string, kind: string, payload: unknown) {
     const event = this.store.event(taskId, runId, kind, payload) as { payload: string } | undefined;
-    if (event) this.notify({ ...event, payload: JSON.parse(event.payload) });
+    if (event && !this.store.listener) this.notify({ ...event, payload: JSON.parse(event.payload) });
   }
   async start(taskId: string, profileId: string, prompt: string, requestId: string, mode: 'plan' | 'agent', secret?: string, effort?: string, context?:string, handoffId?:string, queueId?:string) {
     const fingerprint = createHash('sha256').update(JSON.stringify({ taskId, profileId, prompt, mode, effort: effort ?? null, queueId:queueId??null })).digest('hex');
@@ -61,6 +61,7 @@ export class RunManager {
         this.store.db.prepare('INSERT INTO runs(id,task_id,profile_id,state,model,created_at) VALUES(?,?,?,?,?,?)').run(runId, taskId, profileId, 'starting', profile.model, now());
         this.store.db.prepare('INSERT INTO run_requests(id,run_id,fingerprint) VALUES(?,?,?)').run(requestId, runId, fingerprint);
         this.budgets.reserve(runId,profileId);
+        this.store.publish('budget_changed',{profileId});
         this.store.db.prepare("UPDATE tasks SET status='ready' WHERE id=?").run(taskId);
         this.store.event(taskId, runId, 'user', { text: prompt, mode, effort });
         if(identity)this.store.event(taskId,runId,'runtime_identity',{identity,provider:profile.provider,endpoint:profile.endpoint,requestedModel:profile.model});
@@ -84,8 +85,11 @@ export class RunManager {
           if (running.stopping) { resolve(false); return; }
           const id = randomUUID();
           const finish = (allow: boolean) => { const p = this.permissions.get(id); if (!p) return; clearTimeout(p.timer); this.permissions.delete(id);
+            if (![...this.permissions.values()].some(other => other.runId === runId)) { this.store.db.prepare("UPDATE runs SET state='running' WHERE id=? AND state='waiting_permission'").run(runId); this.store.publish('attention_changed', { taskId, waiting: false }); }
             this.event(taskId, runId, 'permission_result', { id, allow }); resolve(allow); };
           this.permissions.set(id, { runId, respond: finish, timer: setTimeout(() => finish(false), 50000) });
+          this.store.db.prepare("UPDATE runs SET state='waiting_permission' WHERE id=? AND state='running'").run(runId);
+          this.store.publish('attention_changed', { taskId, waiting: true });
           this.event(taskId, runId, 'permission', { id, tool, input });
         }),
       });
@@ -118,6 +122,7 @@ export class RunManager {
     catch(checkpointError){this.event(entry.taskId,runId,'error',{message:`Checkpoint non salvato: ${checkpointError instanceof Error?checkpointError.message:'errore archivio'}`});}
     this.store.db.prepare('UPDATE runs SET state=?,ended_at=?,session_id=COALESCE(?,session_id) WHERE id=?').run(finalState, now(), entry.adapter?.sessionId ?? null, runId);
     this.budgets.finish(runId,finalState);
+    this.store.publish('budget_changed',{profileId:(this.store.db.prepare('SELECT profile_id FROM runs WHERE id=?').get(runId) as {profile_id:string}|undefined)?.profile_id});
     const failure = finalState==='failed' || finalState==='unknown' ? classifyFailure(error instanceof Error ? error.message : undefined) : undefined;
     this.event(entry.taskId, runId, 'run_state', { state: finalState, message: error instanceof Error ? error.message : undefined, ...(failure ? { cause: failure.cause, action: failure.action } : {}) });
     this.active.delete(runId);

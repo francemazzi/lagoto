@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @Bindable var bridge: RuntimeBridge
+    @Environment(EventStore.self) private var events
     @State private var projects: [Project] = []
     @State private var archived: [Project] = []
     @State private var renaming: Project?
@@ -19,7 +20,7 @@ struct ContentView: View {
                 Section("Progetti") {
                     ForEach(projects.filter { search.isEmpty || $0.name.localizedCaseInsensitiveContains(search) || (tasks[$0.id] ?? []).contains { $0.title.localizedCaseInsensitiveContains(search) || $0.objective.localizedCaseInsensitiveContains(search) } }) { project in
                         DisclosureGroup {
-                            ForEach((tasks[project.id] ?? []).filter { search.isEmpty || project.name.localizedCaseInsensitiveContains(search) || $0.title.localizedCaseInsensitiveContains(search) || $0.objective.localizedCaseInsensitiveContains(search) }) { task in Label(task.title, systemImage: "bubble.left").tag("task:\(task.id)") }
+                            ForEach((tasks[project.id] ?? []).filter { search.isEmpty || project.name.localizedCaseInsensitiveContains(search) || $0.title.localizedCaseInsensitiveContains(search) || $0.objective.localizedCaseInsensitiveContains(search) }) { task in Label { HStack(spacing: 6) { Text(task.title).lineLimit(1); Spacer(minLength: 0); if task.isWaiting { Image(systemName: "hand.raised.fill").foregroundStyle(.orange).accessibilityLabel("In attesa di una tua autorizzazione") } else if task.isActive { ProgressView().controlSize(.mini).accessibilityLabel("In esecuzione") } } } icon: { Image(systemName: "bubble.left") }.tag("task:\(task.id)") }
                             Button("Nuovo lavoro", systemImage: "plus") { selection = "project:\(project.id)" }.buttonStyle(.plain)
                         } label: { Label(project.name, systemImage: "folder").tag("project:\(project.id)") }
                         .contextMenu {
@@ -77,6 +78,7 @@ struct ContentView: View {
         }
         .onChange(of: bridge.ready) { _, ready in if ready { Task { await reload() } } }
         .task { if bridge.ready { await reload() } }
+        .task { for await _ in events.updates(.tasks) { if Task.isCancelled { break }; if bridge.ready { await refreshTasks() } } }
         .sheet(isPresented: $backup) { BackupSheet(bridge: bridge) }
         .sheet(item: $renaming) { project in
             VStack(alignment: .leading, spacing: 20) {
@@ -94,12 +96,18 @@ struct ContentView: View {
         }
         .alert("Operazione non completata", isPresented: Binding(get: { error != nil }, set: { if !$0 { error = nil } })) { Button("OK") { error = nil } } message: { Text(error ?? "") }
     }
+    /// Refresh only the task rows (activity and waiting badges); the selection and the project list stay untouched.
+    private func refreshTasks() async {
+        for project in projects { if let list = try? await bridge.decode([WorkTask].self, method: "task/list", params: ["projectId": .string(project.id)]) { tasks[project.id] = list } }
+        events.taskTitles = Dictionary(uniqueKeysWithValues: tasks.values.flatMap { $0 }.map { ($0.id, $0.title) })
+    }
     private func reload() async {
         do {
             projects = try await bridge.decode([Project].self, method: "project/list")
             archived = try await bridge.decode([Project].self, method: "project/archived")
             tasks = [:]; selection = nil
             for project in projects { tasks[project.id] = try await bridge.decode([WorkTask].self, method: "task/list", params: ["projectId": .string(project.id)]) }
+            events.taskTitles = Dictionary(uniqueKeysWithValues: tasks.values.flatMap { $0 }.map { ($0.id, $0.title) })
         } catch { self.error = error.localizedDescription }
     }
     private func changeProject(_ method: String, _ params: [String: JSONValue]) async {

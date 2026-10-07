@@ -27,7 +27,7 @@ export class Verifications {
       }catch(error){message=String(redact(String(error)));}
       finally{clearTimeout(timeout);}
       this.store.db.prepare('UPDATE verifications SET state=?,output=? WHERE id=?').run(state,String(redact(output.toString('utf8')))+(message?'\n'+message:''),id);
-      const event=this.store.event(taskId,null,'verification',{id,repositoryId,state,command});this.notify(event);this.active.delete(id);
+      const event=this.store.event(taskId,null,'verification',{id,repositoryId,state,command});if(!this.store.listener)this.notify(event);this.active.delete(id);
     })();
     this.active.set(id,{taskId,client,done,interrupt:()=>{interrupted=true;}});return{id,state:'running'};
   }

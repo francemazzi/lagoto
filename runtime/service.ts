@@ -30,6 +30,7 @@ export class Service {
   readonly github:GitHubLinks;
   readonly initializations:GitInitializations;
   constructor(readonly store: Store, notify: (event: unknown) => void = () => {}) {
+    store.listener = notify;
     this.runs = new RunManager(store, notify); this.profiles = new ProfileVerifier(store,notify);
     this.verifications=new Verifications(store,notify);
     this.handoffs=new Handoffs(store,this.runs,this.verifications);
@@ -39,7 +40,13 @@ export class Service {
     this.github=new GitHubLinks(store);
     this.initializations=new GitInitializations(store);
   }
+  static readonly budgetMutations = new Set(['budget/create', 'budget/link', 'budget/renew', 'budget/override']);
   async handle(request: Request): Promise<unknown> {
+    const result = await this.dispatch(request);
+    if (Service.budgetMutations.has(request.method)) this.store.publish('budget_changed', {});
+    return result;
+  }
+  private async dispatch(request: Request): Promise<unknown> {
     const p = request.params;
     switch (request.method) {
       case 'initialize': {
@@ -97,7 +104,7 @@ export class Service {
       case 'repository/initialize/list': {const i=z.object({projectId:identifier,repositoryId:identifier}).strict().parse(p);this.repositories.get(i.projectId,i.repositoryId);return(this.store.db.prepare("SELECT id FROM repository_operations WHERE project_id=? AND repository_id=? AND kind='initialize' ORDER BY created_at DESC").all(i.projectId,i.repositoryId) as {id:string}[]).map(row=>this.initializations.get(row.id));}
       case 'task/list': {
         const { projectId } = z.object({ projectId: identifier }).strict().parse(p); this.store.project(projectId);
-        return this.store.db.prepare('SELECT * FROM tasks WHERE project_id=? ORDER BY created_at,id').all(projectId);
+        return this.store.db.prepare("SELECT t.*, EXISTS(SELECT 1 FROM runs r WHERE r.task_id=t.id AND r.state='waiting_permission') AS waiting, EXISTS(SELECT 1 FROM runs r WHERE r.task_id=t.id AND r.state IN ('starting','running','stopping','waiting_permission','unknown')) AS active FROM tasks t WHERE t.project_id=? ORDER BY t.created_at,t.id").all(projectId);
       }
       case 'task/create': {
         const { projectId, title, objective } = z.object({ projectId: identifier, title: z.string().trim().min(1).max(200), objective: z.string().max(100000).default('') }).strict().parse(p);
@@ -127,11 +134,12 @@ export class Service {
         const old=this.store.db.prepare('SELECT * FROM queued_messages WHERE id=?').get(id) as {task_id:string;text:string}|undefined;
         if(old && (old.task_id!==taskId || old.text!==text))throw new AppError(409,'Richiesta riutilizzata con un altro messaggio');
         this.store.db.prepare('INSERT OR IGNORE INTO queued_messages(id,task_id,text,created_at) VALUES(?,?,?,?)').run(id,taskId,text,now());
+        this.store.publish('queue_changed',{taskId});
         return {id,state:'queued'};
       }
       case 'task/queue/remove': {
         const {taskId,id}=z.object({taskId:identifier,id:identifier}).strict().parse(p);this.store.task(taskId);
-        this.store.db.prepare("UPDATE queued_messages SET state='cancelled' WHERE id=? AND task_id=? AND state='queued'").run(id,taskId);return {removed:true};
+        this.store.db.prepare("UPDATE queued_messages SET state='cancelled' WHERE id=? AND task_id=? AND state='queued'").run(id,taskId);this.store.publish('queue_changed',{taskId});return {removed:true};
       }
       case 'task/diff': {
         const { taskId } = z.object({ taskId: identifier }).strict().parse(p); return diffs(this.store, taskId);

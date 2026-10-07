@@ -13,6 +13,7 @@
 		1E05FA3B2B827EFC2331BE0C /* DeliverySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FB5FC441050E3317B8991F0 /* DeliverySheet.swift */; };
 		3AC12D850678A7BB2271279D /* protocol-v1.json in Resources */ = {isa = PBXBuildFile; fileRef = 42A9B68CF8570607A5F249C0 /* protocol-v1.json */; };
 		3C4EED5814B08BBDF7EC8885 /* MarkdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38F4AB1689ADAE5395E4FBAA /* MarkdownView.swift */; };
+		567B70AF675194AA9F92825B /* EventStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CF21843DC462A7A9217D868 /* EventStoreTests.swift */; };
 		67ED57B6A432771B8704B9FD /* TaskMemoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D135BBE63087DBB5EA5D481E /* TaskMemoryView.swift */; };
 		6A2C60F92438ABC0B1A539E4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93055EC6D38BDFBE70B9E3A6 /* ContentView.swift */; };
 		6CF7A0ECF2ADF010F3A9D261 /* RepositorySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2E8E6502E254DC9FD73CF6 /* RepositorySheet.swift */; };
@@ -20,6 +21,7 @@
 		818B29CD6B0DE2AF333C7BC0 /* MarkdownTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473D45172FE2904B9164003F /* MarkdownTests.swift */; };
 		8FB4BCF56384DC20D005BCD4 /* BackupSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC013E6847912FF6B33B5193 /* BackupSheet.swift */; };
 		97176B0356A310CF40D7EAC1 /* LagotoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73752F65C1DA41343A4E8692 /* LagotoApp.swift */; };
+		A8FD202F6250E1C0CC6A47A7 /* EventStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF3D8CDD84FC1B8AC456A10 /* EventStore.swift */; };
 		AA6F7E3A0FFA5D6281E4679C /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA61DC611AADCF7850B5AC3 /* Models.swift */; };
 		C763D9DA9E04D79122078CF8 /* ContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22563657196CA80E8FF22CF2 /* ContractTests.swift */; };
 		D9D4181A4BAB8F5980DAEE5F /* RuntimeBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9060D9EA7DEC91551DB9A5E /* RuntimeBridge.swift */; };
@@ -51,11 +53,13 @@
 		1FE0103C84D78619D026CE36 /* NativeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeTests.swift; sourceTree = "<group>"; };
 		22563657196CA80E8FF22CF2 /* ContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContractTests.swift; sourceTree = "<group>"; };
 		226F16B94FBB08E86E008F23 /* TaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskView.swift; sourceTree = "<group>"; };
+		2AF3D8CDD84FC1B8AC456A10 /* EventStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStore.swift; sourceTree = "<group>"; };
 		38F4AB1689ADAE5395E4FBAA /* MarkdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownView.swift; sourceTree = "<group>"; };
 		3A408820914C6A46171EA308 /* BudgetSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetSheet.swift; sourceTree = "<group>"; };
 		42A9B68CF8570607A5F249C0 /* protocol-v1.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "protocol-v1.json"; sourceTree = "<group>"; };
 		473D45172FE2904B9164003F /* MarkdownTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownTests.swift; sourceTree = "<group>"; };
 		55343FEA2CA33016D233394A /* KeychainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainTests.swift; sourceTree = "<group>"; };
+		6CF21843DC462A7A9217D868 /* EventStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStoreTests.swift; sourceTree = "<group>"; };
 		73752F65C1DA41343A4E8692 /* LagotoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LagotoApp.swift; sourceTree = "<group>"; };
 		7FB5FC441050E3317B8991F0 /* DeliverySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliverySheet.swift; sourceTree = "<group>"; };
 		84AF7978AA33ED2AA496490A /* Lagoto.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lagoto.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -88,6 +92,7 @@
 				3A408820914C6A46171EA308 /* BudgetSheet.swift */,
 				93055EC6D38BDFBE70B9E3A6 /* ContentView.swift */,
 				7FB5FC441050E3317B8991F0 /* DeliverySheet.swift */,
+				2AF3D8CDD84FC1B8AC456A10 /* EventStore.swift */,
 				D41D1B012EF1331C03BCA2E6 /* GitHubLinkSheet.swift */,
 				98103C6764041AB1E35A12CB /* GitInitializeSheet.swift */,
 				B6D30F5B6855CD35FD30B832 /* IntegrationsView.swift */,
@@ -116,6 +121,7 @@
 			isa = PBXGroup;
 			children = (
 				22563657196CA80E8FF22CF2 /* ContractTests.swift */,
+				6CF21843DC462A7A9217D868 /* EventStoreTests.swift */,
 				55343FEA2CA33016D233394A /* KeychainTests.swift */,
 				473D45172FE2904B9164003F /* MarkdownTests.swift */,
 			);
@@ -267,6 +273,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C763D9DA9E04D79122078CF8 /* ContractTests.swift in Sources */,
+				567B70AF675194AA9F92825B /* EventStoreTests.swift in Sources */,
 				7D227C8CCA1647CD7A003BBB /* KeychainTests.swift in Sources */,
 				818B29CD6B0DE2AF333C7BC0 /* MarkdownTests.swift in Sources */,
 			);
@@ -280,6 +287,7 @@
 				0A171819DCFCE298C675C5C0 /* BudgetSheet.swift in Sources */,
 				6A2C60F92438ABC0B1A539E4 /* ContentView.swift in Sources */,
 				1E05FA3B2B827EFC2331BE0C /* DeliverySheet.swift in Sources */,
+				A8FD202F6250E1C0CC6A47A7 /* EventStore.swift in Sources */,
 				10F8A2A7CB833651DF29BECD /* GitHubLinkSheet.swift in Sources */,
 				E2CCF972E276829D8BE99D62 /* GitInitializeSheet.swift in Sources */,
 				E8CB02B8A807AC24587606D4 /* IntegrationsView.swift in Sources */,

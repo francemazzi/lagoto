@@ -3,6 +3,7 @@ import SwiftUI
 struct IntegrationsView: View {
     let bridge: RuntimeBridge
     var modelsOnly = false
+    @Environment(EventStore.self) private var events
     @State private var inventory: [JSONValue] = []
     @State private var profiles: [ModelProfile] = []
     @State private var adding = false
@@ -50,7 +51,8 @@ struct IntegrationsView: View {
         }.sheet(isPresented: $adding) { ProfileSheet(bridge: bridge) { adding = false; Task { await reload() } } }
         .sheet(item: $budgetProfile) { profile in BudgetSheet(bridge: bridge, profile: profile) }
         .task { inventory = (try? await bridge.call("integration/list"))?.array ?? []; await reload() }
-        .task { while !Task.isCancelled { try? await Task.sleep(for: .seconds(2)); if bridge.ready { await reload() } } }
+        .task { for await _ in events.updates(.profiles) { if Task.isCancelled { break }; if bridge.ready { await reload() } } }
+        .task { for await _ in events.updates(.budget) { if Task.isCancelled { break }; if bridge.ready { await reload() } } }
     }
     private func reload() async { do { profiles = try await bridge.decode([ModelProfile].self, method: "profile/list") } catch { self.error = error.localizedDescription } }
     private func verify(_ profile: ModelProfile) async {
