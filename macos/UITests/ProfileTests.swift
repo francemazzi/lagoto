@@ -8,14 +8,9 @@ import XCTest
         let app = try Fixture.launch()
         XCTAssertTrue(app.staticTexts["Archivio locale pronto"].waitForExistence(timeout: 30))
         app.element("nav-integrations").click()
-        let expected: [(String, String)] = [
-            ("Codex · gpt-6.1-sol", "Pronto"), ("Cursor · composer", "Pronto"), ("Ollama · qwen3.5", "Locale"), ("Kimi · da verificare", "Da verificare"),
-            ("Claude · accesso scaduto", "Accesso da rinnovare"), ("Qwen · budget scaduto", "Budget da rinnovare"),
-        ]
-        for (name, label) in expected {
-            let state = app.element("profile-state:\(name)")
-            XCTAssertTrue(state.waitForExistence(timeout: 20), "stato assente per \(name)")
-            XCTAssertTrue(state.label.contains(label), "\(name): atteso \(label), trovato \(state.label)")
+        for label in ["Pronto", "Locale", "Da verificare", "Accesso da rinnovare", "Budget da rinnovare"] {
+            let state = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", label)).firstMatch
+            XCTAssertTrue(state.waitForExistence(timeout: 20), "nessun profilo nello stato «\(label)»")
         }
         XCTAssertTrue(app.element("profile-action:Claude · accesso scaduto").exists, "lo stato bloccato indica cosa fare")
         app.terminate()

@@ -10,7 +10,7 @@ import XCTest
         try FileManager.default.copyItem(atPath: source, toPath: copy.path)
         return copy.path
     }
-    @discardableResult static func launch(data: String? = nil, size: String? = "1280x800", arguments: [String] = [], showcase: Bool = false) throws -> XCUIApplication {
+    @discardableResult static func launch(data: String? = nil, size: String? = "1000x640", arguments: [String] = [], showcase: Bool = false) throws -> XCUIApplication {
         let app = XCUIApplication()
         app.launchEnvironment["LAGOTO_TEST_DATA_DIR"] = try data ?? archive()
         // Window and workspace layout are reset on every launch unless a test says otherwise.
@@ -30,7 +30,7 @@ extension XCUIApplication {
     func reveal(_ id: String, timeout: TimeInterval = 10) -> XCUIElement {
         let target = element(id)
         if target.waitForExistence(timeout: timeout) { return target }
-        let transcript = scrollViews.firstMatch
+        let transcript = element("transcript")
         for _ in 0..<12 {
             transcript.scroll(byDeltaX: 0, deltaY: 800)
             if target.exists { return target }

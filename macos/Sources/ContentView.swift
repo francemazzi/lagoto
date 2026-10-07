@@ -73,7 +73,7 @@ struct ContentView: View {
                 Button("Nuovo progetto", systemImage: "folder.badge.plus") { newProject = true }.keyboardShortcut("n", modifiers: [.command, .shift]).accessibilityIdentifier("new-project")
                 Menu("Archivio", systemImage: "ellipsis.circle") {
                     Button("Backup e ripristino…") { backup = true }
-                    Button("Spazio e pulizia…") { storage = true }
+                    Button("Spazio e pulizia…") { storage = true }.keyboardShortcut("s", modifiers: [.command, .option])
                     Menu("Importa un lavoro esportato") {
                         ForEach(projects) { project in Button(project.name) { importTask(into: project) } }
                     }.disabled(projects.isEmpty)
@@ -86,7 +86,7 @@ struct ContentView: View {
                             }
                         }
                     }
-                }
+                }.accessibilityIdentifier("archive-menu")
             }
             .safeAreaInset(edge: .bottom) {
                 HStack(spacing: 8) {

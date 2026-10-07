@@ -54,8 +54,7 @@ import XCTest
     func testP11_I06_storageShowsUsageAndPreviewsTheCleanup() throws {
         let app = try Fixture.launch()
         XCTAssertTrue(app.staticTexts["Archivio locale pronto"].waitForExistence(timeout: 30))
-        app.menuButtons["Archivio"].firstMatch.click()
-        app.menuItems["Spazio e pulizia…"].click()
+        app.typeKey("s", modifierFlags: [.command, .option])
         XCTAssertTrue(app.element("storage-usage").waitForExistence(timeout: 10))
         app.element("cleanup-preview").click()
         XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'I worktree non vengono mai eliminati'")).firstMatch.waitForExistence(timeout: 10))

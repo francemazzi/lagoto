@@ -42,7 +42,7 @@ import XCTest
         XCTAssertTrue(again.staticTexts["Archivio locale pronto"].waitForExistence(timeout: 30))
         XCTAssertTrue(again.element("project-row:Progetto demo").waitForExistence(timeout: 20), "gli altri progetti restano dopo il riavvio")
         XCTAssertFalse(again.element("project-row:Progetto cartelle").exists, "l’archiviazione resta dopo il riavvio")
-        again.menuButtons["Archivio"].firstMatch.click()
+        again.element("archive-menu").click()
         again.menuItems["Ripristina progetto"].click()
         again.menuItems["Progetto cartelle"].click()
         XCTAssertTrue(again.element("project-row:Progetto cartelle").waitForExistence(timeout: 10))

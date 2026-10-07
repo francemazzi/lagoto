@@ -65,7 +65,7 @@ import XCTest
     func testP06_I05_completeTurnsOnEveryPathAndTheFinalAnswerDoesNotCompleteTheTask() throws {
         let app = try Fixture.launch()
         app.openTask()
-        XCTAssertTrue(app.element("message-assistant").waitForExistence(timeout: 20))
+        XCTAssertTrue(app.reveal("message-assistant", timeout: 20).exists)
         XCTAssertTrue(app.reveal("card-terminal").exists && app.reveal("card-file-change").exists && app.reveal("card-permission").exists)
         XCTAssertTrue(app.staticTexts["Turno concluso · lavoro da verificare"].firstMatch.waitForExistence(timeout: 10))
         XCTAssertFalse(app.staticTexts["Completato"].exists, "la risposta finale non completa il lavoro")
