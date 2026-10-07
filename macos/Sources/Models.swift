@@ -50,7 +50,7 @@ struct CloneOperation: Decodable, Identifiable {
 struct RPCEnvelope: Decodable, Sendable { let id: String?; let result: JSONValue?; let error: RPCError?; let method: String?; let params: JSONValue? }
 struct RPCError: Decodable, Error, LocalizedError, Sendable { let code: Int; let message: String; var errorDescription: String? { message } }
 struct ModelProfile: Decodable, Identifiable, Sendable {
-    let id: String; let name: String; let provider: String; let model: String; let endpoint: String?; let capabilities: JSONValue
+    let id: String; let name: String; let provider: String; let model: String; let endpoint: String?; let capabilities: JSONValue; let enabled: Int?
     var modes: [String] { capabilities["modes"].array.compactMap(\.string) }
     var efforts: [String] { capabilities["efforts"].array.compactMap(\.string) }
     var verified: Bool { capabilities["verification"].string == "passed" && !modes.isEmpty }
@@ -80,4 +80,62 @@ struct RepositoryChanges: Decodable, Identifiable, Sendable {
     let repository_id: String; let name: String; let files: [ChangedFile]; let test: String; let diffTruncated: Bool
     var id: String { repository_id }
     var testLabel: String { switch test { case "passed": "Test superati"; case "failed": "Test falliti"; case "stale": "Test obsoleti"; case "environment": "Ambiente non pronto"; case "none": "Nessun test"; default: test } }
+}
+
+/// One honest label per profile with the action to take, computed by the runtime (`profile/states`).
+struct ProfileState: Decodable, Identifiable, Sendable {
+    let profileId: String; let key: String; let label: String; let action: String?; let ready: Bool; let percent: Double?; let tone: String
+    var id: String { profileId }
+    var symbol: String { switch tone { case "ok": "checkmark.circle.fill"; case "info": "clock.fill"; case "warning": "exclamationmark.triangle.fill"; default: "xmark.octagon.fill" } }
+}
+struct BatteryEntry: Decodable, Identifiable, Sendable { let profileId: String; let name: String; let provider: String; let percent: Double; var id: String { profileId } }
+struct BatteryExcluded: Decodable, Identifiable, Sendable {
+    let profileId: String; let name: String; let reason: String
+    var id: String { profileId }
+    var reasonLabel: String { switch reason { case "local": "modello locale"; case "expired": "ciclo da rinnovare"; default: "nessun budget" } }
+}
+/// Average of today's personal batteries across enabled profiles with a numeric budget (`budget/summary`).
+struct BatterySummary: Decodable, Sendable {
+    let average: Double?; let count: Int; let lowest: BatteryEntry?; let profiles: [BatteryEntry]; let excluded: [BatteryExcluded]
+    var label: String { guard let average else { return "Nessun budget" }; return average > 0 && average < 1 ? "<1%" : "\(Int(average))%" }
+}
+struct ContextMeter: Decodable, Sendable {
+    struct Occupancy: Decodable, Sendable { let used: Int?; let window: Int?; let source: String; let fraction: Double?; let compacted: Bool }
+    struct Package: Decodable, Sendable { let estimatedTokens: Int }
+    struct Checkpoint: Decodable, Sendable { let savedAt: String? }
+    let occupancy: Occupancy; let package: Package; let checkpoint: Checkpoint
+    /// Occupancy is shown only when the provider reports it per request; the Context Pack size is a separate estimate.
+    var label: String { occupancy.fraction.map { "Contesto \(Int($0 * 100))%" } ?? "Contesto non misurato" }
+}
+
+/// What the transcript shows, in order: messages, grouped tool calls and one separator where a different run begins.
+enum TranscriptRow: Identifiable {
+    case block(TranscriptBlock)
+    case tools([TranscriptBlock])
+    case runStart(id: String, title: String)
+    var id: String {
+        switch self {
+        case .block(let block): block.id
+        case .tools(let blocks): "tools:" + (blocks.first?.id ?? "")
+        case .runStart(let id, _): "run:" + id
+        }
+    }
+    /// Plans live in the bar above the composer; terminal and file-change cards stay on their own; plain tool calls fold together.
+    static func build(blocks: [TranscriptBlock], runs: [RunRecord]) -> [TranscriptRow] {
+        var rows: [TranscriptRow] = [], group: [TranscriptBlock] = [], lastRun: String?
+        func flush() { if group.count == 1 { rows.append(.block(group[0])) } else if group.count > 1 { rows.append(.tools(group)) }; group = [] }
+        for block in blocks {
+            if block.kind == "plan" || block.kind == "queue" { continue }
+            if let run = block.run_id, run != lastRun {
+                flush()
+                // The first run of a task needs no divider; every later run starts with one, before its own prompt.
+                if lastRun != nil, let record = runs.first(where: { $0.id == run }) { rows.append(.runStart(id: run, title: "\(record.profile_name) · \(record.model)")) }
+                lastRun = run
+            }
+            let category = block.detail["category"].string
+            if block.kind == "tool", category == nil || category == "tool" { group.append(block); continue }
+            flush(); rows.append(.block(block))
+        }
+        flush(); return rows
+    }
 }

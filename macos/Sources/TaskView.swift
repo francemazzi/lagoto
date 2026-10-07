@@ -23,6 +23,8 @@ struct TaskView: View {
     @State private var testRepository = ""
     @State private var testCommand = ""
     @State private var budget: JSONValue = .null
+    @State private var meter: ContextMeter?
+    @State private var states: [String: ProfileState] = [:]
     @State private var handoff: JSONValue?
     @State private var showHandoff = false
     @State private var error: String?
@@ -57,7 +59,7 @@ struct TaskView: View {
                         LazyVStack(alignment: .leading, spacing: 20) {
                             if snapshot?.hasEarlier == true { Button("Carica messaggi precedenti") { Task { await loadEarlier() } } }
                             if snapshot?.blocks.isEmpty != false { Text(work.objective).font(.title3).textSelection(.enabled).padding(.vertical, 24) }
-                            ForEach(snapshot?.blocks ?? []) { block in blockView(block).id(block.id) }
+                            ForEach(TranscriptRow.build(blocks: snapshot?.blocks ?? [], runs: snapshot?.runs ?? [])) { row in rowView(row).id(row.id) }
                             Color.clear.frame(height: 1).id("tail")
                         }.padding(24).frame(maxWidth: 860).frame(maxWidth: .infinity)
                     }
@@ -88,64 +90,59 @@ struct TaskView: View {
                 try? await Task.sleep(for: .milliseconds(150))
             }
         }
+        .task(id: work.id) {
+            for await _ in events.updates(.queueReady(work.id)) { if Task.isCancelled { break }; await sendQueued() }
+        }
+        .task {
+            for await _ in events.updates(.profiles) { if Task.isCancelled { break }; if bridge.ready { await reloadProfiles() } }
+        }
         .task(id: selected) {
             for await _ in events.updates(.budget) {
                 if Task.isCancelled { break }
                 if bridge.ready, !selected.isEmpty { budget = (try? await bridge.call("budget/status", ["profileId": .string(selected)])) ?? .null }
+                if bridge.ready { await reloadProfiles() }
             }
         }
         .onChange(of: selected) { _, _ in mode = profile?.modes.first ?? "agent"; effort = ""; Task { budget = (try? await bridge.call("budget/status", ["profileId": .string(selected)])) ?? .null } }
     }
     private var composer: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ForEach(snapshot?.queued ?? [], id: \.pretty) { item in
-                HStack {
-                    Text("In coda: \(item["text"].string ?? "")").font(.caption).lineLimit(2)
-                    Spacer()
-                    if active == nil { Button(queuedDraft == item["id"].string ? "Nel composer" : "Usa nel prossimo turno") { prompt = item["text"].string ?? ""; queuedDraft = item["id"].string; composerFocused = true }.font(.caption) }
-                }
-            }
+            if !planEntries.isEmpty { PlanBar(entries: planEntries) }
+            QueuePanel(items: snapshot?.queued ?? [], running: active != nil, edit: { id, text in Task { await editQueued(id, text) } }, remove: { id in Task { await removeQueued(id) } })
             TextField(active == nil ? "Continua questo lavoro…" : "Scrivi un messaggio da accodare…", text: $prompt, axis: .vertical)
                 .lineLimit(2...8).textFieldStyle(.plain).focused($composerFocused).accessibilityIdentifier("composer")
             HStack(spacing: 12) {
-                Picker("Modello", selection: $selected) { Text("Scegli un modello").tag(""); ForEach(profiles.filter(\.verified)) { Text($0.name).tag($0.id) } }.labelsHidden().frame(maxWidth: 250).accessibilityIdentifier("model-picker")
-                if (profile?.modes.count ?? 0) > 1 { Picker("Modalità", selection: $mode) { ForEach(profile?.modes ?? [], id: \.self) { Text($0 == "plan" ? "Pianifica" : "Agisci").tag($0) } }.labelsHidden().frame(width: 130) }
+                Picker("Modello", selection: $selected) {
+                    Text("Scegli un modello").tag("")
+                    ForEach(profiles.filter(\.verified)) { item in
+                        let state = states[item.id]
+                        Text(state.map { $0.ready ? item.name : "\(item.name) · \($0.label)" } ?? item.name).tag(item.id).selectionDisabled(!(state?.ready ?? true) && item.id != selected)
+                    }
+                }.labelsHidden().frame(maxWidth: 280).accessibilityIdentifier("model-picker").accessibilityLabel("Modello")
+                if (profile?.modes.count ?? 0) > 1 { Picker("Modalità", selection: $mode) { ForEach(profile?.modes ?? [], id: \.self) { Text($0 == "plan" ? "Pianifica" : "Agisci").tag($0) } }.labelsHidden().frame(width: 130).accessibilityIdentifier("mode-picker").accessibilityLabel("Modalità") }
                 if !(profile?.efforts.isEmpty ?? true) {
-                    Menu("Parametri") { Picker("Effort", selection: $effort) { Text("Predefinito").tag(""); ForEach(profile?.efforts ?? [], id: \.self) { Text($0).tag($0) } } }
+                    Picker("Effort", selection: $effort) { Text("Effort predefinito").tag(""); ForEach(profile?.efforts ?? [], id: \.self) { Text($0).tag($0) } }.labelsHidden().frame(width: 150).accessibilityIdentifier("effort-picker").accessibilityLabel("Effort")
                 }
+                ContextIndicator(meter: meter)
                 Spacer()
-                if active != nil && !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { Button("Accoda") { Task { await enqueue() } }.disabled(busy).help("Sarà disponibile per il prossimo turno") }
+                if active != nil && !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { Button("Accoda") { Task { await enqueue() } }.disabled(busy).help("Parte alla fine del turno").accessibilityIdentifier("enqueue-message") }
+                // Command-Return sends. Stopping a run is a deliberate click, never a keystroke that could also send.
                 Button(active == nil ? "Invia" : "Interrompi", systemImage: active == nil ? "arrow.up" : "stop.fill") { Task { if let active { await stop(active) } else { await send() } } }
-                    .labelStyle(.iconOnly).buttonStyle(.borderedProminent).keyboardShortcut(.return, modifiers: .command)
+                    .labelStyle(.iconOnly).buttonStyle(.borderedProminent).keyboardShortcut(active == nil ? KeyboardShortcut(.return, modifiers: .command) : nil)
                     .disabled(busy || !bridge.ready || uncertain || (active == nil && (profile == nil || prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)))
                     .accessibilityIdentifier(active == nil ? "send-message" : "stop-run")
             }
         }.padding(20).background(.background)
     }
-    @ViewBuilder private func blockView(_ block: TranscriptBlock) -> some View {
-        switch block.kind {
-        case "user": VStack(alignment: .leading, spacing: 8) { Text("Tu").font(.caption).foregroundStyle(.secondary); MarkdownView(text: block.text) }.padding(16).background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 12))
-        case "text": VStack(alignment: .leading, spacing: 8) { Text(snapshot?.runs.first { $0.id == block.run_id }?.profile_name ?? "Modello").font(.caption).foregroundStyle(.secondary); MarkdownView(text: block.text) }
-        case "reasoning": DisclosureGroup("Riepilogo esposto dal modello") { MarkdownView(text: block.text) }.font(.callout)
-        case "tool": DisclosureGroup(block.text) { Text(block.detail.pretty).font(.system(.caption, design: .monospaced)).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading) }.font(.callout).foregroundStyle(.secondary)
-        case "permission":
-            VStack(alignment: .leading, spacing: 10) {
-                Text(block.text).font(.headline)
-                DisclosureGroup("Dettagli dell’operazione") { Text(block.detail["input"].pretty).font(.system(.caption, design: .monospaced)).textSelection(.enabled) }
-                if block.detail["answered"].bool != true && active?.id == block.run_id {
-                    HStack { Button("Consenti una volta") { Task { await permission(block, allow: true) } }; Button("Rifiuta") { Task { await permission(block, allow: false) } } }
-                } else { Text(block.detail["allow"].bool == true ? "Consentita" : "Rifiutata o scaduta").font(.caption).foregroundStyle(.secondary) }
-            }.padding(14).background(Color.orange.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
-        case "error": Label(block.text.isEmpty ? block.detail.pretty : block.text, systemImage: "exclamationmark.triangle").foregroundStyle(.red).textSelection(.enabled)
-        case "run_state":
-            let state = block.detail["state"].string ?? ""
-            if ["finished", "failed", "interrupted", "unknown"].contains(state) {
-                Text(state == "finished" ? "Turno concluso · lavoro da verificare" : state == "interrupted" ? "Esecuzione interrotta" : block.detail["message"].string ?? "Esecuzione da verificare").font(.caption).foregroundStyle(.secondary)
-            }
-        case "checkpoint": Label("Checkpoint salvato", systemImage: "checkmark.circle").font(.caption).foregroundStyle(.secondary)
-        default: EmptyView()
+    @ViewBuilder private func rowView(_ row: TranscriptRow) -> some View {
+        switch row {
+        case .block(let block): MessageCard(block: block, runs: snapshot?.runs ?? [], activeRunID: active?.id) { block, optionID, allow in Task { await permission(block, optionID: optionID, allow: allow) } }
+        case .tools(let blocks): ToolGroup(blocks: blocks)
+        case .runStart(_, let title): RunSeparator(title: title)
         }
     }
+    /// The latest plan the agent reported; an empty plan hides the bar.
+    private var planEntries: [JSONValue] { snapshot?.blocks.last(where: { $0.kind == "plan" })?.detail["entries"].array ?? [] }
     private var inspectorView: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -192,6 +189,7 @@ struct TaskView: View {
                 snapshot = TaskSnapshot(blocks: old.blocks.filter { $0.first_seq < first.first_seq } + current.blocks, runs: current.runs, repositories: current.repositories, queued: current.queued, hasEarlier: old.hasEarlier, cursor: old.cursor)
             } else { snapshot = current }
             if !selected.isEmpty { budget = try await bridge.call("budget/status", ["profileId": .string(selected)]) }
+            meter = try? await bridge.decode(ContextMeter.self, method: "context/meter", params: ["taskId": .string(work.id)])
         } catch { self.error = error.localizedDescription }
     }
     private func recoverHandoff() async {
@@ -204,7 +202,10 @@ struct TaskView: View {
             }
         } catch { self.error = error.localizedDescription }
     }
-    private func reloadProfiles() async { profiles = (try? await bridge.decode([ModelProfile].self, method: "profile/list")) ?? [] }
+    private func reloadProfiles() async {
+        profiles = (try? await bridge.decode([ModelProfile].self, method: "profile/list")) ?? []
+        states = Dictionary(uniqueKeysWithValues: ((try? await bridge.decode([ProfileState].self, method: "profile/states")) ?? []).map { ($0.profileId, $0) })
+    }
     private func loadEarlier() async {
         guard let old = snapshot else { return }; loadedHistory = true
         do { let earlier = try await bridge.decode(TaskSnapshot.self, method: "task/snapshot", params: ["taskId": .string(work.id), "before": .number(Double(old.cursor))]); snapshot = TaskSnapshot(blocks: earlier.blocks + old.blocks, runs: old.runs, repositories: old.repositories, queued: old.queued, hasEarlier: earlier.hasEarlier, cursor: earlier.cursor); followTail = false } catch { self.error = error.localizedDescription }
@@ -241,9 +242,21 @@ struct TaskView: View {
         do { var params = try runParameters(profile); params["id"] = handoff["id"]; params["hash"] = handoff["context_hash"]; _ = try await bridge.call("handoff/confirm", params); showHandoff = false; self.handoff = nil; prompt = ""; queuedDraft = nil; error = nil; await refresh() } catch { self.error = error.localizedDescription }
     }
     private func stop(_ run: RunRecord) async { busy = true; defer { busy = false }; do { _ = try await bridge.call("run/stop", ["runId": .string(run.id)]); await refresh() } catch { self.error = error.localizedDescription } }
-    private func permission(_ block: TranscriptBlock, allow: Bool) async { do { _ = try await bridge.call("run/permission", ["runId": .string(block.run_id ?? ""), "permissionId": block.detail["id"], "allow": .bool(allow)]); await refresh() } catch { self.error = error.localizedDescription } }
+    private func permission(_ block: TranscriptBlock, optionID: String?, allow: Bool?) async {
+        var params: [String: JSONValue] = ["runId": .string(block.run_id ?? ""), "permissionId": block.detail["id"]]
+        if let optionID { params["optionId"] = .string(optionID) } else { params["allow"] = .bool(allow ?? false) }
+        do { _ = try await bridge.call("run/permission", params); await refresh() } catch { self.error = error.localizedDescription }
+    }
     private func enqueue() async { do { _ = try await bridge.call("task/queue", ["taskId": .string(work.id), "id": .string(UUID().uuidString), "text": .string(prompt)]); prompt = ""; await refresh() } catch { self.error = error.localizedDescription } }
-    private func removeQueued(_ item: JSONValue) async { do { _ = try await bridge.call("task/queue/remove", ["taskId": .string(work.id), "id": item["id"]]); await refresh() } catch { self.error = error.localizedDescription } }
+    private func removeQueued(_ id: String) async { do { _ = try await bridge.call("task/queue/remove", ["taskId": .string(work.id), "id": .string(id)]); await refresh() } catch { self.error = error.localizedDescription } }
+    private func editQueued(_ id: String, _ text: String) async { do { _ = try await bridge.call("task/queue/edit", ["taskId": .string(work.id), "id": .string(id), "text": .string(text)]); await refresh() } catch { self.error = error.localizedDescription } }
+    /// The runtime offered the next queued message after a turn that ended well; start it with the profile of that turn.
+    private func sendQueued() async {
+        guard let ready = events.takeQueueReady(work.id), active == nil, !busy, let item = snapshot?.queued.first(where: { $0["id"].string == ready.queueID }), let text = item["text"].string else { return }
+        if let profile = ready.profileID, profiles.contains(where: { $0.id == profile }) { selected = profile }
+        prompt = text; queuedDraft = ready.queueID
+        await send()
+    }
     private func checkpoint() async { busy = true; defer { busy = false }; do { _ = try await bridge.call("checkpoint/create", ["taskId": .string(work.id)]); await refreshInspector(); await refresh() } catch { self.error = error.localizedDescription } }
     private func startVerification() async { do { _ = try await bridge.call("verification/start", ["taskId": .string(work.id), "repositoryId": .string(testRepository), "command": .string(testCommand)]); await refreshInspector() } catch { self.error = error.localizedDescription } }
     private func reconcileRuns() async {

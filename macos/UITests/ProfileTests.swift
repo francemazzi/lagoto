@@ -1,0 +1,38 @@
+import XCTest
+
+@MainActor final class ProfileTests: XCTestCase {
+    override func setUp() { continueAfterFailure = false }
+
+    /// P02-I04: every profile says in words whether it can be used and what to do next; a positive budget never hides a block.
+    func testP02_I04_everyProfileShowsAnHonestStateWithItsAction() throws {
+        let app = try Fixture.launch()
+        XCTAssertTrue(app.staticTexts["Archivio locale pronto"].waitForExistence(timeout: 30))
+        app.element("nav-integrations").click()
+        let expected: [(String, String)] = [
+            ("Codex · gpt-6.1-sol", "Pronto"), ("Cursor · composer", "Pronto"), ("Ollama · qwen3.5", "Locale"), ("Kimi · da verificare", "Da verificare"),
+            ("Claude · accesso scaduto", "Accesso da rinnovare"), ("Qwen · budget scaduto", "Budget da rinnovare"),
+        ]
+        for (name, label) in expected {
+            let state = app.element("profile-state:\(name)")
+            XCTAssertTrue(state.waitForExistence(timeout: 20), "stato assente per \(name)")
+            XCTAssertTrue(state.label.contains(label), "\(name): atteso \(label), trovato \(state.label)")
+        }
+        XCTAssertTrue(app.element("profile-action:Claude · accesso scaduto").exists, "lo stato bloccato indica cosa fare")
+        app.terminate()
+    }
+
+    /// P09-I10: the toolbar shows the average of today's batteries with the lowest profile named in the popover.
+    func testP09_I10_toolbarShowsTheAverageBatteryAndTheLowestProfile() throws {
+        let app = try Fixture.launch()
+        XCTAssertTrue(app.staticTexts["Archivio locale pronto"].waitForExistence(timeout: 30))
+        let battery = app.element("battery-average")
+        XCTAssertTrue(battery.waitForExistence(timeout: 20))
+        // The expired and local profiles are not in the average; Cursor, at 20%, is the lowest.
+        XCTAssertTrue(NSPredicate(format: "label CONTAINS '%'").evaluate(with: battery), battery.label)
+        battery.click()
+        XCTAssertTrue(app.staticTexts["Il più basso: Cursor · composer, 20%"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Qwen · budget scaduto: ciclo da rinnovare"].exists)
+        XCTAssertTrue(app.staticTexts["Ollama · qwen3.5: modello locale"].exists)
+        app.terminate()
+    }
+}

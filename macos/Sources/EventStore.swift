@@ -9,6 +9,7 @@ enum EventTopic: Hashable, Sendable {
     case tasks          // task lists: a run started, finished or started waiting for the user
     case profiles       // a profile verification changed
     case budget         // allowances, renewals, overrides or a run reservation changed
+    case queueReady(String) // a turn ended well and the next queued message of this task can be sent
 }
 
 /// Fans runtime events out to interested views. Updates are coalesced: a burst of events produces one pending signal,
@@ -19,6 +20,9 @@ enum EventTopic: Hashable, Sendable {
     /// Set once per unique turn end so a view can react (for example to scroll); not used for polling.
     private(set) var turnEnds = 0
     private(set) var connectionRevision = 0
+    /// The queued message the runtime offered for sending, per task. Consumed by the task view that starts the run.
+    @ObservationIgnored private var readyQueue: [String: (queueID: String, profileID: String?)] = [:]
+    func takeQueueReady(_ taskID: String) -> (queueID: String, profileID: String?)? { readyQueue.removeValue(forKey: taskID) }
 
     func updates(_ topic: EventTopic) -> AsyncStream<Void> {
         let id = UUID()
@@ -43,6 +47,10 @@ enum EventTopic: Hashable, Sendable {
             case "budget_changed": signal(.budget)
             case "profiles_changed": signal(.profiles)
             case "queue_changed": if let id = payload["taskId"].string { signal(.task(id)) }
+            case "queue_ready":
+                if let id = payload["taskId"].string, let queueID = payload["queueId"].string {
+                    readyQueue[id] = (queueID, payload["profileId"].string); signal(.queueReady(id))
+                }
             case "attention_changed":
                 if let id = payload["taskId"].string {
                     signal(.task(id)); signal(.tasks)

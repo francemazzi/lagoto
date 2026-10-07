@@ -71,4 +71,17 @@ import XCTest
         store.ingest(event("run_state", task: "a", payload: .object(["state": .string("running")])))
         XCTAssertEqual(delivered, 0)
     }
+
+    func testP02_I08_queueReadyIsHandedToTheTaskOnceAndOnlyToThatTask() async {
+        let store = EventStore()
+        let hit = Counter(), miss = Counter()
+        let one = listen(store.updates(.queueReady("a")), hit), two = listen(store.updates(.queueReady("b")), miss)
+        await settle(20)
+        store.ingest(event("queue_ready", payload: .object(["taskId": .string("a"), "queueId": .string("q1"), "profileId": .string("p1")]), ephemeral: true))
+        try? await Task.sleep(for: .milliseconds(100))
+        XCTAssertEqual(hit.value, 1); XCTAssertEqual(miss.value, 0)
+        XCTAssertEqual(store.takeQueueReady("a")?.queueID, "q1")
+        XCTAssertNil(store.takeQueueReady("a"))
+        one.cancel(); two.cancel()
+    }
 }

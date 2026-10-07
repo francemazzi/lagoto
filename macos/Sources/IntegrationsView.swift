@@ -6,6 +6,7 @@ struct IntegrationsView: View {
     @Environment(EventStore.self) private var events
     @State private var inventory: [JSONValue] = []
     @State private var profiles: [ModelProfile] = []
+    @State private var states: [String: ProfileState] = [:]
     @State private var adding = false
     @State private var error: String?
     @State private var budgetProfile: ModelProfile?
@@ -27,7 +28,10 @@ struct IntegrationsView: View {
                         HStack {
                             VStack(alignment: .leading) { Text(profile.name).bold(); Text("\(profile.provider) · \(profile.model)").font(.caption).foregroundStyle(.secondary) }
                             Spacer()
-                            Text(profile.verified ? "Verificato" : profile.capabilities["verification"].string == "checking" ? "Verifica in corso…" : "Da verificare").font(.caption)
+                            if let state = states[profile.id] {
+                                Label(state.label, systemImage: state.symbol).font(.caption).foregroundStyle(state.tone == "blocked" ? Color.red : state.tone == "warning" ? Color.orange : Color.secondary)
+                                    .accessibilityIdentifier("profile-state:\(profile.name)")
+                            }
                             Button("Verifica") { Task { await verify(profile) } }.disabled(profile.capabilities["verification"].string == "checking")
                             if profile.capabilities["verification"].string == "checking" {
                                 Button("Interrompi") {
@@ -41,6 +45,7 @@ struct IntegrationsView: View {
                             }
                             Menu("Opzioni") { Button("Budget personale…") { budgetProfile = profile } }
                         }
+                        if let action = states[profile.id]?.action { Text(action).font(.caption).foregroundStyle(.secondary).accessibilityIdentifier("profile-action:\(profile.name)") }
                         if let message = profile.capabilities["proof"]["message"].string { Text(message).font(.caption).foregroundStyle(.secondary).textSelection(.enabled) }
                         if let endpoint = profile.endpoint { Text(endpoint).font(.caption).foregroundStyle(.secondary) }
                     }.padding(16).background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius: 10))
@@ -54,7 +59,12 @@ struct IntegrationsView: View {
         .task { for await _ in events.updates(.profiles) { if Task.isCancelled { break }; if bridge.ready { await reload() } } }
         .task { for await _ in events.updates(.budget) { if Task.isCancelled { break }; if bridge.ready { await reload() } } }
     }
-    private func reload() async { do { profiles = try await bridge.decode([ModelProfile].self, method: "profile/list") } catch { self.error = error.localizedDescription } }
+    private func reload() async {
+        do {
+            profiles = try await bridge.decode([ModelProfile].self, method: "profile/list")
+            states = Dictionary(uniqueKeysWithValues: try await bridge.decode([ProfileState].self, method: "profile/states").map { ($0.profileId, $0) })
+        } catch { self.error = error.localizedDescription }
+    }
     private func verify(_ profile: ModelProfile) async {
         do {
             var params: [String: JSONValue] = ["profileId": .string(profile.id)]

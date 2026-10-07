@@ -1,5 +1,19 @@
 import SwiftUI
 
+/// Sidebar row of a task: the title and, when it matters, a badge with a text alternative.
+struct TaskRowLabel: View {
+    let task: WorkTask
+    var body: some View {
+        Label {
+            HStack(spacing: 6) {
+                Text(task.title).lineLimit(1); Spacer(minLength: 0)
+                if task.isWaiting { Image(systemName: "hand.raised.fill").foregroundStyle(.orange).accessibilityLabel("In attesa di una tua autorizzazione").accessibilityIdentifier("badge-waiting") }
+                else if task.isActive { ProgressView().controlSize(.mini).accessibilityLabel("In esecuzione").accessibilityIdentifier("badge-active") }
+            }
+        } icon: { Image(systemName: "bubble.left") }
+    }
+}
+
 struct ContentView: View {
     @Bindable var bridge: RuntimeBridge
     @Environment(EventStore.self) private var events
@@ -9,6 +23,7 @@ struct ContentView: View {
     @State private var renamed = ""
     @State private var tasks: [String: [WorkTask]] = [:]
     @State private var selection: String?
+    @State private var expanded: Set<String> = []
     @State private var search = ""
     @State private var newProject = false
     @State private var backup = false
@@ -19,10 +34,10 @@ struct ContentView: View {
             List(selection: $selection) {
                 Section("Progetti") {
                     ForEach(projects.filter { search.isEmpty || $0.name.localizedCaseInsensitiveContains(search) || (tasks[$0.id] ?? []).contains { $0.title.localizedCaseInsensitiveContains(search) || $0.objective.localizedCaseInsensitiveContains(search) } }) { project in
-                        DisclosureGroup {
-                            ForEach((tasks[project.id] ?? []).filter { search.isEmpty || project.name.localizedCaseInsensitiveContains(search) || $0.title.localizedCaseInsensitiveContains(search) || $0.objective.localizedCaseInsensitiveContains(search) }) { task in Label { HStack(spacing: 6) { Text(task.title).lineLimit(1); Spacer(minLength: 0); if task.isWaiting { Image(systemName: "hand.raised.fill").foregroundStyle(.orange).accessibilityLabel("In attesa di una tua autorizzazione") } else if task.isActive { ProgressView().controlSize(.mini).accessibilityLabel("In esecuzione") } } } icon: { Image(systemName: "bubble.left") }.tag("task:\(task.id)") }
+                        DisclosureGroup(isExpanded: Binding(get: { expanded.contains(project.id) }, set: { if $0 { expanded.insert(project.id) } else { expanded.remove(project.id) } })) {
+                            ForEach((tasks[project.id] ?? []).filter { search.isEmpty || project.name.localizedCaseInsensitiveContains(search) || $0.title.localizedCaseInsensitiveContains(search) || $0.objective.localizedCaseInsensitiveContains(search) }) { task in TaskRowLabel(task: task).accessibilityIdentifier("task-row:\(task.title)").tag("task:\(task.id)") }
                             Button("Nuovo lavoro", systemImage: "plus") { selection = "project:\(project.id)" }.buttonStyle(.plain)
-                        } label: { Label(project.name, systemImage: "folder").tag("project:\(project.id)") }
+                        } label: { Label(project.name, systemImage: "folder").accessibilityIdentifier("project-row:\(project.name)").tag("project:\(project.id)") }
                         .contextMenu {
                             Button("Rinomina…") { renamed = project.name; renaming = project }
                             Button("Sposta in cima") { Task { await moveFirst(project) } }
@@ -31,8 +46,8 @@ struct ContentView: View {
                     }
                 }
                 Section {
-                    Label("Integrazioni", systemImage: "link").tag("integrations")
-                    Label("Modelli disponibili", systemImage: "sparkles").tag("models")
+                    Label("Integrazioni", systemImage: "link").accessibilityIdentifier("nav-integrations").tag("integrations")
+                    Label("Modelli disponibili", systemImage: "sparkles").accessibilityIdentifier("nav-models").tag("models")
                 }
             }
             .navigationSplitViewColumnWidth(min: 210, ideal: 244, max: 330)
@@ -76,6 +91,7 @@ struct ContentView: View {
                 actions: { Button("Nuovo progetto") { newProject = true }.buttonStyle(.borderedProminent).disabled(!bridge.ready) }
             }
         }
+        .toolbar { ToolbarItem(placement: .principal) { BatteryAverageView(bridge: bridge) } }
         .onChange(of: bridge.ready) { _, ready in if ready { Task { await reload() } } }
         .task { if bridge.ready { await reload() } }
         .task { for await _ in events.updates(.tasks) { if Task.isCancelled { break }; if bridge.ready { await refreshTasks() } } }
@@ -105,7 +121,7 @@ struct ContentView: View {
         do {
             projects = try await bridge.decode([Project].self, method: "project/list")
             archived = try await bridge.decode([Project].self, method: "project/archived")
-            tasks = [:]; selection = nil
+            tasks = [:]; selection = nil; expanded = Set(projects.map(\.id))
             for project in projects { tasks[project.id] = try await bridge.decode([WorkTask].self, method: "task/list", params: ["projectId": .string(project.id)]) }
             events.taskTitles = Dictionary(uniqueKeysWithValues: tasks.values.flatMap { $0 }.map { ($0.id, $0.title) })
         } catch { self.error = error.localizedDescription }

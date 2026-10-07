@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 import { provenance } from './evidence.js';
 import { readXcresultSummary, readXcresultTests } from './xcresult.js';
 
@@ -10,7 +10,12 @@ import { readXcresultSummary, readXcresultTests } from './xcresult.js';
 const resultPath = resolve('build/native-ui.xcresult');
 rmSync(resultPath, { recursive: true, force: true });
 const env = { ...process.env };
-if (process.env.LAGOTO_UI_FIXTURE) env.TEST_RUNNER_LAGOTO_UI_FIXTURE = resolve(process.env.LAGOTO_UI_FIXTURE);
+// Every run starts from a fresh seeded archive: real Git repositories, worktrees with changes, profiles in every state and transcripts replayed from captured protocols.
+const fixtureDir = resolve('build/ui-fixture');
+rmSync(fixtureDir, { recursive: true, force: true });
+const seed = spawnSync('pnpm', ['seed:ui', fixtureDir], { encoding: 'utf8', timeout: 300000 });
+if (seed.status !== 0) { console.error(seed.stdout, seed.stderr); throw new Error('Archivio di prova non creato'); }
+env.TEST_RUNNER_LAGOTO_UI_FIXTURE = join(fixtureDir, 'data');
 const xcodebuild = spawnSync('xcodebuild', ['test', '-project', 'macos/Lagoto.xcodeproj', '-scheme', 'Lagoto', '-configuration', 'Debug',
   '-derivedDataPath', 'build/Xcode', '-destination', 'platform=macOS,arch=arm64', '-only-testing:LagotoUITests',
   '-parallel-testing-enabled', 'NO', '-test-timeouts-enabled', 'YES', '-maximum-test-execution-time-allowance', '180',
