@@ -9,7 +9,7 @@ import { cursorSandbox } from './sandbox.js';
 import { qwenNormalizer } from './qwen-normalizer.js';
 
 export type Profile = { id: string; provider: 'codex' | 'claude' | 'cursor' | 'qwen' | 'kimi' | 'ollama' | 'openrouter'; model: string; name: string; endpoint: string | null; executable: string | null; capabilities: string };
-export type AdapterEvent = { kind: 'text' | 'text_snapshot' | 'reasoning' | 'reasoning_snapshot' | 'tool' | 'result' | 'usage' | 'system' | 'error' | 'raw'; text?: string; payload: unknown; itemId?: string };
+export type AdapterEvent = { kind: 'text' | 'text_snapshot' | 'reasoning' | 'reasoning_snapshot' | 'tool' | 'result' | 'usage' | 'system' | 'error' | 'raw' | 'child'; text?: string; payload: unknown; itemId?: string };
 export type Permission = (tool: string, input: unknown) => Promise<boolean>;
 export type RunOptions = { profile: Profile; cwd: string; directories: string[]; prompt: string; mode: 'plan' | 'agent'; effort?: string; secret?: string; home: string; onEvent: (event: AdapterEvent) => void; permission: Permission; onProcess?:(client:JsonProcess)=>void;
   /** Internal test harness can constrain the SDK worker with an OS policy; never exposed over IPC. */
@@ -26,7 +26,7 @@ export async function codexClient(cwd: string, configured?: string | null,onProc
   } catch (error) { await client.stop(); throw error; }
 }
 
-export function normalizeClaude(message: ProcessMessage, currentMessage='message'): AdapterEvent[] {
+export function normalizeClaude(message: ProcessMessage, currentMessage='message', children: Set<string> = new Set()): AdapterEvent[] {
   const raw: AdapterEvent = { kind: 'raw', payload: message };
   if (message.type === 'stream_event') {
     const event = message.event;
@@ -34,17 +34,18 @@ export function normalizeClaude(message: ProcessMessage, currentMessage='message
     if (event?.type === 'content_block_delta' && typeof event.delta?.thinking === 'string') return [raw, { kind: 'reasoning', text: event.delta.thinking, payload: {} }];
   }
   if (message.type === 'assistant') return [raw, ...((message.message?.content ?? []) as ProcessMessage[]).flatMap((block,index):AdapterEvent[] =>
-    block.type==='tool_use'?[{kind:'tool',payload:block}]:block.type==='text'?[{kind:'text_snapshot',text:block.text,itemId:`${message.message?.id ?? currentMessage}:${index}`,payload:{}}]:[])];
-  if (message.type === 'user') return [raw, ...((Array.isArray(message.message?.content) ? message.message.content : []) as ProcessMessage[]).filter(block => block.type === 'tool_result').map(block => ({ kind: 'tool' as const, payload: block }))];
+    block.type==='tool_use'?[{kind:'tool',payload:block},...(block.name==='Task'&&typeof block.id==='string'?(children.add(block.id),[{kind:'child' as const,payload:{childId:block.id,state:'started',title:typeof block.input?.description==='string'?block.input.description.slice(0,200):null,source:'claude:Task'}}]):[])]:block.type==='text'?[{kind:'text_snapshot',text:block.text,itemId:`${message.message?.id ?? currentMessage}:${index}`,payload:{}}]:[])];
+  if (message.type === 'user') return [raw, ...((Array.isArray(message.message?.content) ? message.message.content : []) as ProcessMessage[]).filter(block => block.type === 'tool_result').flatMap((block): AdapterEvent[] => [{ kind: 'tool' as const, payload: block },
+    ...(children.has(block.tool_use_id) ? [{ kind: 'child' as const, payload: { childId: block.tool_use_id, state: block.is_error ? 'failed' : 'completed', result: (typeof block.content === 'string' ? block.content : JSON.stringify(block.content ?? '')).slice(0, 4000), source: 'claude:Task' } }] : [])])];
   if (message.type === 'result') return [raw, { kind: message.is_error ? 'error' : 'result', text: message.result, payload: message }, { kind: 'usage', payload: { usage: message.usage, cost: message.total_cost_usd, scope: 'session', source: 'runtime-estimate' } }];
   return [raw];
 }
 
 export function claudeNormalizer() {
-  let messageId='message';let sequence=0;
+  let messageId='message';let sequence=0;const children=new Set<string>();
   return (message:ProcessMessage)=>{
     if(message.type==='stream_event' && message.event?.type==='message_start')messageId=message.event.message?.id ?? `message-${++sequence}`;
-    return normalizeClaude(message,messageId);
+    return normalizeClaude(message,messageId,children);
   };
 }
 

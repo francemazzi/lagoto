@@ -5,6 +5,7 @@ import { Store } from './storage.js';
 import { git, gitBytes, type TaskRepository } from './git.js';
 import { AppError, now } from './protocol.js';
 import { deflateSync } from 'node:zlib';
+import { childResults } from './children.js';
 
 type Entry = { path: string; hash?: string; mode?: number; symlink?: string; deleted?: true };
 type GitObject = {oid:string;hash:string};
@@ -103,6 +104,22 @@ export async function createCheckpoint(store: Store, taskId: string, stoppedRunI
   store.event(taskId, null, 'checkpoint', { id, excluded: snapshots.flatMap(r => r.excluded) });
   return { id, ...manifest };
 }
+/** What changed in the worktrees since the latest complete checkpoint. Reports; never rolls anything back. */
+export async function changesSince(store: Store, taskId: string) {
+  store.task(taskId);
+  const row = store.db.prepare('SELECT id,manifest,created_at FROM checkpoints WHERE task_id=? ORDER BY created_at DESC,rowid DESC LIMIT 1').get(taskId) as { id: string; manifest: string; created_at: string } | undefined;
+  if (!row) return { checkpointId: null, changed: false, repositories: [] as { repositoryId: string; changed: boolean; paths: string[] }[] };
+  const manifest = JSON.parse(row.manifest) as Manifest;
+  const rows = store.db.prepare('SELECT * FROM task_repositories WHERE task_id=? ORDER BY repository_id').all(taskId) as TaskRepository[];
+  const repositories: { repositoryId: string; changed: boolean; paths: string[] }[] = [];
+  for (const repo of rows) {
+    const snapshot = manifest.repositories.find(item => item.repositoryId === repo.repository_id);
+    const changed = !snapshot || snapshot.fingerprint !== await fingerprint(repo.path);
+    const paths = changed ? (await git(repo.path, ['status', '--porcelain=v1', '-z'])).split('\0').filter(Boolean).map(line => line.slice(3)).sort() : [];
+    repositories.push({ repositoryId: repo.repository_id, changed, paths });
+  }
+  return { checkpointId: row.id, createdAt: row.created_at, changed: repositories.some(item => item.changed), repositories };
+}
 export async function restoreCheckpoint(store: Store, checkpointId: string, destination: string) {
   const row = store.db.prepare('SELECT manifest FROM checkpoints WHERE id=?').get(checkpointId) as { manifest: string } | undefined;
   if (!row) throw new AppError(404, 'Checkpoint non trovato');
@@ -153,7 +170,7 @@ export function contextPack(store: Store, taskId: string, maximumCharacters: num
   const compact=checkpoint?JSON.parse(checkpoint.manifest) as Manifest:null;
   const core={ version: 2, task: { title: task.title, objective: task.objective }, repositories, decisions,criteria,
     checkpoint: compact ? {id:checkpoint!.id,createdAt:compact.createdAt,repositories:compact.repositories.map(r=>({repositoryId:r.repositoryId,head:r.head,branch:r.branch,index:r.index,entries:r.entries.filter(e=>!r.changes||r.changes.includes(e.path)),excluded:r.excluded,fingerprint:r.fingerprint}))} : null,
-    historyIsReadOnly:true,verifications, uncertain };
+    historyIsReadOnly:true,verifications, uncertain, children: childResults(store.db,taskId) };
   const render=()=>JSON.stringify({...core,recentConversation:recent,conversationOmissions:Math.max(0,total-recent.length)},null,2);
   let content=render();
   while(content.length>maximumCharacters&&recent.length){recent.shift();content=render();}

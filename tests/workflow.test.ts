@@ -195,7 +195,7 @@ it('P07-I06 HAND-07 a successful verification becomes stale after external file 
   expect(rows[0]!.state).toBe('passed');writeFileSync(join(worktrees[0].path,'contract.json'),'changed');expect((await service.verifications.list(task.id))[0]!.state).toBe('stale');
 });
 
-it('P03-I04/P07-I04 versions criteria and decisions and reopens completed work when its proof becomes stale',async()=>{
+it('P03-I04/P07-I04 MEM-03 versions criteria and decisions and reopens completed work when its proof becomes stale',async()=>{
   const {service,task,worktrees}=await fixture();
   await expect(call(service,'task/complete',{taskId:task.id})).rejects.toThrow('criteri');
   const criterion=await call(service,'criterion/edit',{taskId:task.id,content:'Contract exists',reason:'Initial acceptance'});

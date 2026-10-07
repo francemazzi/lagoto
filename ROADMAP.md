@@ -162,12 +162,12 @@ La UI può procedere con fixture dopo P01; le prove pure di memoria possono proc
 
 **Dipende da:** P05; collaudo con P06.
 
-- [ ] **P07.1 — Snapshot.** Byte/indice e manifest multi-repo, binari, cancellazioni, esclusioni e checksum. **P07-I01:** restore in nuove directory coincide per tutti i contenuti inclusi.
-- [ ] **P07.2 — Crash safety.** Blob prima del manifest completo, verifica e cleanup degli orfani. **P07-I02:** crash in ogni passaggio o blob assente non mostra un checkpoint pronto corrotto.
-- [ ] **P07.3 — Salvataggi.** Fine turno, test, decisione e pre-handoff; snapshot attivi best effort. **P07-I03:** scritture continue/watcher perso non producono falsa stabilità; scansione finale obbligatoria.
-- [ ] **P07.4 — Memoria.** Elementi atomici con fonte, revisione, validità e trigger. **P07-I04:** decisioni sostituite e ipotesi smentite non tornano come fatti; contenuti non fidati non diventano istruzioni confermate.
-- [ ] **P07.5 — Context Pack.** Generazione locale deterministica, retrieval selettivo, budget destinatario e anteprima. **P07-I05:** funziona senza quota; finestra piccola conserva il nucleo obbligatorio o blocca esplicitamente; consegna ed esclusioni tracciate.
-- [ ] **P07.6 — Stato successivo.** Differenze dopo checkpoint e invalidazione delle prove. **P07-I06:** modifica esterna richiede riconciliazione, senza rollback o test rimasti indebitamente validi.
+- [x] **P07.1 — Snapshot.** Byte/indice e manifest multi-repo, binari, cancellazioni, esclusioni e checksum. **P07-I01:** restore in nuove directory coincide per tutti i contenuti inclusi.
+- [x] **P07.2 — Crash safety.** Blob prima del manifest completo, verifica e cleanup degli orfani. **P07-I02:** crash in ogni passaggio o blob assente non mostra un checkpoint pronto corrotto.
+- [x] **P07.3 — Salvataggi.** Fine turno, test, decisione e pre-handoff; snapshot attivi best effort. **P07-I03:** scritture continue/watcher perso non producono falsa stabilità; scansione finale obbligatoria.
+- [x] **P07.4 — Memoria.** Elementi atomici con fonte, revisione, validità e trigger. **P07-I04:** decisioni sostituite e ipotesi smentite non tornano come fatti; contenuti non fidati non diventano istruzioni confermate.
+- [x] **P07.5 — Context Pack.** Generazione locale deterministica, retrieval selettivo, budget destinatario e anteprima. **P07-I05:** funziona senza quota; finestra piccola conserva il nucleo obbligatorio o blocca esplicitamente; consegna ed esclusioni tracciate.
+- [x] **P07.6 — Stato successivo.** Differenze dopo checkpoint e invalidazione delle prove. **P07-I06:** modifica esterna richiede riconciliazione, senza rollback o test rimasti indebitamente validi.
 
 **Gate:** task ricostruibile senza provider originario, provato sul filesystem. [Specifiche e limiti](docs/memory-handoff.md).
 

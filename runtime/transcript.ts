@@ -34,6 +34,12 @@ export function projectEvent(db: Database.Database, event: JournalEvent) {
     if (old) upsert(id,'permission',old.text,{...JSON.parse(old.detail),answered:true,allow:p.allow});
     return;
   }
+  if (event.kind === 'child') {
+    if (typeof body.childId !== 'string') return;
+    const id = `${event.run_id}:child:${body.childId}`;
+    const old = db.prepare('SELECT text,detail FROM transcript WHERE id=?').get(id) as {text:string;detail:string}|undefined;
+    upsert(id,'child',body.title ?? old?.text ?? '',{...(old ? JSON.parse(old.detail) : {}),...body});return;
+  }
   if (event.kind === 'permission') { upsert(`${event.run_id}:permission:${p.id}`,'permission',p.tool,p); return; }
   if (event.kind === 'tool') {
     const toolId = body.id ?? body.toolCallId ?? body.tool_use_id;

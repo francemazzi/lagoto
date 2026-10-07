@@ -5,7 +5,7 @@ import { Request, AppError, identifier, now, protocolVersion } from './protocol.
 import { addRepository, prepareWorktrees, diffs } from './git.js';
 import { RunManager } from './runs.js';
 import { inventory, codexModels, localModels } from './integrations.js';
-import { createCheckpoint, contextPack } from './checkpoint.js';
+import { createCheckpoint, contextPack, changesSince } from './checkpoint.js';
 import { transcript } from './transcript.js';
 import { ProfileVerifier } from './profiles.js';
 import { Handoffs } from './handoff.js';
@@ -19,6 +19,7 @@ import { GitHubLinks } from './github-link.js';
 import { GitInitializations } from './git-initialize.js';
 import { authStatus } from './auth-status.js';
 import { contextMeter } from './context-meter.js';
+import { childrenReport, stopChild } from './children.js';
 import { readUsage, withFreshness } from './usage-sources.js';
 
 export class Service {
@@ -136,6 +137,9 @@ export class Service {
           repositories:this.store.db.prepare('SELECT tr.*,r.name FROM task_repositories tr JOIN repositories r ON r.id=tr.repository_id WHERE task_id=?').all(taskId),
           queued:this.store.db.prepare("SELECT * FROM queued_messages WHERE task_id=? AND state='queued' ORDER BY created_at").all(taskId)};
       }
+      case 'task/children': {const {taskId}=z.object({taskId:identifier}).strict().parse(p);this.store.task(taskId);return childrenReport(this.store.db,taskId);}
+      case 'child/stop': {const i=z.object({runId:identifier,childId:z.string().min(1).max(200)}).strict().parse(p);const row=this.store.db.prepare('SELECT task_id FROM runs WHERE id=?').get(i.runId) as {task_id:string}|undefined;if(!row)throw new AppError(404,'Run non trovata');const outcome=stopChild();this.store.event(row.task_id,i.runId,'child_control',{childId:i.childId,outcome:'unsupported',message:outcome.reason});return outcome;}
+      case 'checkpoint/changes': {const {taskId}=z.object({taskId:identifier}).strict().parse(p);return changesSince(this.store,taskId);}
       case 'context/meter': {const {taskId}=z.object({taskId:identifier}).strict().parse(p);return contextMeter(this.store,taskId);}
       case 'task/queue': {
         const {taskId,text,id} = z.object({taskId:identifier,text:z.string().trim().min(1).max(100000),id:identifier}).strict().parse(p);
