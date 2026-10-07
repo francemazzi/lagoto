@@ -42,10 +42,11 @@ import XCTest
         let warm = Array(samples.dropFirst(3)).sorted()
         let p95 = warm[min(warm.count - 1, Int((Double(warm.count) * 0.95).rounded(.up)) - 1)]
         let limit = Int(ProcessInfo.processInfo.environment["LAGOTO_PERF_LIMIT_MS"] ?? "300") ?? 300
-        if let out = ProcessInfo.processInfo.environment["LAGOTO_PERF_OUT"] {
-            let report: [String: Any] = ["samples": warm, "p95Ms": p95, "maximumMs": warm.last ?? 0, "count": warm.count, "limitMs": limit]
-            try JSONSerialization.data(withJSONObject: report, options: [.sortedKeys]).write(to: URL(fileURLWithPath: out))
-        }
+        // The test runner cannot write into the checkout: the report travels as an attachment of the result bundle.
+        let report: [String: Any] = ["samples": warm, "p95Ms": p95, "maximumMs": warm.last ?? 0, "count": warm.count, "limitMs": limit]
+        let attachment = XCTAttachment(data: try JSONSerialization.data(withJSONObject: report, options: [.sortedKeys]), uniformTypeIdentifier: "public.json")
+        attachment.name = "ui-perf.json"; attachment.lifetime = .keepAlways
+        add(attachment)
         XCTAssertLessThan(p95, limit, "p95 del cambio task \(p95) ms su \(warm.count) cambi")
     }
 }

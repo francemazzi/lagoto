@@ -24,9 +24,8 @@ rmSync(loadDir, { recursive: true, force: true });
 const loadSeed = spawnSync('pnpm', ['seed:ui', loadDir, '--load'], { encoding: 'utf8', timeout: 900000 });
 if (loadSeed.status !== 0) { console.error(loadSeed.stdout, loadSeed.stderr); throw new Error('Archivio di carico non creato'); }
 env.TEST_RUNNER_LAGOTO_UI_LOAD_FIXTURE = join(loadDir, 'data');
-const perfOut = resolve('build/ui-perf.json');
+const perfOut = join(tmpdir(), 'lagoto-ui-perf.json');
 rmSync(perfOut, { force: true });
-env.TEST_RUNNER_LAGOTO_PERF_OUT = perfOut;
 // A CI runner is not the registered Mac: it gets a looser limit and its evidence is never counted as the p95 certification.
 const onCi = Boolean(process.env.CI);
 if (onCi) env.TEST_RUNNER_LAGOTO_PERF_LIMIT_MS = '1500';
@@ -39,6 +38,17 @@ const summary = readXcresultSummary(resultPath);
 const status = xcodebuild.status === 0 && summary && summary.total > 0 && summary.failed === 0 && summary.skipped === 0 ? 'passed' : 'failed';
 const report = { ...provenance(), status, xcodebuildStatus: xcodebuild.status, summary, tests };
 mkdirSync('build', { recursive: true });
+// The performance test attaches its report to the result bundle; take it out of there.
+{
+  const exported = join(tmpdir(), 'lagoto-ui-attachments');
+  rmSync(exported, { recursive: true, force: true });
+  spawnSync('xcrun', ['xcresulttool', 'export', 'attachments', '--path', resultPath, '--output-path', exported], { encoding: 'utf8' });
+  try {
+    const manifest = JSON.parse(readFileSync(join(exported, 'manifest.json'), 'utf8')) as { attachments: { exportedFileName: string; suggestedHumanReadableName?: string }[] }[];
+    const file = manifest.flatMap(entry => entry.attachments).find(item => item.suggestedHumanReadableName?.startsWith('ui-perf'));
+    if (file) writeFileSync(perfOut, readFileSync(join(exported, file.exportedFileName)));
+  } catch { /* no attachment: the performance test did not get that far */ }
+}
 if (existsSync(perfOut)) {
   const perf = JSON.parse(readFileSync(perfOut, 'utf8'));
   const meta = provenance();
