@@ -20,29 +20,21 @@ import XCTest
         // Click the visible task rows one after the other; the app publishes "<task id>|<milliseconds>" on the transcript of the task it just opened.
         let first = app.element("task-row:Contratto API")
         XCTAssertTrue(first.waitForExistence(timeout: 60)); first.click()
-        let outline = app.outlines["Sidebar"]
         var samples: [Int] = []
-        var lastTask = "", seen = Set<String>()
+        var lastTask = ((app.element("transcript").value as? String) ?? "").split(separator: "|").first.map(String.init) ?? ""
         let started = Date()
-        // The first click must produce a measurement; if it does not, fail at once with what the app exposes.
+        // The sidebar has the keyboard focus after the click: every Down arrow selects the next row, and every task row opened is one switch.
         let probe = app.element("task-row:Contratto API"); probe.click()
         Thread.sleep(forTimeInterval: 3)
-        XCTAssertTrue(((app.element("transcript").value as? String) ?? "").contains("|"), "valore esposto dalla trascrizione: «\(String(describing: app.element("transcript").value))» — \(app.element("transcript").debugDescription)")
-        for _ in 0..<12 where samples.count < 45 && Date().timeIntervalSince(started) < 240 {
-            let rows = app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH 'task-row:'"))
-            for index in 0..<rows.count {
-                let row = rows.element(boundBy: index)
-                guard row.exists, row.isHittable, seen.insert(row.identifier).inserted else { continue }
-                row.click()
-                let deadline = Date().addingTimeInterval(4)
-                while Date() < deadline {
-                    let raw = (app.element("transcript").value as? String) ?? ""
-                    let parts = raw.split(separator: "|")
-                    if parts.count == 2, String(parts[0]) != lastTask, let ms = Int(parts[1]) { lastTask = String(parts[0]); samples.append(ms); break }
-                    Thread.sleep(forTimeInterval: 0.05)
-                }
+        XCTAssertTrue(((app.element("transcript").value as? String) ?? "").contains("|"), "valore esposto dalla trascrizione: «\(String(describing: app.element("transcript").value))»")
+        for _ in 0..<120 where samples.count < 45 && Date().timeIntervalSince(started) < 300 {
+            app.typeKey(.downArrow, modifierFlags: [])
+            let deadline = Date().addingTimeInterval(1.5)
+            while Date() < deadline {
+                let parts = ((app.element("transcript").value as? String) ?? "").split(separator: "|")
+                if parts.count == 2, String(parts[0]) != lastTask, let ms = Int(parts[1]) { lastTask = String(parts[0]); samples.append(ms); break }
+                Thread.sleep(forTimeInterval: 0.05)
             }
-            outline.scroll(byDeltaX: 0, deltaY: -240)
         }
         XCTAssertGreaterThanOrEqual(samples.count, 10, "troppo pochi cambi di lavoro misurati: \(samples)")
         let warm = Array(samples.dropFirst(3)).sorted()
