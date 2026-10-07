@@ -100,8 +100,8 @@ import XCTest
         XCTAssertTrue(app.element("init-confirm").waitForExistence(timeout: 15))
         app.element("init-confirm").click()
         XCTAssertTrue(app.element("init-done").waitForExistence(timeout: 30))
-        let tracked = git(["ls-files"], in: folder("da-preparare"))
-        XCTAssertTrue(tracked.contains("README.md")); XCTAssertFalse(tracked.contains(".env"))
+        let tracked = git(["ls-tree", "-r", "--name-only", "HEAD"], in: folder("da-preparare"))
+        XCTAssertTrue(tracked.contains("README.md"), "file nel primo commit: «\(tracked)»"); XCTAssertFalse(tracked.contains(".env"), "il file con segreti non è nel commit")
         app.terminate()
     }
 

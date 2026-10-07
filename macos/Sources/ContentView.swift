@@ -27,6 +27,7 @@ struct ContentView: View {
     @State private var expanded: Set<String> = []
     @FocusState private var searchFocused: Bool
     @State private var hits: [SearchHit] = []
+    @State private var showAll: Set<String> = []
     @State private var search = ""
     @State private var newProject = false
     @State private var backup = false
@@ -39,8 +40,9 @@ struct ContentView: View {
             List(selection: $selection) {
                 Section("Progetti") {
                     ForEach(projects.filter { search.isEmpty || $0.name.localizedCaseInsensitiveContains(search) || (tasks[$0.id] ?? []).contains { $0.title.localizedCaseInsensitiveContains(search) || $0.objective.localizedCaseInsensitiveContains(search) } }) { project in
-                        DisclosureGroup(isExpanded: Binding(get: { expanded.contains(project.id) }, set: { if $0 { expanded.insert(project.id) } else { expanded.remove(project.id) } })) {
-                            ForEach((tasks[project.id] ?? []).filter { search.isEmpty || project.name.localizedCaseInsensitiveContains(search) || $0.title.localizedCaseInsensitiveContains(search) || $0.objective.localizedCaseInsensitiveContains(search) }) { task in TaskRowLabel(task: task).tag("task:\(task.id)") }
+                        DisclosureGroup(isExpanded: Binding(get: { expanded.contains(project.id) || !search.isEmpty }, set: { if $0 { expanded.insert(project.id) } else { expanded.remove(project.id) } })) {
+                            ForEach(visibleTasks(project)) { task in TaskRowLabel(task: task).tag("task:\(task.id)") }
+                            if hiddenCount(project) > 0 { Button("Mostra altri \(hiddenCount(project))…") { showAll.insert(project.id) }.buttonStyle(.plain).foregroundStyle(.secondary).font(.caption).accessibilityIdentifier("show-more:\(project.name)") }
                             Button("Nuovo lavoro", systemImage: "plus") { selection = "project:\(project.id)" }.buttonStyle(.plain)
                         } label: { Label(project.name, systemImage: "folder").accessibilityIdentifier("project-row:\(project.name)").tag("project:\(project.id)") }
                         .contextMenu {
@@ -147,6 +149,16 @@ struct ContentView: View {
         }
         .alert("Operazione non completata", isPresented: Binding(get: { error != nil }, set: { if !$0 { error = nil } })) { Button("OK") { error = nil } } message: { Text(error ?? "") }
     }
+    private static let rowLimit = 12
+    private func matching(_ project: Project) -> [WorkTask] {
+        (tasks[project.id] ?? []).filter { search.isEmpty || project.name.localizedCaseInsensitiveContains(search) || $0.title.localizedCaseInsensitiveContains(search) || $0.objective.localizedCaseInsensitiveContains(search) }
+    }
+    /// A project with hundreds of tasks shows its first rows; the rest is one tap away, and a search always shows every match.
+    private func visibleTasks(_ project: Project) -> [WorkTask] {
+        let all = matching(project)
+        return showAll.contains(project.id) || !search.isEmpty ? all : Array(all.prefix(Self.rowLimit))
+    }
+    private func hiddenCount(_ project: Project) -> Int { showAll.contains(project.id) || !search.isEmpty ? 0 : max(0, matching(project).count - Self.rowLimit) }
     private func importTask(into project: Project) {
         let panel = NSOpenPanel(); panel.canChooseDirectories = true; panel.canChooseFiles = false; panel.title = "Scegli la cartella esportata"
         guard panel.runModal() == .OK, let url = panel.url else { return }
@@ -164,7 +176,7 @@ struct ContentView: View {
         do {
             projects = try await bridge.decode([Project].self, method: "project/list")
             archived = try await bridge.decode([Project].self, method: "project/archived")
-            tasks = [:]; selection = nil; expanded = Set(projects.map(\.id))
+            tasks = [:]; selection = nil; expanded = Set(projects.prefix(6).map(\.id))
             for project in projects { tasks[project.id] = try await bridge.decode([WorkTask].self, method: "task/list", params: ["projectId": .string(project.id)]) }
             events.taskTitles = Dictionary(uniqueKeysWithValues: tasks.values.flatMap { $0 }.map { ($0.id, $0.title) })
         } catch { self.error = error.localizedDescription }

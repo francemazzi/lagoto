@@ -18,6 +18,7 @@ struct TaskView: View {
     @AppStorage("workspace.width") private var workspaceWidth = 380.0
     @State private var delivery = false
     @State private var exporting = false
+    @State private var criteriaOpen = true
     @State private var diff: JSONValue = .null
     @State private var checkpoints: JSONValue = .null
     @State private var verifications: JSONValue = .null
@@ -170,7 +171,7 @@ struct TaskView: View {
                 Text("Il lavoro").font(.title2).bold()
                 Text(work.objective).textSelection(.enabled)
                 if uncertain { Button("Riconcilia processi dopo il riavvio") { Task { await reconcileRuns() } }.disabled(busy).accessibilityIdentifier("reconcile-runs") }
-                DisclosureGroup("Criteri e decisioni") { TaskMemoryView(bridge: bridge, taskID: work.id) }
+                DisclosureGroup("Criteri e decisioni", isExpanded: $criteriaOpen) { TaskMemoryView(bridge: bridge, taskID: work.id) }
                 DisclosureGroup("Repository") { ForEach(snapshot?.repositories ?? [], id: \.pretty) { Text($0["name"].string ?? "").font(.headline); Text($0["path"].string ?? "").font(.caption).textSelection(.enabled) } }
                 DisclosureGroup("Modifiche") { ForEach(diff.array, id: \.pretty) { Text($0["status"].string ?? "").font(.caption); Text($0["diff"].string ?? "").font(.system(.caption, design: .monospaced)).textSelection(.enabled) } }
                 DisclosureGroup("Checkpoint") {
