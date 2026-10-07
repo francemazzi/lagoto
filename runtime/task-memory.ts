@@ -12,8 +12,22 @@ export class TaskMemory {
       for(const row of rows)if(row.state==='verified'&&!verifications.some(v=>v.id===row.verification_id&&v.state==='passed')){row.state='stale';this.store.db.prepare("UPDATE criteria SET state='stale' WHERE id=?").run(row.id);}
       if(!rows.length||rows.some(r=>!['verified','waived'].includes(r.state)))this.store.db.prepare("UPDATE tasks SET status='ready' WHERE id=? AND status IN ('completed','review')").run(taskId);
     })();
-    return {criteria:rows,completed:rows.filter(r=>['verified','waived'].includes(r.state)).length,total:rows.length,
-      decisions:this.store.db.prepare('SELECT * FROM decisions WHERE task_id=? ORDER BY created_at,id').all(taskId),status:this.store.task(taskId).status};
+    const completed=rows.filter(r=>['verified','waived'].includes(r.state)).length;const taskStatus=this.store.task(taskId).status;
+    const activeRun=Boolean(this.store.db.prepare("SELECT 1 FROM runs WHERE task_id=? AND state IN ('starting','running','stopping','waiting_permission')").get(taskId));
+    const uncertain=Boolean(this.store.db.prepare("SELECT 1 FROM runs WHERE task_id=? AND state='unknown'").get(taskId))||verifications.some(v=>v.state==='unknown');
+    const runningCheck=verifications.some(v=>v.state==='running');
+    const missing=rows.filter(r=>!['verified','waived'].includes(r.state)).map(r=>({id:r.id,content:r.content,state:r.state}));
+    // Blockers are concrete facts of the archive, never a countdown or an assumed pass.
+    const blockers:string[]=[];
+    if(!rows.length)blockers.push('Nessun criterio di accettazione definito');
+    if(activeRun)blockers.push('Esecuzione in corso');
+    if(uncertain)blockers.push('Esecuzione o verifica da riconciliare');
+    if(runningCheck)blockers.push('Verifica in corso');
+    for(const row of rows.filter(r=>r.state==='stale'))blockers.push(`Prova obsoleta: «${row.content}»`);
+    const phase=taskStatus==='completed'?'completed':!rows.length?'define-criteria':activeRun?'running':uncertain?'reconcile':missing.length?'verify':'ready-for-review';
+    const changes=this.store.db.prepare('SELECT h.criterion_id AS id,h.revision,h.content,h.reason,h.created_at FROM criteria_history h JOIN criteria c ON c.id=h.criterion_id WHERE c.task_id=? ORDER BY h.created_at DESC,h.revision DESC LIMIT 20').all(taskId);
+    return {criteria:rows,completed,total:rows.length,phase,missing,blockers,changes,
+      decisions:this.store.db.prepare('SELECT * FROM decisions WHERE task_id=? ORDER BY created_at,id').all(taskId),status:taskStatus};
   }
   edit(taskId:string,content:string,reason:string,id?:string,revision?:number){
     this.store.task(taskId);const criterion=id??randomUUID();

@@ -22,7 +22,7 @@ export class Verifications {
     const timeout=setTimeout(()=>{interrupted=true;void client.stop().catch(()=>{});},120000);
     const done=(async()=>{
       let state='unknown';let message='';
-      try {const exit=await completed;await client.stop();state=interrupted?'interrupted':overflow?'failed':exit===0?'passed':'failed';
+      try {const exit=await completed;await client.stop();state=interrupted?'interrupted':overflow?'failed':exit===0?'passed':(exit===126||exit===127)?'environment':'failed';
         if(state==='passed' && await fingerprint(repo.path)!==before)state='stale';
       }catch(error){message=String(redact(String(error)));}
       finally{clearTimeout(timeout);}

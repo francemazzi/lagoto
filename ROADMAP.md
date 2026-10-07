@@ -120,12 +120,12 @@ La UI può procedere con fixture dopo P01; le prove pure di memoria possono proc
 
 **Dipende da:** P03.
 
-- [ ] **P04.1 — Worktree coordinati.** Uno per repository del task, con base e branch. **P04-I01:** fallimento del terzo repo non lascia il task pronto; retry e cleanup non distruttivi.
-- [ ] **P04.2 — Lavoro esistente.** Rilevare staged/unstaged/untracked e offrire copia selettiva. **P04-I02:** byte e indice delle directory originali invariati dopo preparazione o annullamento.
-- [ ] **P04.3 — Ownership.** Un writer gestito da Lagoto per insieme di worktree. **P04-I03:** richieste simultanee non ottengono entrambe ownership.
-- [ ] **P04.4 — Multi-root.** Directory consentite e ruoli espliciti, senza concedere tutta la home. **P04-I04:** accesso a percorso fratello/symlink esterno verificato sul confine realmente applicabile; limiti della sandbox pubblicati.
-- [ ] **P04.5 — Ambiente.** Comandi install/build/test e dipendenze per repository, con autorizzazioni pertinenti. **P04-I05:** setup riproducibile della fixture; errore ambiente distinto da bug del codice.
-- [ ] **P04.6 — Modifiche esterne.** Rilevare editor esterno, conflitti, detached HEAD, submodule e LFS. **P04-I06:** evidenze interessate invalidate; casi non supportati bloccati senza false garanzie.
+- [x] **P04.1 — Worktree coordinati.** Uno per repository del task, con base e branch. **P04-I01:** fallimento del terzo repo non lascia il task pronto; retry e cleanup non distruttivi.
+- [x] **P04.2 — Lavoro esistente.** Rilevare staged/unstaged/untracked e offrire copia selettiva. **P04-I02:** byte e indice delle directory originali invariati dopo preparazione o annullamento.
+- [x] **P04.3 — Ownership.** Un writer gestito da Lagoto per insieme di worktree. **P04-I03:** richieste simultanee non ottengono entrambe ownership.
+- [x] **P04.4 — Multi-root.** Directory consentite e ruoli espliciti, senza concedere tutta la home. **P04-I04:** accesso a percorso fratello/symlink esterno verificato sul confine realmente applicabile; limiti della sandbox pubblicati.
+- [x] **P04.5 — Ambiente.** Comandi install/build/test e dipendenze per repository, con autorizzazioni pertinenti. **P04-I05:** setup riproducibile della fixture; errore ambiente distinto da bug del codice.
+- [x] **P04.6 — Modifiche esterne.** Rilevare editor esterno, conflitti, detached HEAD, submodule e LFS. **P04-I06:** evidenze interessate invalidate; casi non supportati bloccati senza false garanzie.
 
 **Gate:** task a tre repository senza alterare le directory originali o confondere lock applicativo e controllo del filesystem.
 
@@ -133,13 +133,13 @@ La UI può procedere con fixture dopo P01; le prove pure di memoria possono proc
 
 **Dipende da:** P04 e contratti P00.
 
-- [ ] **P05.1 — AgentRuntimeAdapter.** Discover, auth status, start/send, eventi, permessi, interrupt/close e resume opzionale. **P05-I01:** adapter completo e parziale superano lo stesso contratto senza capability inventate.
-- [ ] **P05.2 — Journal.** Persistenza prima della proiezione durevole in UI, sequenza, replay e deduplica. **P05-I02:** duplicati/fuori ordine/reconnect non duplicano messaggi, tool o transizioni.
-- [ ] **P05.3 — Processi.** Identità, start time, gruppo, figli e stop graduato. **P05-I03:** figlio sopravvissuto e PID riutilizzato non producono falso arresto.
-- [ ] **P05.4 — Comandi ed effetti esterni.** Intenzione prima dell’avvio, output/esito/fingerprint dopo. **P05-I04:** crash tra start e risposta produce unknown, mai replay cieco o test passed.
-- [ ] **P05.5 — Permessi.** Approval con scope; modalità Plan protetta solo se tecnicamente applicabile. **P05-I05:** tool non autorizzato rifiutato; controllo assente non mascherato da istruzione testuale.
-- [ ] **P05.6 — Stream.** Backpressure, frame spezzati, dati grandi, log redatti e protocollo invalido. **P05-I06:** output parziale recuperabile, UI reattiva e errore esplicito senza perdere eventi già durevoli.
-- [ ] **P05.7 — Ledger e prenotazioni.** Addebiti, rettifiche, impegni atomici, pool condivisi, scope e watermark. **P05-I07:** due run non impegnano due volte lo stesso saldo; snapshot account/eventi/figli non sono sommati due volte; crash e risultato tardivo conservano gli impegni incerti. La politica completa arriva in P09.
+- [x] **P05.1 — AgentRuntimeAdapter.** Discover, auth status, start/send, eventi, permessi, interrupt/close e resume opzionale. **P05-I01:** adapter completo e parziale superano lo stesso contratto senza capability inventate.
+- [x] **P05.2 — Journal.** Persistenza prima della proiezione durevole in UI, sequenza, replay e deduplica. **P05-I02:** duplicati/fuori ordine/reconnect non duplicano messaggi, tool o transizioni.
+- [x] **P05.3 — Processi.** Identità, start time, gruppo, figli e stop graduato. **P05-I03:** figlio sopravvissuto e PID riutilizzato non producono falso arresto.
+- [x] **P05.4 — Comandi ed effetti esterni.** Intenzione prima dell’avvio, output/esito/fingerprint dopo. **P05-I04:** crash tra start e risposta produce unknown, mai replay cieco o test passed.
+- [x] **P05.5 — Permessi.** Approval con scope; modalità Plan protetta solo se tecnicamente applicabile. **P05-I05:** tool non autorizzato rifiutato; controllo assente non mascherato da istruzione testuale.
+- [x] **P05.6 — Stream.** Backpressure, frame spezzati, dati grandi, log redatti e protocollo invalido. **P05-I06:** output parziale recuperabile, UI reattiva e errore esplicito senza perdere eventi già durevoli.
+- [x] **P05.7 — Ledger e prenotazioni.** Addebiti, rettifiche, impegni atomici, pool condivisi, scope e watermark. **P05-I07:** due run non impegnano due volte lo stesso saldo; snapshot account/eventi/figli non sono sommati due volte; crash e risultato tardivo conservano gli impegni incerti. La politica completa arriva in P09.
 
 **Gate:** esecuzione e contabilità ricostruibili dal journal, anche quando l’harness termina senza risposta finale.
 

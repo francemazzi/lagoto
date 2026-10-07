@@ -27,7 +27,8 @@
     "test:ui": "tsx scripts/ui-tests.ts",
     "gate:ci": "tsx scripts/gate.ts all --ci --ui",
     "probe:auth": "tsx scripts/probe-auth.ts",
-    "package": "tsx scripts/package.ts"
+    "package": "tsx scripts/package.ts",
+    "probe:usage": "tsx scripts/probe-usage.ts"
   },
   "dependencies": {
     "@qwen-code/sdk": "0.1.17",

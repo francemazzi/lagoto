@@ -18,6 +18,8 @@ import { Repositories } from './repositories.js';
 import { GitHubLinks } from './github-link.js';
 import { GitInitializations } from './git-initialize.js';
 import { authStatus } from './auth-status.js';
+import { contextMeter } from './context-meter.js';
+import { readUsage, withFreshness } from './usage-sources.js';
 
 export class Service {
   readonly runs: RunManager;
@@ -112,6 +114,12 @@ export class Service {
         this.store.db.prepare('INSERT INTO tasks(id,project_id,title,objective,created_at) VALUES(?,?,?,?,?)').run(id, projectId, title, objective, now());
         return this.store.task(id);
       }
+      case 'repository/setup': {
+        const i = z.object({ projectId: identifier, repositoryId: identifier, commands: z.array(z.object({ kind: z.enum(['install', 'build', 'test']), command: z.string().trim().min(1).max(4000) }).strict()).max(20) }).strict().parse(p);
+        this.store.project(i.projectId);
+        if (!this.store.db.prepare('UPDATE repositories SET setup=? WHERE id=? AND project_id=?').run(JSON.stringify(i.commands), i.repositoryId, i.projectId).changes) throw new AppError(404, 'Repository non trovato');
+        return { saved: i.commands.length };
+      }
       case 'task/prepare': {
         const { taskId, repositoryIds } = z.object({ taskId: identifier, repositoryIds: z.array(identifier).min(1) }).strict().parse(p);
         return prepareWorktrees(this.store, taskId, repositoryIds);
@@ -128,6 +136,7 @@ export class Service {
           repositories:this.store.db.prepare('SELECT tr.*,r.name FROM task_repositories tr JOIN repositories r ON r.id=tr.repository_id WHERE task_id=?').all(taskId),
           queued:this.store.db.prepare("SELECT * FROM queued_messages WHERE task_id=? AND state='queued' ORDER BY created_at").all(taskId)};
       }
+      case 'context/meter': {const {taskId}=z.object({taskId:identifier}).strict().parse(p);return contextMeter(this.store,taskId);}
       case 'task/queue': {
         const {taskId,text,id} = z.object({taskId:identifier,text:z.string().trim().min(1).max(100000),id:identifier}).strict().parse(p);
         this.store.task(taskId);
@@ -163,6 +172,8 @@ export class Service {
           this.store.db.prepare('INSERT INTO budget_cycles VALUES(?,?,?,?,?,?)').run(cycle,id,i.residual,reserve,i.resetAt,now());
         })();return{id};
       }
+      case 'usage/read': {const i=z.object({provider:z.enum(['codex','claude','cursor','qwen','kimi','ollama','openrouter'])}).strict().parse(p);return withFreshness(await readUsage(i.provider));}
+      case 'budget/summary': return new RunBudgets(this.store).summary();
       case 'budget/link': {
         const i=z.object({profileId:identifier,poolId:identifier,reservation:z.number().int().positive().max(1e9)}).strict().parse(p);
         if(this.store.db.prepare("SELECT 1 FROM runs WHERE profile_id=? AND state IN ('starting','running','stopping','waiting_permission','unknown')").get(i.profileId))throw new AppError(409,'Budget non modificabile durante una run');

@@ -1,3 +1,4 @@
+import {readdirSync} from 'node:fs';
 import { afterEach, describe, it, expect } from 'vitest';
 import Database from 'better-sqlite3';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync, symlinkSync } from 'node:fs';
@@ -21,7 +22,7 @@ describe('Lifecycle primitives', () => {
     db.exec("INSERT INTO migrations VALUES(1,'fixture'); INSERT INTO projects VALUES('project','Preserve',0,'fixture'); CREATE TABLE run_requests(id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES runs(id))");
     migrate(db); expect(db.prepare('SELECT name FROM projects').get()).toEqual({name:'Preserve'});
     expect((db.pragma('table_info(run_requests)') as { name: string }[]).map(row=>row.name)).toContain('fingerprint');
-    migrate(db); expect(db.prepare('SELECT count(*) AS count FROM migrations').get()).toEqual({count:9});
+    migrate(db); expect(db.prepare('SELECT count(*) AS count FROM migrations').get()).toEqual({count:readdirSync('runtime/migrations').filter(name=>name.endsWith('.sql')).length});
     db.exec("INSERT INTO migrations VALUES(999,'future')"); expect(()=>migrate(db)).toThrow('più recente'); db.close();
   });
   it('P04-I03 single writer, request fingerprint and shutdown remain valid during asynchronous finalization', async () => {

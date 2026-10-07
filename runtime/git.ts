@@ -53,6 +53,18 @@ export async function addRepository(store: Store, projectId: string, directory: 
   if(root)store.db.prepare('UPDATE repositories SET git_root=?,identity=?,remote=? WHERE project_id=? AND path=? AND git_root IS NULL').run(root,identity,remote,projectId,path);
   return store.db.prepare('SELECT * FROM repositories WHERE project_id=? AND path=?').get(projectId, path);
 }
+/** Refuse states where an automatic worktree would hide a problem instead of isolating work (P04-I06). */
+export async function assertPreparable(path: string) {
+  if (!await git(path, ['symbolic-ref', '-q', 'HEAD']).catch(() => '')) throw new AppError(409, 'HEAD scollegato: scegli un branch prima di preparare il lavoro');
+  for (const marker of ['MERGE_HEAD', 'CHERRY_PICK_HEAD', 'REVERT_HEAD', 'rebase-merge', 'rebase-apply']) {
+    const target = await git(path, ['rev-parse', '--path-format=absolute', '--git-path', marker]);
+    try { await access(target); throw new AppError(409, 'Merge, rebase o cherry-pick in corso: risolvi i conflitti prima di preparare il lavoro'); }
+    catch (error) { if (error instanceof AppError) throw error; }
+  }
+  if ((await git(path, ['ls-files', '--stage'])).split('\n').some(line => line.startsWith('160000 '))) throw new AppError(400, 'Submodule: preparazione automatica non supportata');
+  const lfs = (await git(path, ['grep', '-I', '-l', '-e', 'filter=lfs', '--', ':(glob)**/.gitattributes']).catch(() => '')).trim();
+  if (lfs) throw new AppError(400, 'Git LFS: file grandi non gestiti, preparazione automatica non supportata');
+}
 export type TaskRepository = { task_id: string; repository_id: string; path: string; branch: string; base: string };
 export async function prepareWorktrees(store: Store, taskId: string, repositoryIds: string[], executeGit = git) {
   const task = store.task(taskId);
@@ -74,7 +86,7 @@ export async function prepareWorktrees(store: Store, taskId: string, repositoryI
     const intended:TaskRepository[]=[];
     for(const repo of repos){
       await access(repo.path);const base=await git(repo.path,['rev-parse','--verify','HEAD']);
-      if((await git(repo.path,['ls-files','--stage'])).split('\n').some(line=>line.startsWith('160000 ')))throw new AppError(400,'Submodule: preparazione automatica non supportata');
+      await assertPreparable(repo.path);
       intended.push({task_id:taskId,repository_id:repo.id,path:join(store.directory,'worktrees',taskId,repo.id),branch:`codex/lagoto-${taskId.slice(0,8)}`,base});
     }
     store.db.transaction(()=>{for(const row of intended)store.db.prepare("INSERT INTO preparations VALUES(@task_id,@repository_id,@path,@branch,@base,'planned')").run(row);})();

@@ -33,3 +33,15 @@ Cursor 2026.10.01-e373342 / composer-2.5[fast=true]: smoke positivo e handoff bi
 ## Stati dell'inventario (P00-I01)
 
 `integration/list` restituisce per ogni strumento uno stato: `absent` (binario non trovato), `unrecognized` (presente ma senza versione leggibile), `verified` (versione elencata in `runtime/compatibility.json`) e `unverified` (versione leggibile ma non provata). Solo `verified` corrisponde a combinazioni con smoke registrato; le versioni nuove restano `unverified` finché non vengono provate. L'accesso nativo è letto da `integration/auth-status` (`codex login status`, `claude auth status`, `cursor-agent status`) con stati `ok`, `absent`, `expired`, `cancelled` e `unknown`; `run/start` rifiuta qualsiasi stato diverso da `ok` prima di avviare processi.
+
+## Limiti dei confini di isolamento (P04-I04)
+
+| Percorso | Cosa è applicato | Cosa non è applicato |
+| --- | --- | --- |
+| Cursor ACP | Scritture confinate da `sandbox-exec` alle directory concesse, alla home del profilo e a una cartella temporanea, anche per processi figli e symlink; `fs/*` servito da Lagoto solo dentro le radici e mai in `.git` | Le letture del CLI non sono confinate; la rete non è limitata |
+| Qwen Code SDK (cloud e Ollama) | Ambiente filtrato, home per profilo, directory consentite passate allo SDK; per Ollama la rete esterna è negata nella prova offline via policy macOS | Il worker SDK non è confinato da `sandbox-exec` in uso normale |
+| Codex | Sandbox del CLI con radici scrivibili limitate ai worktree del task e rete disattivata | Controllo affidato al CLI, non verificato da Lagoto oltre lo smoke |
+| Claude Code | Directory aggiuntive esplicite e permessi per strumento tramite il canale di controllo | Nessun confine del filesystem imposto da Lagoto |
+
+Un lock applicativo consente un solo writer per insieme di worktree e non ferma un editor esterno: una modifica esterna invalida le verifiche (`stale`). Detached HEAD, merge o rebase in corso, submodule e Git LFS bloccano la preparazione con un motivo. Gli errori di ambiente (comando non trovato, codice 126 o 127) sono distinti dai test falliti (`environment` contro `failed`).
+
