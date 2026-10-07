@@ -8,6 +8,8 @@ import { contextPack,createCheckpoint } from './checkpoint.js';
 import { RunBudgets } from './budget.js';
 import {ProcessLeases} from './process-leases.js';
 import {runtimeIdentity} from './runtime-identity.js';
+import {authStatus,assertAuthUsable,type AuthProvider} from './auth-status.js';
+import {classifyFailure} from './errors.js';
 type ActiveRun = { taskId: string; adapter?: RunningAdapter; stopping: boolean; startup?: Promise<void> };
 
 export class RunManager {
@@ -16,7 +18,7 @@ export class RunManager {
   private starting = new Set<Promise<unknown>>();
   private permissions = new Map<string, { runId: string; respond: (allow: boolean) => void; timer: NodeJS.Timeout }>();
   private get budgets(){return new RunBudgets(this.store);}
-  constructor(private store: Store, private notify: (event: unknown) => void, private adapterFactory = startAdapter) {}
+  constructor(private store: Store, private notify: (event: unknown) => void, private adapterFactory = startAdapter, private authCheck: typeof authStatus = authStatus) {}
   private event(taskId: string, runId: string, kind: string, payload: unknown) {
     const event = this.store.event(taskId, runId, kind, payload) as { payload: string } | undefined;
     if (event) this.notify({ ...event, payload: JSON.parse(event.payload) });
@@ -40,6 +42,10 @@ export class RunManager {
     if (effort && !capabilities.efforts?.includes(effort)) throw new AppError(400, 'Effort non supportato');
     let identity:unknown;
     if(this.adapterFactory===startAdapter){
+      if(['codex','claude','cursor'].includes(profile.provider)){
+        try{assertAuthUsable(await this.authCheck(profile.provider as AuthProvider,profile.executable));}
+        catch(error){throw new AppError((error as {code?:number}).code??409,error instanceof Error?error.message:'Accesso non utilizzabile');}
+      }
       identity=await runtimeIdentity(profile);
       if(capabilities.verification!=='passed'||JSON.stringify(identity)!==JSON.stringify(capabilities.proof?.identity))throw new AppError(409,'Runtime o versione cambiati: verifica nuovamente il profilo in Integrazioni');
     }
@@ -112,7 +118,8 @@ export class RunManager {
     catch(checkpointError){this.event(entry.taskId,runId,'error',{message:`Checkpoint non salvato: ${checkpointError instanceof Error?checkpointError.message:'errore archivio'}`});}
     this.store.db.prepare('UPDATE runs SET state=?,ended_at=?,session_id=COALESCE(?,session_id) WHERE id=?').run(finalState, now(), entry.adapter?.sessionId ?? null, runId);
     this.budgets.finish(runId,finalState);
-    this.event(entry.taskId, runId, 'run_state', { state: finalState, message: error instanceof Error ? error.message : undefined });
+    const failure = finalState==='failed' || finalState==='unknown' ? classifyFailure(error instanceof Error ? error.message : undefined) : undefined;
+    this.event(entry.taskId, runId, 'run_state', { state: finalState, message: error instanceof Error ? error.message : undefined, ...(failure ? { cause: failure.cause, action: failure.action } : {}) });
     this.active.delete(runId);
   }
   answer(runId: string, permissionId: string, allow: boolean) {

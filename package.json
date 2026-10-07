@@ -25,7 +25,9 @@
     "lint": "oxlint runtime scripts tests",
     "lint:swift": "xcrun swift-format lint --recursive macos/Sources macos/Tests macos/UITests",
     "test:ui": "tsx scripts/ui-tests.ts",
-    "gate:ci": "tsx scripts/gate.ts all --ci --ui"
+    "gate:ci": "tsx scripts/gate.ts all --ci --ui",
+    "probe:auth": "tsx scripts/probe-auth.ts",
+    "package": "tsx scripts/package.ts"
   },
   "dependencies": {
     "@qwen-code/sdk": "0.1.17",

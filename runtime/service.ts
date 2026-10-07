@@ -17,6 +17,7 @@ import { TaskMemory } from './task-memory.js';
 import { Repositories } from './repositories.js';
 import { GitHubLinks } from './github-link.js';
 import { GitInitializations } from './git-initialize.js';
+import { authStatus } from './auth-status.js';
 
 export class Service {
   readonly runs: RunManager;
@@ -140,6 +141,7 @@ export class Service {
       case 'verification/stop': {const {taskId}=z.object({taskId:identifier}).strict().parse(p);await this.verifications.stopTask(taskId);return{stopped:true};}
       case 'verification/reconcile': {const {id}=z.object({id:identifier}).strict().parse(p);return this.verifications.reconcile(id);}
       case 'integration/list': return inventory();
+      case 'integration/auth-status': {const i=z.object({provider:z.enum(['codex','claude','cursor'])}).strict().parse(p);return authStatus(i.provider);}
       case 'model/codex': return codexModels();
       case 'model/ollama': return localModels();
       case 'profile/list': return (this.store.db.prepare('SELECT * FROM profiles ORDER BY provider,name').all() as { capabilities: string }[]).map(row => ({ ...row, capabilities: JSON.parse(row.capabilities) }));

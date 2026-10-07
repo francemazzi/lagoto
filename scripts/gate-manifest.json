@@ -26,10 +26,7 @@
   },
   "freshnessPaths": [
     "runtime",
-    "scripts",
     "fixtures",
-    "macos/Sources",
-    "macos/UITests",
     "package.json",
     "pnpm-lock.yaml"
   ],
@@ -52,7 +49,10 @@
       "scenarios": [],
       "native": [],
       "smokes": [
-        "probe-auth-*.json"
+        "probe-auth-ok-*.json",
+        "probe-auth-absent-*.json",
+        "probe-auth-expired-*.json",
+        "probe-auth-cancelled-*.json"
       ],
       "attestations": []
     },
@@ -560,7 +560,8 @@
         "P06_I03"
       ],
       "smokes": [
-        "probe-auth-*.json"
+        "probe-auth-ok-*.json",
+        "probe-auth-absent-*.json"
       ],
       "attestations": []
     },

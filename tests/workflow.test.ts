@@ -144,7 +144,7 @@ it('P11-I05 restore invalidates pending external authorizations and verification
   await expect(createBackup(store,join(temp(),'must-not-backup-active'))).rejects.toThrow('operazioni sui repository');
 });
 
-it('P11-I03 retries a failed second push across three real remotes without duplicate commits or losing unrelated staging',async()=>{
+it('P11-I03 GH-10 retries a failed second push across three real remotes without duplicate commits or losing unrelated staging',async()=>{
   const {store,task,worktrees}=await fixture(3);const selections=[];const staging:string[]=[];
   for(const work of worktrees){
     const bare=temp();await git(bare,['init','--bare']);await git(work.path,['remote','add','delivery-fixture',bare]);

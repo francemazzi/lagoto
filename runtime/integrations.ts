@@ -3,14 +3,15 @@ import { promisify } from 'node:util';
 import { tmpdir } from 'node:os';
 import { executable, cleanEnvironment } from './process.js';
 import { codexClient } from './adapters.js';
+import { classifyTool } from './auth-status.js';
 
 const execute = promisify(execFile);
 export async function inventory() {
   return Promise.all(['codex', 'claude', 'cursor-agent', 'git', 'gh', 'ollama'].map(async name => {
     const path = executable(name);
-    if (!path) return { id: name, installed: false, version: null, path: null };
-    try { const { stdout } = await execute(path, ['--version'], { env: cleanEnvironment(), timeout: 10000 }); return { id: name, installed: true, version: stdout.trim().split('\n')[0], path }; }
-    catch { return { id: name, installed: true, version: null, path }; }
+    if (!path) return { id: name, installed: false, version: null, path: null, state: classifyTool(name, { installed: false, version: null }) };
+    try { const { stdout } = await execute(path, ['--version'], { env: cleanEnvironment(), timeout: 10000 }); const version = stdout.trim().split('\n')[0] ?? null; return { id: name, installed: true, version, path, state: classifyTool(name, { installed: true, version }) }; }
+    catch { return { id: name, installed: true, version: null, path, state: classifyTool(name, { installed: true, version: null }) }; }
   }));
 }
 export async function codexModels() {

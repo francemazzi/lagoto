@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "tools": {
+    "codex": { "verified": ["0.159.2"], "kind": "agent" },
+    "claude": { "verified": ["2.1.283"], "kind": "agent" },
+    "cursor-agent": { "verified": ["2026.10.01-e373342"], "kind": "agent" },
+    "git": { "verified": [], "kind": "support" },
+    "gh": { "verified": [], "kind": "support" },
+    "ollama": { "verified": ["0.34.4"], "kind": "agent" }
+  }
+}

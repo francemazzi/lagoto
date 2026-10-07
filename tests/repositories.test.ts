@@ -66,7 +66,7 @@ it('P03-I05 repairs a moved original repository and its existing task worktree, 
   expect(readFileSync(join(moved,'contract.json'),'utf8')).toBe('{"version":1}\n');
 });
 
-it('P03-I02/P03-I07 deduplicates aliases/subfolders, preserves clones and resolves ambiguous remotes without push',async()=>{
+it('P03-I02/P03-I07 GH-02/GH-03/GH-04 deduplicates aliases/subfolders, preserves clones and resolves ambiguous remotes without push',async()=>{
   const {root,service,project,path,repo}=await fixture();mkdirSync(join(path,'nested'));symlinkSync(path,join(root,'alias'));
   for(const candidate of [join(root,'alias'),join(path,'nested')])expect((await call(service,'repository/add',{projectId:project.id,path:candidate})).id).toBe(repo.id);
   await git(path,['remote','add','origin','git@github.com:Example/First.git']);await git(path,['remote','add','upstream','https://github.com/example/second.git']);
@@ -103,7 +103,7 @@ async function githubFixture(){
   return{...f,links,gh,execute,bare,creates:()=>creates,setFail:()=>{failPush=true;},lose:()=>{loseResponse=true;},switch:()=>{login='different-user';},plaintext:()=>{source='oauth_token';},remote:()=>remote};
 }
 
-it('P03-I08 creates once and resumes a failed push after restart without changing the index or an existing remote',async()=>{
+it('P00-I07 P03-I08 GH-06 creates once and resumes a failed push after restart without changing the index or an existing remote',async()=>{
   const f=await githubFixture();await git(f.path,['remote','add','origin','ssh://git@example.invalid/existing.git']);
   writeFileSync(join(f.path,'staged.txt'),'keep staged\n');await git(f.path,['add','staged.txt']);writeFileSync(join(f.path,'staged.txt'),'keep unstaged\n');
   const preview=await f.links.preview(f.project.id,f.repo.id,randomUUID(),'new-private','github');
@@ -117,7 +117,7 @@ it('P03-I08 creates once and resumes a failed push after restart without changin
   expect(await git(f.path,['remote','get-url','origin'])).toBe('ssh://git@example.invalid/existing.git');
 });
 
-it('P03-I08 reconciles a lost creation response by operation identity and refuses a repository substituted before retry',async()=>{
+it('P00-I07 P03-I08 GH-06 reconciles a lost creation response by operation identity and refuses a repository substituted before retry',async()=>{
   const f=await githubFixture();const preview=await f.links.preview(f.project.id,f.repo.id,randomUUID(),'recover-create','github');f.lose();
   f.links.confirm(preview.id,preview.hash);expect((await f.links.wait(preview.id)).state).toBe('unknown');
   f.links.confirm(preview.id,preview.hash);expect((await f.links.wait(preview.id)).state).toBe('completed');expect(f.creates()).toBe(1);
@@ -125,7 +125,7 @@ it('P03-I08 reconciles a lost creation response by operation identity and refuse
   g.links.confirm(next.id,next.hash);expect((await g.links.wait(next.id)).state).toBe('failed');expect((await g.links.wait(next.id)).error).toContain('identità');expect(g.creates()).toBe(1);
 });
 
-it('P03-I08 rejects changed files or account and sensitive tracked history before publishing',async()=>{
+it('P03-I08 GH-07/GH-08 rejects changed files or account and sensitive tracked history before publishing',async()=>{
   const f=await githubFixture();const preview=await f.links.preview(f.project.id,f.repo.id,randomUUID(),'changed-files','github');
   writeFileSync(join(f.path,'contract.json'),'changed');f.links.confirm(preview.id,preview.hash);expect((await f.links.wait(preview.id)).error).toContain('cambiati');expect(f.creates()).toBe(0);
   const g=await githubFixture();const second=await g.links.preview(g.project.id,g.repo.id,randomUUID(),'changed-account','github');g.switch();g.links.confirm(second.id,second.hash);expect((await g.links.wait(second.id)).error).toContain('Account');expect(g.creates()).toBe(0);
@@ -133,7 +133,7 @@ it('P03-I08 rejects changed files or account and sensitive tracked history befor
   await expect(h.links.preview(h.project.id,h.repo.id,randomUUID(),'secret-history','github')).rejects.toThrow('sensibile');expect(h.creates()).toBe(0);
 });
 
-it('P03-I07 requires the secure gh credential store and keeps a conflicting remote untouched',async()=>{
+it('P00-I07 P03-I07 GH-05/GH-09 requires the secure gh credential store and keeps a conflicting remote untouched',async()=>{
   const f=await githubFixture();f.plaintext();await expect(f.links.account()).rejects.toThrow('Portachiavi');
   await git(f.path,['remote','add','github','https://github.com/example/existing.git']);
   await expect(f.links.preview(f.project.id,f.repo.id,randomUUID(),'new-private','github')).rejects.toThrow('esiste già');
@@ -150,7 +150,7 @@ async function folderFixture(){
   return{...f,folder,candidate,scan,preview};
 }
 
-it('P03-I08 initializes a non-Git folder only after preview, with a selected first commit and no ignored/secret file staged',async()=>{
+it('P03-I08 GH-01 initializes a non-Git folder only after preview, with a selected first commit and no ignored/secret file staged',async()=>{
   const f=await folderFixture();expect(f.scan.excluded).toContainEqual({path:'.env',reason:'Nome sensibile'});expect(f.scan.ignored).toContain('ignored.txt');
   expect(existsSync(join(f.folder,'.git'))).toBe(false);const preview=await f.preview();expect(existsSync(join(f.folder,'.git'))).toBe(false);
   expect(preview.diff).toContain('Synthetic project');
@@ -162,7 +162,7 @@ it('P03-I08 initializes a non-Git folder only after preview, with a selected fir
   expect((await call(f.service,'repository/initialize/confirm',{id:preview.id,hash:preview.hash})).commit).toBe(ready.commit);
 });
 
-it('P03-I08 refuses changed files, candidate metadata and externally initialized folders without overwriting them',async()=>{
+it('P03-I08 GH-08 refuses changed files, candidate metadata and externally initialized folders without overwriting them',async()=>{
   const f=await folderFixture();const preview=await f.preview();writeFileSync(join(f.folder,'README.md'),'changed after preview\n');
   await expect(call(f.service,'repository/initialize/confirm',{id:preview.id,hash:preview.hash})).rejects.toThrow('cambiati');expect(existsSync(join(f.folder,'.git'))).toBe(false);
   const g=await folderFixture();const second=await g.preview();writeFileSync(join(g.root,'data','initializations',second.id,'candidate','.git','config'),'tampered');
