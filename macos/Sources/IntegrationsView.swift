@@ -39,7 +39,7 @@ struct IntegrationsView: View {
                             Spacer()
                             if let state = states[profile.id] {
                                 Label(state.label, systemImage: state.symbol).font(.caption).foregroundStyle(state.tone == "blocked" ? Color.red : state.tone == "warning" ? Color.orange : Color.secondary)
-                                    .accessibilityIdentifier("profile-state:\(profile.name)")
+                                    .accessibilityElement(children: .combine).accessibilityLabel(state.label).accessibilityIdentifier("profile-state:\(profile.name)")
                             }
                             Button("Verifica") { Task { await verify(profile) } }.disabled(profile.capabilities["verification"].string == "checking")
                             if profile.capabilities["verification"].string == "checking" {

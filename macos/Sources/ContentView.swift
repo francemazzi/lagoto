@@ -24,6 +24,7 @@ struct ContentView: View {
     @State private var tasks: [String: [WorkTask]] = [:]
     @State private var selection: String?
     @State private var expanded: Set<String> = []
+    @FocusState private var searchFocused: Bool
     @State private var search = ""
     @State private var newProject = false
     @State private var backup = false
@@ -54,7 +55,9 @@ struct ContentView: View {
             }
             .navigationSplitViewColumnWidth(min: 210, ideal: 244, max: 330)
             .searchable(text: $search, placement: .sidebar, prompt: "Cerca progetti e lavori")
+            .searchFocused($searchFocused)
             .toolbar {
+                Button("Cerca", systemImage: "magnifyingglass") { searchFocused = true }.keyboardShortcut("f", modifiers: .command).help("Cerca progetti e lavori (⌘F)").accessibilityIdentifier("focus-search")
                 Button("Nuovo progetto", systemImage: "folder.badge.plus") { newProject = true }.keyboardShortcut("n", modifiers: [.command, .shift]).accessibilityIdentifier("new-project")
                 Menu("Archivio", systemImage: "ellipsis.circle") {
                     Button("Backup e ripristino…") { backup = true }

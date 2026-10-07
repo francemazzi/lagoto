@@ -20,7 +20,7 @@ struct StorageSheet: View {
                     GridRow { Text("Artefatti in uso"); Text(megabytes(usage["blobs"]["referencedBytes"])).monospacedDigit() }
                     GridRow { Text("Artefatti orfani"); Text("\(Int(usage["blobs"]["orphanCount"].number ?? 0)) · \(megabytes(usage["blobs"]["orphanBytes"]))").monospacedDigit() }
                     GridRow { Text("Worktree"); Text("\(usage["worktrees"].array.count) · \(usage["worktrees"].array.filter { $0["dirty"].bool == true }.count) con modifiche") }
-                }.accessibilityIdentifier("storage-usage")
+                }.accessibilityElement(children: .contain).accessibilityIdentifier("storage-usage")
                 Text(usage["note"].string ?? "").font(.caption).foregroundStyle(.secondary)
             }
             Divider()

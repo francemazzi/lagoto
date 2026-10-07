@@ -37,6 +37,7 @@ import XCTest
         XCTAssertTrue(app.staticTexts["Archivio locale pronto"].waitForExistence(timeout: 30))
         XCTAssertTrue(app.element("task-row:Contratto API").waitForExistence(timeout: 20))
         app.typeKey("f", modifierFlags: .command)
+        XCTAssertTrue(app.searchFields.firstMatch.waitForExistence(timeout: 5))
         app.typeText("vuoto")
         XCTAssertTrue(app.element("task-row:Lavoro vuoto").waitForExistence(timeout: 5))
         XCTAssertFalse(app.element("task-row:Contratto API").waitForExistence(timeout: 2))

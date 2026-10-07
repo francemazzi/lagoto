@@ -33,7 +33,7 @@ struct TaskMemoryView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Label(review["note"].string ?? "Pronto per la revisione", systemImage: "eye").font(.callout)
                     ForEach(review["waivers"].array, id: \.pretty) { Text("Deroga: \($0["content"].string ?? "") — \($0["reason"].string ?? "")").font(.caption) }
-                }.accessibilityIdentifier("review-result")
+                }.accessibilityElement(children: .contain).accessibilityIdentifier("review-result")
             }
             if let reviewError { Label(reviewError, systemImage: "exclamationmark.triangle").font(.callout).foregroundStyle(.orange).textSelection(.enabled).accessibilityIdentifier("review-blocked") }
             if progress["status"].string == "review" { Label("In revisione", systemImage: "eye.circle").accessibilityIdentifier("task-in-review") }

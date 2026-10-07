@@ -51,7 +51,7 @@ struct ToolGroup: View {
     var body: some View {
         DisclosureGroup("\(blocks.count) operazioni degli strumenti") {
             VStack(alignment: .leading, spacing: 6) { ForEach(blocks) { ToolLine(block: $0) } }
-        }.font(.callout).foregroundStyle(.secondary).accessibilityIdentifier("tool-group")
+        }.font(.callout).foregroundStyle(.secondary).accessibilityElement(children: .contain).accessibilityIdentifier("tool-group")
     }
 }
 
@@ -86,7 +86,7 @@ struct TerminalCard: View {
             if !output.isEmpty {
                 DisclosureGroup("Output") { ScrollView { Text(output).font(.system(.caption, design: .monospaced)).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading) }.frame(maxHeight: 220) }.font(.caption)
             }
-        }.padding(12).background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 10)).accessibilityIdentifier("card-terminal")
+        }.padding(12).background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 10)).accessibilityElement(children: .contain).accessibilityIdentifier("card-terminal")
     }
 }
 
@@ -110,7 +110,7 @@ struct FileChangeCard: View {
             if paths.count > 1 { ForEach(paths, id: \.self) { Text($0).font(.caption).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle) } }
             if !diffText.isEmpty { DisclosureGroup("Differenze") { ScrollView { Text(diffText).font(.system(.caption, design: .monospaced)).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading) }.frame(maxHeight: 220) }.font(.caption) }
             else if paths.isEmpty { DisclosureGroup("Dettagli") { Text(detail.pretty).font(.system(.caption, design: .monospaced)).textSelection(.enabled) }.font(.caption) }
-        }.padding(12).background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 10)).accessibilityIdentifier("card-file-change")
+        }.padding(12).background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 10)).accessibilityElement(children: .contain).accessibilityIdentifier("card-file-change")
     }
 }
 
@@ -137,7 +137,7 @@ struct PermissionCard: View {
                     }
                 }
             } else { Text(block.detail["allow"].bool == true ? "Consentita" : "Rifiutata o scaduta").font(.caption).foregroundStyle(.secondary) }
-        }.padding(14).background(Color.orange.opacity(0.1), in: RoundedRectangle(cornerRadius: 8)).accessibilityIdentifier("card-permission")
+        }.padding(14).background(Color.orange.opacity(0.1), in: RoundedRectangle(cornerRadius: 8)).accessibilityElement(children: .contain).accessibilityIdentifier("card-permission")
     }
 }
 
@@ -168,7 +168,7 @@ struct PlanBar: View {
                 }
             }.padding(.top, 4)
         } label: { Text("Piano · \(done) di \(entries.count) completati").font(.caption).bold() }
-        .padding(10).background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 8)).accessibilityIdentifier("plan-bar")
+        .padding(10).background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 8)).accessibilityElement(children: .contain).accessibilityIdentifier("plan-bar")
     }
 }
 
@@ -221,7 +221,7 @@ struct QueuePanel: View {
                     }
                     if running { Text("Parte alla fine del turno, se si conclude senza errori.").font(.caption2).foregroundStyle(.secondary) }
                 }
-            }.accessibilityIdentifier("queue-item")
+            }.accessibilityElement(children: .contain).accessibilityIdentifier("queue-item")
         }
     }
 }

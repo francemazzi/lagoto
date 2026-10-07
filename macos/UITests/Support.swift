@@ -26,6 +26,21 @@ import XCTest
 extension XCUIApplication {
     /// Any element with this accessibility identifier, whatever its role.
     func element(_ id: String) -> XCUIElement { descendants(matching: .any).matching(identifier: id).firstMatch }
+    /// The transcript is lazy: a card far above the viewport does not exist until it is scrolled into view.
+    func reveal(_ id: String, timeout: TimeInterval = 10) -> XCUIElement {
+        let target = element(id)
+        if target.waitForExistence(timeout: timeout) { return target }
+        let transcript = scrollViews.firstMatch
+        for _ in 0..<12 {
+            transcript.scroll(byDeltaX: 0, deltaY: 800)
+            if target.exists { return target }
+        }
+        for _ in 0..<24 {
+            transcript.scroll(byDeltaX: 0, deltaY: -800)
+            if target.exists { return target }
+        }
+        return target
+    }
     func openTask(_ title: String = "Contratto API", file: StaticString = #filePath, line: UInt = #line) {
         let ready = staticTexts["Archivio locale pronto"]
         XCTAssertTrue(ready.waitForExistence(timeout: 30), "il runtime non è partito", file: file, line: line)

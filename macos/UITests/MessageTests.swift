@@ -7,11 +7,11 @@ import XCTest
     func testP02_I08_transcriptShowsTerminalFileChangePlanAndContext() throws {
         let app = try Fixture.launch()
         app.openTask()
-        XCTAssertTrue(app.element("card-terminal").waitForExistence(timeout: 20), "comando del terminale come scheda")
-        XCTAssertTrue(app.element("card-file-change").waitForExistence(timeout: 10), "modifica di file come scheda")
+        XCTAssertTrue(app.reveal("card-terminal", timeout: 20).exists, "comando del terminale come scheda")
+        XCTAssertTrue(app.reveal("card-file-change").exists, "modifica di file come scheda")
         XCTAssertTrue(app.element("plan-bar").waitForExistence(timeout: 10), "il piano resta sopra il composer")
         XCTAssertTrue(app.element("context-indicator").waitForExistence(timeout: 10))
-        XCTAssertTrue(app.element("card-permission").exists, "la richiesta di permesso già risolta resta nello storico")
+        XCTAssertTrue(app.reveal("card-permission").exists, "la richiesta di permesso già risolta resta nello storico")
         app.terminate()
     }
 
@@ -66,7 +66,7 @@ import XCTest
         let app = try Fixture.launch()
         app.openTask()
         XCTAssertTrue(app.element("message-assistant").waitForExistence(timeout: 20))
-        XCTAssertTrue(app.element("card-terminal").exists && app.element("card-file-change").exists && app.element("card-permission").exists)
+        XCTAssertTrue(app.reveal("card-terminal").exists && app.reveal("card-file-change").exists && app.reveal("card-permission").exists)
         XCTAssertTrue(app.staticTexts["Turno concluso · lavoro da verificare"].firstMatch.waitForExistence(timeout: 10))
         XCTAssertFalse(app.staticTexts["Completato"].exists, "la risposta finale non completa il lavoro")
         app.terminate()

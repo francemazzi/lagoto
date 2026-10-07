@@ -54,7 +54,7 @@ import XCTest
     func testP02_I05_runsAreSeparatedAndAnEmptyTaskStartsClean() throws {
         let app = try Fixture.launch()
         app.openTask()
-        XCTAssertTrue(app.element("run-separator").waitForExistence(timeout: 20), "separatore tra le esecuzioni")
+        XCTAssertTrue(app.reveal("run-separator", timeout: 20).exists, "separatore tra le esecuzioni")
         XCTAssertTrue(app.element("message-user").exists)
         XCTAssertTrue(app.element("message-error").waitForExistence(timeout: 10), "la run con accesso scaduto mostra l’errore")
         app.openTask("Lavoro vuoto")

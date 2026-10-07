@@ -53,7 +53,7 @@ struct WorkspaceColumn<WorkTab: View>: View {
         .task(id: taskID) { await reloadChanges() }
         .task(id: taskID) { for await _ in events.updates(.task(taskID)) { if Task.isCancelled { break }; if tab == "changes" { await reloadChanges() }; try? await Task.sleep(for: .milliseconds(400)) } }
         .onChange(of: tab) { _, value in if value == "changes" { Task { await reloadChanges() } } }
-        .accessibilityIdentifier("workspace-column")
+        .accessibilityElement(children: .contain).accessibilityIdentifier("workspace-column")
     }
 
     private var changesView: some View {
@@ -80,7 +80,7 @@ struct WorkspaceColumn<WorkTab: View>: View {
                     }
                 }
             }.padding(12)
-        }.accessibilityIdentifier("changes-list")
+        }.accessibilityElement(children: .contain).accessibilityIdentifier("changes-list")
     }
 
     private func reloadChanges() async {
@@ -144,7 +144,7 @@ struct ExplorerView: View {
                         }.buttonStyle(.plain).accessibilityIdentifier("explorer-row:\(row.path)")
                     }
                     if listings[""]?.truncated == true { Text("Elenco troncato a 2.000 voci").font(.caption).foregroundStyle(.secondary) }
-                }.listStyle(.plain).accessibilityIdentifier("explorer-list")
+                }.listStyle(.plain).accessibilityElement(children: .contain).accessibilityIdentifier("explorer-list")
             }
         }
         .task(id: repositories.map(\.pretty)) { if repositoryID.isEmpty || !repositories.contains(where: { $0["repository_id"].string == repositoryID }) { repositoryID = repositories.first?["repository_id"].string ?? "" } }
@@ -202,7 +202,7 @@ struct PreviewContent: View {
                 else if let file = item.file { FileBody(file: file) }
                 else { ProgressView().padding() }
             }.padding(12).frame(maxWidth: .infinity, alignment: .leading)
-        }.accessibilityIdentifier("preview-content")
+        }.accessibilityElement(children: .contain).accessibilityIdentifier("preview-content")
     }
 }
 
