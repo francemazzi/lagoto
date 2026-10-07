@@ -23,13 +23,18 @@ import XCTest
         let outline = app.outlines["Sidebar"]
         var samples: [Int] = []
         var lastTask = "", seen = Set<String>()
-        for _ in 0..<12 where samples.count < 45 {
+        let started = Date()
+        // The first click must produce a measurement; if it does not, fail at once with what the app exposes.
+        let probe = app.element("task-row:Contratto API"); probe.click()
+        Thread.sleep(forTimeInterval: 3)
+        XCTAssertTrue(((app.element("transcript").value as? String) ?? "").contains("|"), "valore esposto dalla trascrizione: «\(String(describing: app.element("transcript").value))» — \(app.element("transcript").debugDescription)")
+        for _ in 0..<12 where samples.count < 45 && Date().timeIntervalSince(started) < 240 {
             let rows = app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH 'task-row:'"))
             for index in 0..<rows.count {
                 let row = rows.element(boundBy: index)
                 guard row.exists, row.isHittable, seen.insert(row.identifier).inserted else { continue }
                 row.click()
-                let deadline = Date().addingTimeInterval(8)
+                let deadline = Date().addingTimeInterval(4)
                 while Date() < deadline {
                     let raw = (app.element("transcript").value as? String) ?? ""
                     let parts = raw.split(separator: "|")

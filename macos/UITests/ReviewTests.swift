@@ -27,9 +27,11 @@ import XCTest
     func testP11_I02_withAProofReviewIsReadyButTheTaskIsNotCompleted() throws {
         let app = try Fixture.launch()
         openWork(app)
-        app.element("link-verification").click()
-        XCTAssertTrue(app.menuItems.firstMatch.waitForExistence(timeout: 5), "nessuna verifica superata da collegare")
-        app.menuItems.firstMatch.click()
+        let popup = app.element("link-verification")
+        popup.click()
+        let choice = popup.menuItems.firstMatch
+        XCTAssertTrue(choice.waitForExistence(timeout: 5), "nessuna verifica superata da collegare")
+        choice.click()
         XCTAssertTrue(app.text(containing: "Criteri: 1/1").waitForExistence(timeout: 15), "il criterio non risulta soddisfatto dopo il collegamento")
         app.element("review-request").click()
         XCTAssertTrue(app.element("review-result").waitForExistence(timeout: 10), "revisione richiesta")
