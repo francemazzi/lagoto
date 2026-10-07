@@ -81,7 +81,7 @@ struct TaskView: View {
         }
         #if DEBUG
         // Debug-only: how long this task took from selection to its first complete snapshot (P12-I03 measures it from the UI tests).
-        .overlay(alignment: .bottomLeading) { if let switchMilliseconds { Text("\(switchMilliseconds)").font(.system(size: 1)).opacity(0.01).accessibilityIdentifier("switch-timing").accessibilityLabel("\(switchMilliseconds)") } }
+        .overlay(alignment: .bottomLeading) { if let switchMilliseconds { Text("\(switchMilliseconds)").font(.system(size: 1)).opacity(0.02).accessibilityIdentifier("switch-timing").accessibilityLabel("\(switchMilliseconds)") } }
         #endif
         .sheet(isPresented: $showHandoff) { handoffSheet }
         .sheet(isPresented: $delivery) { DeliverySheet(bridge: bridge, taskID: work.id) }

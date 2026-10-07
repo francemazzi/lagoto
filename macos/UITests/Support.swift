@@ -14,7 +14,7 @@ import XCTest
         let app = XCUIApplication()
         app.launchEnvironment["LAGOTO_TEST_DATA_DIR"] = try data ?? archive()
         // Window and workspace layout are reset on every launch unless a test says otherwise.
-        var args = ["-workspace.tab", "files", "-workspace.width", "380"]
+        var args = ["-LagotoResetDefaults", "YES"]
         if let size { args += ["-LagotoWindowSize", size] }
         if showcase { args += ["-LagotoShowcase", "YES"] }
         app.launchArguments = args + arguments
@@ -40,6 +40,10 @@ extension XCUIApplication {
             if target.exists { return target }
         }
         return target
+    }
+    /// Text on screen: SwiftUI static texts expose their string as value, buttons and groups as label.
+    func text(containing part: String) -> XCUIElement {
+        descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS %@ OR value CONTAINS %@", part, part)).firstMatch
     }
     func openTask(_ title: String = "Contratto API", file: StaticString = #filePath, line: UInt = #line) {
         let ready = staticTexts["Archivio locale pronto"]

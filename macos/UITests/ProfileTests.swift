@@ -9,7 +9,7 @@ import XCTest
         XCTAssertTrue(app.staticTexts["Archivio locale pronto"].waitForExistence(timeout: 30))
         app.element("nav-integrations").click()
         for label in ["Pronto", "Locale", "Da verificare", "Accesso da rinnovare", "Budget da rinnovare"] {
-            let state = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", label)).firstMatch
+            let state = app.text(containing: label)
             XCTAssertTrue(state.waitForExistence(timeout: 20), "nessun profilo nello stato «\(label)»")
         }
         XCTAssertTrue(app.element("profile-action:Claude · accesso scaduto").exists, "lo stato bloccato indica cosa fare")
@@ -23,11 +23,11 @@ import XCTest
         let battery = app.element("battery-average")
         XCTAssertTrue(battery.waitForExistence(timeout: 20))
         // The expired and local profiles are not in the average; Cursor, at 20%, is the lowest.
-        XCTAssertTrue(NSPredicate(format: "label CONTAINS '%'").evaluate(with: battery), battery.label)
+        XCTAssertTrue(battery.label.contains("%") || (battery.value as? String ?? "").contains("%"), battery.label)
         battery.click()
-        XCTAssertTrue(app.staticTexts["Il più basso: Cursor · composer, 20%"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.staticTexts["Qwen · budget scaduto: ciclo da rinnovare"].exists)
-        XCTAssertTrue(app.staticTexts["Ollama · qwen3.5: modello locale"].exists)
+        XCTAssertTrue(app.text(containing: "Il più basso: Cursor · composer, 20%").waitForExistence(timeout: 10))
+        XCTAssertTrue(app.text(containing: "Qwen · budget scaduto: ciclo da rinnovare").exists)
+        XCTAssertTrue(app.text(containing: "Ollama · qwen3.5: modello locale").exists)
         app.terminate()
     }
 }

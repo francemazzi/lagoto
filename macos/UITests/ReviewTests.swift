@@ -22,7 +22,7 @@ import XCTest
         let blocked = app.element("review-blocked")
         XCTAssertTrue(blocked.waitForExistence(timeout: 10), "senza prova il runtime rifiuta la revisione e lo dice")
         XCTAssertFalse(app.element("task-in-review").exists)
-        XCTAssertFalse(app.staticTexts["Lavoro completato"].exists)
+        XCTAssertFalse(app.text(containing: "Lavoro completato").exists)
         XCTAssertFalse(app.element("complete-task").isEnabled, "completare resta disabilitato finché i criteri non hanno prova")
         app.terminate()
     }
@@ -35,8 +35,8 @@ import XCTest
         app.element("review-request").click()
         XCTAssertTrue(app.element("review-result").waitForExistence(timeout: 10), "revisione richiesta")
         XCTAssertTrue(app.element("task-in-review").waitForExistence(timeout: 10))
-        XCTAssertTrue(app.staticTexts["Pronto per la revisione: non equivale a completato"].exists)
-        XCTAssertFalse(app.staticTexts["Lavoro completato"].exists, "la revisione non completa il lavoro")
+        XCTAssertTrue(app.text(containing: "non equivale a completato").exists)
+        XCTAssertFalse(app.text(containing: "Lavoro completato").exists, "la revisione non completa il lavoro")
         app.terminate()
     }
 
@@ -47,7 +47,7 @@ import XCTest
         app.element("open-export").click()
         XCTAssertTrue(app.element("export-files").waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["task.json · "].exists || app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'task.json'")).firstMatch.exists)
-        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'credenziali'")).firstMatch.exists, "le credenziali sono dichiarate escluse")
+        XCTAssertTrue(app.text(containing: "credenziali").exists, "le credenziali sono dichiarate escluse")
         app.terminate()
     }
 
@@ -58,7 +58,7 @@ import XCTest
         app.typeKey("s", modifierFlags: [.command, .option])
         XCTAssertTrue(app.element("storage-usage").waitForExistence(timeout: 10))
         app.element("cleanup-preview").click()
-        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'I worktree non vengono mai eliminati'")).firstMatch.waitForExistence(timeout: 10))
+        XCTAssertTrue(app.text(containing: "I worktree non vengono mai eliminati").waitForExistence(timeout: 10))
         app.terminate()
     }
 }

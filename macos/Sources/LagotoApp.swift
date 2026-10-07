@@ -3,6 +3,12 @@ import SwiftUI
 @main struct LagotoApp: App {
     @State private var bridge = RuntimeBridge()
     @State private var events = EventStore()
+    init() {
+        #if DEBUG
+        // Tests start from a clean layout: `-LagotoResetDefaults YES` forgets the stored workspace tab and width.
+        if UserDefaults.standard.bool(forKey: "LagotoResetDefaults") { ["workspace.tab", "workspace.width"].forEach { UserDefaults.standard.removeObject(forKey: $0) } }
+        #endif
+    }
     var body: some Scene {
         WindowGroup {
             Group {

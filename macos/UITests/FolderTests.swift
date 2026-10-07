@@ -80,7 +80,7 @@ import XCTest
         openDetails(app, "piu-remote")
         XCTAssertTrue(app.element("link-remote:origin").waitForExistence(timeout: 10))
         XCTAssertTrue(app.element("link-remote:upstream").exists)
-        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'nessun push'")).firstMatch.exists)
+        XCTAssertTrue(app.text(containing: "nessun push").exists)
         app.terminate()
     }
 
@@ -92,9 +92,7 @@ import XCTest
         app.element("prepare-git").click()
         XCTAssertTrue(app.element("init-file:README.md").waitForExistence(timeout: 15))
         XCTAssertFalse(app.element("init-file:.env").exists, "un file con segreti non è selezionabile")
-        let excluded = app.disclosureTriangles["Esclusi dalla selezione"].firstMatch
-        if excluded.waitForExistence(timeout: 5) { excluded.click() }
-        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS '.env'")).firstMatch.waitForExistence(timeout: 5), "il file escluso è elencato con il motivo")
+        XCTAssertTrue(app.text(containing: ".env").waitForExistence(timeout: 5), "il file escluso è elencato con il motivo")
         app.element("init-file:README.md").click()
         let name = app.element("init-author-name"), email = app.element("init-author-email")
         name.click(); name.typeText("Fixture"); email.click(); email.typeText("fixture@example.invalid")
@@ -120,12 +118,12 @@ import XCTest
         let source = app.element("clone-source"), name = app.element("clone-folder")
         XCTAssertTrue(source.waitForExistence(timeout: 10))
         func fill(_ field: XCUIElement, _ text: String) { field.click(); app.typeKey("a", modifierFlags: .command); field.typeText(text) }
-        let secret = NSPredicate(format: "label CONTAINS 'SegretoSintetico99'")
+        let secret = NSPredicate(format: "label CONTAINS 'SegretoSintetico99' OR value CONTAINS 'SegretoSintetico99'")
         // 1. Credentials in the URL are refused before any destination exists, and are not shown back.
         fill(source, "https://utente:SegretoSintetico99@127.0.0.1:1/nessuno.git"); fill(name, "nuova")
         app.element("clone-submit").click()
         XCTAssertTrue(app.element("clone-error").waitForExistence(timeout: 15))
-        XCTAssertEqual(app.staticTexts.matching(secret).count, 0, "la credenziale non compare")
+        XCTAssertEqual(app.descendants(matching: .any).matching(secret).count, 0, "la credenziale non compare")
         XCTAssertFalse(FileManager.default.fileExists(atPath: parent.appendingPathComponent("nuova").path))
         // 2. An existing destination is refused and its content is untouched.
         fill(source, "https://127.0.0.1:1/nessuno.git"); fill(name, "esistente")
@@ -136,7 +134,7 @@ import XCTest
         fill(name, "nuova")
         app.element("clone-submit").click()
         XCTAssertTrue(app.staticTexts["Clonazione fallita"].waitForExistence(timeout: 60))
-        XCTAssertEqual(app.staticTexts.matching(secret).count, 0)
+        XCTAssertEqual(app.descendants(matching: .any).matching(secret).count, 0)
         app.terminate()
     }
 

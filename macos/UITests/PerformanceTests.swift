@@ -23,10 +23,11 @@ import XCTest
         var samples: [Int] = []
         var last = ""
         let timing = app.element("switch-timing")
+        XCTAssertTrue(timing.waitForExistence(timeout: 30), "il tempo di cambio task non è esposto")
         for _ in 0..<70 where samples.count < 40 {
             app.typeKey(.downArrow, modifierFlags: [])
-            guard timing.waitForExistence(timeout: 5) else { continue }
-            let value = timing.label
+            guard timing.exists else { continue }
+            let value = (timing.value as? String).flatMap { $0.isEmpty ? nil : $0 } ?? timing.label
             if value != last || samples.isEmpty { samples.append(Int(value) ?? -1); last = value }
             if samples.count > 0 && samples.last! < 0 { samples.removeLast() }
         }

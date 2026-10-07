@@ -25,7 +25,12 @@ struct GitInitializeSheet: View {
                                 Toggle(path, isOn: Binding(get: { selected.contains(path) }, set: { if $0 { selected.insert(path) } else { selected.remove(path) } })).toggleStyle(.checkbox).accessibilityIdentifier("init-file:\(path)")
                             }
                             if !op["ignored"].array.isEmpty { DisclosureGroup("Ignorati (\(op["ignored"].array.count))") { Text(op["ignored"].array.compactMap(\.string).joined(separator: "\n")).font(.caption) } }
-                            if !op["excluded"].array.isEmpty { DisclosureGroup("Esclusi dalla selezione") { ForEach(op["excluded"].array.indices, id: \.self) { i in Text("\(op["excluded"].array[i]["path"].string ?? "") · \(op["excluded"].array[i]["reason"].string ?? "")").font(.caption) } }.accessibilityIdentifier("init-excluded") }
+                            if !op["excluded"].array.isEmpty {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Esclusi dalla selezione").font(.caption).bold()
+                                    ForEach(op["excluded"].array.indices, id: \.self) { i in Text("\(op["excluded"].array[i]["path"].string ?? "") · \(op["excluded"].array[i]["reason"].string ?? "")").font(.caption).foregroundStyle(.secondary) }
+                                }.accessibilityElement(children: .contain).accessibilityIdentifier("init-excluded")
+                            }
                         }.frame(maxWidth: .infinity, alignment: .leading)
                     }.frame(height: 180)
                     HStack { TextField("Nome autore", text: $authorName).accessibilityIdentifier("init-author-name"); TextField("Email autore", text: $authorEmail).accessibilityIdentifier("init-author-email") }.textFieldStyle(.roundedBorder)

@@ -68,26 +68,7 @@ struct ContentView: View {
             .navigationSplitViewColumnWidth(min: 210, ideal: 244, max: 330)
             .searchable(text: $search, placement: .sidebar, prompt: "Cerca progetti e lavori")
             .searchFocused($searchFocused)
-            .toolbar {
-                Button("Cerca", systemImage: "magnifyingglass") { searchFocused = true }.keyboardShortcut("f", modifiers: .command).help("Cerca progetti e lavori (⌘F)").accessibilityIdentifier("focus-search")
-                Button("Nuovo progetto", systemImage: "folder.badge.plus") { newProject = true }.keyboardShortcut("n", modifiers: [.command, .shift]).accessibilityIdentifier("new-project")
-                Menu("Archivio", systemImage: "ellipsis.circle") {
-                    Button("Backup e ripristino…") { backup = true }
-                    Button("Spazio e pulizia…") { storage = true }
-                    Menu("Importa un lavoro esportato") {
-                        ForEach(projects) { project in Button(project.name) { importTask(into: project) } }
-                    }.disabled(projects.isEmpty)
-                    if !archived.isEmpty {
-                        Menu("Ripristina progetto") {
-                            ForEach(archived) { project in
-                                Button(project.name) {
-                                    Task { await changeProject("project/restore", ["projectId": .string(project.id)]) }
-                                }
-                            }
-                        }
-                    }
-                }.accessibilityIdentifier("archive-menu")
-            }
+
             .safeAreaInset(edge: .bottom) {
                 HStack(spacing: 8) {
                     Circle().fill(bridge.ready ? Color.green : Color.orange).frame(width: 6, height: 6)
@@ -113,7 +94,29 @@ struct ContentView: View {
             }
         }
         .background { Button("Spazio e pulizia") { storage = true }.keyboardShortcut("s", modifiers: [.command, .option]).opacity(0).frame(width: 0, height: 0).accessibilityHidden(true) }
-        .toolbar { ToolbarItem(placement: .principal) { BatteryAverageView(bridge: bridge) } }
+        .toolbar {
+            ToolbarItem(placement: .principal) { BatteryAverageView(bridge: bridge) }
+            ToolbarItemGroup(placement: .primaryAction) {
+                Button("Cerca", systemImage: "magnifyingglass") { searchFocused = true }.keyboardShortcut("f", modifiers: .command).help("Cerca progetti e lavori (⌘F)").accessibilityIdentifier("focus-search")
+                Button("Nuovo progetto", systemImage: "folder.badge.plus") { newProject = true }.keyboardShortcut("n", modifiers: [.command, .shift]).accessibilityIdentifier("new-project")
+                Menu("Archivio", systemImage: "ellipsis.circle") {
+                    Button("Backup e ripristino…") { backup = true }
+                    Button("Spazio e pulizia…") { storage = true }
+                    Menu("Importa un lavoro esportato") {
+                        ForEach(projects) { project in Button(project.name) { importTask(into: project) } }
+                    }.disabled(projects.isEmpty)
+                    if !archived.isEmpty {
+                        Menu("Ripristina progetto") {
+                            ForEach(archived) { project in
+                                Button(project.name) {
+                                    Task { await changeProject("project/restore", ["projectId": .string(project.id)]) }
+                                }
+                            }
+                        }
+                    }
+                }.accessibilityIdentifier("archive-menu")
+            }
+        }
         // Offline search over the local archive: messages, decisions, criteria and checkpoints, not only titles.
         .task(id: search) {
             let needle = search.trimmingCharacters(in: .whitespacesAndNewlines)
