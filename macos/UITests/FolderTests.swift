@@ -101,8 +101,11 @@ import XCTest
         XCTAssertTrue(app.element("init-confirm").waitForExistence(timeout: 15))
         app.element("init-confirm").click()
         XCTAssertTrue(app.element("init-done").waitForExistence(timeout: 30))
-        let tracked = git(["ls-tree", "-r", "--name-only", "HEAD"], in: folder("da-preparare"))
-        XCTAssertTrue(tracked.contains("README.md"), "file nel primo commit: «\(tracked)»"); XCTAssertFalse(tracked.contains(".env"), "il file con segreti non è nel commit")
+        // The test runner is sandboxed and cannot run git: the index of the new repository lists exactly the staged paths.
+        let index = try Data(contentsOf: folder("da-preparare").appendingPathComponent(".git/index"))
+        let paths = String(decoding: index, as: UTF8.self)
+        XCTAssertTrue(paths.contains("README.md"), "README.md nel primo commit")
+        XCTAssertFalse(paths.contains(".env"), "il file con segreti non è nel commit")
         app.terminate()
     }
 

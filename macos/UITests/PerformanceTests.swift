@@ -20,20 +20,24 @@ import XCTest
         // Click the visible task rows one after the other; the app publishes "<task id>|<milliseconds>" on the transcript of the task it just opened.
         let first = app.element("task-row:Contratto API")
         XCTAssertTrue(first.waitForExistence(timeout: 60)); first.click()
-        let rows = app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH 'task-row:'"))
-        let total = rows.count
-        XCTAssertGreaterThan(total, 20, "righe dei lavori visibili: \(total)")
+        let outline = app.outlines["Sidebar"]
         var samples: [Int] = []
-        var lastTask = ""
-        for index in 0..<min(total, 45) {
-            rows.element(boundBy: index).click()
-            let deadline = Date().addingTimeInterval(8)
-            while Date() < deadline {
-                let raw = (app.element("transcript").value as? String) ?? ""
-                let parts = raw.split(separator: "|")
-                if parts.count == 2, String(parts[0]) != lastTask, let ms = Int(parts[1]) { lastTask = String(parts[0]); samples.append(ms); break }
-                Thread.sleep(forTimeInterval: 0.05)
+        var lastTask = "", seen = Set<String>()
+        for _ in 0..<12 where samples.count < 45 {
+            let rows = app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH 'task-row:'"))
+            for index in 0..<rows.count {
+                let row = rows.element(boundBy: index)
+                guard row.exists, row.isHittable, seen.insert(row.identifier).inserted else { continue }
+                row.click()
+                let deadline = Date().addingTimeInterval(8)
+                while Date() < deadline {
+                    let raw = (app.element("transcript").value as? String) ?? ""
+                    let parts = raw.split(separator: "|")
+                    if parts.count == 2, String(parts[0]) != lastTask, let ms = Int(parts[1]) { lastTask = String(parts[0]); samples.append(ms); break }
+                    Thread.sleep(forTimeInterval: 0.05)
+                }
             }
+            outline.scroll(byDeltaX: 0, deltaY: -240)
         }
         XCTAssertGreaterThanOrEqual(samples.count, 20, "troppo pochi cambi di lavoro misurati: \(samples)")
         let warm = Array(samples.dropFirst(5)).sorted()
