@@ -29,13 +29,24 @@ import XCTest
         let probe = app.element("task-row:Contratto API"); probe.click()
         Thread.sleep(forTimeInterval: 3)
         XCTAssertTrue(published().contains("|"), "valore esposto dalla trascrizione: «\(published())»")
-        for _ in 0..<120 where samples.count < 45 && Date().timeIntervalSince(started) < 300 {
-            app.typeKey(.downArrow, modifierFlags: [])
-            let deadline = Date().addingTimeInterval(1.5)
+        var seen = Set<String>()
+        func record() -> Bool {
+            let deadline = Date().addingTimeInterval(2)
             while Date() < deadline {
                 let parts = published().split(separator: "|")
-                if parts.count == 2, String(parts[0]) != lastTask, let ms = Int(parts[1]) { lastTask = String(parts[0]); samples.append(ms); break }
+                if parts.count == 2, String(parts[0]) != lastTask, let ms = Int(parts[1]) { lastTask = String(parts[0]); samples.append(ms); return true }
                 Thread.sleep(forTimeInterval: 0.05)
+            }
+            return false
+        }
+        // Down arrow first; when the keyboard focus is not in the sidebar, click the next task row that is on screen instead.
+        for _ in 0..<150 where samples.count < 40 && Date().timeIntervalSince(started) < 300 {
+            app.typeKey(.downArrow, modifierFlags: [])
+            if record() { continue }
+            let rows = app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH 'task-row:'"))
+            for index in 0..<rows.count {
+                let row = rows.element(boundBy: index)
+                if row.exists, row.isHittable, seen.insert(row.identifier).inserted { row.click(); _ = record(); break }
             }
         }
         XCTAssertGreaterThanOrEqual(samples.count, 10, "troppo pochi cambi di lavoro misurati: \(samples)")

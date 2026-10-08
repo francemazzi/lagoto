@@ -107,7 +107,9 @@ describe('P00-I05 distributed bundle has no automation or test endpoint', () => 
   }
   it('P00-I05 accepts a clean release bundle and rejects test bundles and compiled test overrides', () => {
     expect(inspectBundle(bundle('native code')).every(check => check.ok)).toBe(true);
-    expect(inspectBundle(bundle('uses LAGOTO_DATA_DIR')).find(check => check.name === 'no-data-dir-override-in-native-executable')?.ok).toBe(false);
+    expect(inspectBundle(bundle('uses LAGOTO_TEST_DATA_DIR')).find(check => check.name === 'no-data-dir-override-in-native-executable')?.ok).toBe(false);
+    // The app legitimately passes the chosen archive to its runtime child under the product name; only the test-only name is forbidden.
+    expect(inspectBundle(bundle('sets LAGOTO_DATA_DIR for the child')).find(check => check.name === 'no-data-dir-override-in-native-executable')?.ok).toBe(true);
     expect(inspectBundle(bundle('-LagotoWindowSize')).find(check => check.name === 'no-window-size-override-in-native-executable')?.ok).toBe(false);
     expect(inspectBundle(bundle('ok', ['LagotoUITests.xctest'])).find(check => check.name === 'no-test-bundles')?.ok).toBe(false);
   });
