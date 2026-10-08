@@ -145,7 +145,7 @@ describe('P09-I09 reconciliation of account snapshots and external consumption',
     const f = await fixture();
     const run = crypto.randomUUID();
     f.store.db.prepare('INSERT INTO runs(id,task_id,profile_id,state,model,created_at) VALUES(?,?,?,?,?,?)').run(run, f.task.id, f.profile.id, 'finished', 'm', day(0).toISOString());
-    f.budgets.reserve(run, f.profile.id);
+    f.budgets.reserve(run, f.profile.id, day(0));
     f.budgets.observe(run, { usage: { total_tokens: 5000 } });
     f.budgets.observe(run, { totalTokens: 2000 });
     f.budgets.observe(run, { child: { totalTokens: 9_000_000 } });
