@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { collectEvidence, evaluateGate, type Evidence, type CollectInput } from '../scripts/gate-evaluator.js';
 import { compareWithRoadmap, deriveKind, loadManifest, parseManifest, phasesForScope, roadmapRequirementIds, type Manifest } from '../scripts/gate-manifest.js';
 import { RealRunCapError, consumeRealRun, realRunsSummary } from '../scripts/real-runs.js';
-import { SecretInEvidenceError, findSecrets, isFresh, sourceFingerprint, writeSmoke } from '../scripts/evidence.js';
+import { FRESHNESS_ROOTS, SecretInEvidenceError, findSecrets, isFresh, sourceFingerprint, writeSmoke } from '../scripts/evidence.js';
 import { flattenTestNodes } from '../scripts/xcresult.js';
 
 const complete: Evidence = { id: 'P01-I05', kind: 'deterministic', complete: true, executed: 1, skipped: 0, status: 'passed' };
@@ -130,6 +130,10 @@ describe('P01-I05 real-run cap and evidence hygiene', () => {
   it('treats evidence as fresh only for identical sources or a clean, unchanged commit', () => {
     const current = sourceFingerprint(['package.json']);
     expect(isFresh({ sourceFingerprint: current }, { currentFingerprint: current, paths: ['runtime'] })).toBe(true);
+    // A dirty tree outside the runtime inputs (a script, a test) does not make a provider smoke stale; a changed runtime does.
+    expect(isFresh({ sourceFingerprint: 'other', dirty: true, freshnessFingerprint: 'same' }, { currentFingerprint: current, currentFreshness: 'same', paths: ['runtime'] })).toBe(true);
+    expect(isFresh({ sourceFingerprint: 'other', dirty: true, freshnessFingerprint: 'old' }, { currentFingerprint: current, currentFreshness: 'new', paths: ['runtime'] })).toBe(false);
+    expect(FRESHNESS_ROOTS).toEqual(JSON.parse(readFileSync('scripts/gate-manifest.json', 'utf8')).freshnessPaths);
     expect(isFresh({ sourceFingerprint: 'other', dirty: true, commit: 'abcdef1' }, { currentFingerprint: current, paths: ['runtime'] })).toBe(false);
     expect(isFresh({ commit: 'not-a-sha' }, { currentFingerprint: current, paths: ['runtime'] })).toBe(false);
     expect(isFresh({ commit: '0000000000000000000000000000000000000000' }, { currentFingerprint: current, paths: ['runtime'] })).toBe(false);

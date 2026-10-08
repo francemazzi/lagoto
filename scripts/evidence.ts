@@ -7,6 +7,9 @@ import { executable, cleanEnvironment } from '../runtime/process.js';
 
 export const DEFAULT_FINGERPRINT_ROOTS = ['runtime', 'macos/Sources', 'macos/Tests', 'macos/UITests', 'scripts', 'tests', 'fixtures', 'package.json', 'pnpm-lock.yaml', 'macos/project.yml', 'macos/Node.entitlements', '.github'];
 
+/** What a live check actually depends on: the runtime, its fixtures and its dependencies. Editing a script or a test does not make a provider smoke stale. */
+export const FRESHNESS_ROOTS = ['runtime', 'fixtures', 'package.json', 'pnpm-lock.yaml'];
+
 export function sourceFingerprint(roots = DEFAULT_FINGERPRINT_ROOTS) {
   const hash = createHash('sha256');
   const visit = (path: string) => {
@@ -29,6 +32,7 @@ export function provenance() {
     commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
     dirty: Boolean(execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim()),
     sourceFingerprint: sourceFingerprint(),
+    freshnessFingerprint: sourceFingerprint(FRESHNESS_ROOTS),
     machine: { platform: platform(), arch: arch(), kernel: release(),
       os: execFileSync('/usr/bin/sw_vers', ['-productVersion'], { encoding: 'utf8' }).trim(),
       hardware: execFileSync('/usr/sbin/sysctl', ['-n', 'hw.model'], { encoding: 'utf8' }).trim() },
@@ -73,13 +77,14 @@ export function writeBlocked(name: string, reason: string, extra: object = {}, d
   return writeSmoke(name, { ...provenance(), status: 'blocked', reason, ...extra }, directory);
 }
 
-export type FreshnessContext = { currentFingerprint: string; paths: string[]; cwd?: string };
+export type FreshnessContext = { currentFingerprint: string; currentFreshness?: string; paths: string[]; cwd?: string };
 
 /**
  * An evidence file is fresh when it was produced from exactly these sources, or from a clean commit
  * after which none of the freshness paths changed and the working tree is still clean on those paths.
  */
-export function isFresh(evidence: { commit?: string; dirty?: boolean; sourceFingerprint?: string }, context: FreshnessContext) {
+export function isFresh(evidence: { commit?: string; dirty?: boolean; sourceFingerprint?: string; freshnessFingerprint?: string }, context: FreshnessContext) {
+  if (evidence.freshnessFingerprint && context.currentFreshness && evidence.freshnessFingerprint === context.currentFreshness) return true;
   if (evidence.sourceFingerprint && evidence.sourceFingerprint === context.currentFingerprint) return true;
   if (evidence.dirty || !evidence.commit || !/^[0-9a-f]{7,40}$/.test(evidence.commit)) return false;
   const options = { encoding: 'utf8' as const, cwd: context.cwd, stdio: ['ignore', 'pipe', 'ignore'] as ['ignore', 'pipe', 'ignore'] };

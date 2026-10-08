@@ -1,7 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { isFresh, provenance } from './evidence.js';
+import { isFresh, provenance, sourceFingerprint } from './evidence.js';
 import { collectEvidence, evaluateGate, type Attestation, type Evidence, type NativeTest, type SmokeFile } from './gate-evaluator.js';
 import { compareWithRoadmap, loadManifest, phasesForScope, roadmapRequirementIds } from './gate-manifest.js';
 import { realRunsSummary } from './real-runs.js';
@@ -67,7 +67,7 @@ if (existsSync('build/native-ui.json')) {
 const nativeTests: NativeTest[] | null = swiftUnitTests ? [...swiftUnitTests, ...(nativeUi?.tests ?? [])] : null;
 
 // Smoke evidence from build/evidence/*.json, judged fresh against the current sources.
-const freshness = { currentFingerprint: metadata.sourceFingerprint, paths: manifest.freshnessPaths };
+const freshness = { currentFingerprint: metadata.sourceFingerprint, currentFreshness: sourceFingerprint(manifest.freshnessPaths), paths: manifest.freshnessPaths };
 const smokeCache = new Map<string, SmokeFile>();
 function globToRegExp(glob: string) {
   return new RegExp('^' + glob.replace(/[.+^${}()|\\]/g, '\\$&').replace(/\*/g, '.*').replace(/\?/g, '.') + '$');
