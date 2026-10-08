@@ -907,7 +907,7 @@
       "native": [],
       "smokes": [
         "smoke-cursor-*.json",
-        "control-cursor-*-deny.json",
+        "control-cursor-*-scope.json",
         "control-cursor-*-deny-command.json"
       ],
       "attestations": []

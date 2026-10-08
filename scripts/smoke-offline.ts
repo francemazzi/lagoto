@@ -12,7 +12,7 @@ import {Service} from '../runtime/service.js';
 import {transcript} from '../runtime/transcript.js';
 
 const policy='(version 1)(allow default)(deny network*)(allow network-inbound (local ip "localhost:*"))(allow network-outbound (remote ip "localhost:*"))';
-  const metadata=provenance();const report:any={...metadata,status:'failed',policy,model:'qwen3.5:4b',steps:[],scope:'Separate official Ollama server, SDK worker and their descendants denied non-loopback networking by macOS sandbox. Supervisor outside sandbox observes/stops process groups. No system network settings changed.'};
+  const metadata=provenance();const report:any={...metadata,status:'failed',policy,model:process.env.LAGOTO_OFFLINE_MODEL??'qwen3.5:4b',steps:[],scope:'Separate official Ollama server, SDK worker and their descendants denied non-loopback networking by macOS sandbox. Supervisor outside sandbox observes/stops process groups. No system network settings changed.'};
   let daemon:JsonProcess|undefined,session:Awaited<ReturnType<typeof startAdapter>>|undefined;const events:AdapterEvent[]=[];
   try{
     const denied=execFileSync('/usr/bin/sandbox-exec',['-p',policy,process.execPath,'-e',`const s=require('node:net').connect(443,'1.1.1.1');s.on('connect',()=>{s.destroy();console.log('connected')});s.on('error',e=>console.log(e.code));s.setTimeout(3000,()=>{s.destroy();console.log('timeout')});`],{env:cleanEnvironment(),encoding:'utf8',timeout:5000}).trim();
