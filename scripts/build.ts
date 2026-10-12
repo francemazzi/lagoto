@@ -35,7 +35,7 @@ collectLicenses(runtime, join(app, 'Contents/Resources/Licenses'));
 if(sourceFingerprint()!==buildProvenance.sourceFingerprint)throw new Error('Sources changed during the build; rebuild before signing');
 writeFileSync(join(app,'Contents/Resources/build-provenance.json'),JSON.stringify(buildProvenance,null,2));
 const signing = process.env.LAGOTO_SIGN_IDENTITY ?? '-';
-if (configuration === 'Release' && signing === '-') throw new Error('Release requires LAGOTO_SIGN_IDENTITY (Developer ID)');
+if (configuration === 'Release' && signing === '-' && process.env.LAGOTO_UNSIGNED !== '1') throw new Error('Release requires LAGOTO_SIGN_IDENTITY (Developer ID), or LAGOTO_UNSIGNED=1 for the zero-cost distribution described in docs/distribution.md');
 const entitlements = resolve('macos/Node.entitlements');
 function binaries(directory: string): string[] {
   return readdirSync(directory).flatMap(name => {
